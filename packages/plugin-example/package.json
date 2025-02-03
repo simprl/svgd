@@ -1,0 +1,19 @@
+{
+  "name": "svgd-plugin-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React app (Vite) to test svgd-vite-plugin.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "svgd-vite-plugin": "*",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  }
+}

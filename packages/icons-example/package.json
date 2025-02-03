@@ -1,0 +1,19 @@
+{
+  "name": "@svgd/icons-example",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Example React app to test svgd-cli.",
+  "main": "dist/icons.js",
+  "files": ["src"],
+  "type": "module",
+  "scripts": {
+    "generate-icons": "svgd --dts --input src/assets/icons --output dist/icons.js --quote --format camelCase --md README.md --html public/icons.html"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "svgd-cli": "*"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "svgd-vite-plugin",
+  "version": "0.1.0",
+  "description": "Vite plugin that extracts path d from SVG files and generates d.ts.",
+  "author": "",
+  "license": "MIT",
+  "private": false,
+
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+  },
+
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  },
+
+  "dependencies": {
+    "svgd-utils": "*"
+  },
+
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "5.7.3"
+  },
+
+  "engines": {
+    "node": ">=18"
+  }
+}

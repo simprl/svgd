@@ -1,0 +1,40 @@
+{
+  "name": "@svgd/cli",
+  "version": "1.0.0",
+  "description": "CLI tool to generate constants from SVG files",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "svgd": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.js"
+    }
+  },
+
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "commander": "^12.1.0",
+    "@svgd/utils": "*",
+    "svgo": "^3.3.2"
+  },
+
+  "devDependencies": {
+    "@types/node": "^18.19.71",
+    "tsup": "^8.3.5",
+    "typescript": "5.7.3"
+  }
+}

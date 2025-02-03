@@ -1,0 +1,51 @@
+{
+  "name": "@svgd/core",
+  "version": "0.2.0",
+  "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.71",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "svgo": "^3.3.2"
+  },
+  "keywords": [
+    "svg",
+    "svgd",
+    "svgo",
+    "path",
+    "optimize",
+    "compression",
+    "svg-to-path",
+    "d-attribute",
+    "svg-conversion",
+    "svg-minification",
+    "svg-parser",
+    "svg-storage",
+    "svg-icons",
+    "vector-graphics",
+    "svgo-plugin",
+    "svg-transform",
+    "svg-utils"
+  ]
+}
