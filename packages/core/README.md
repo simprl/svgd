@@ -53,7 +53,7 @@ const svgoConfig = getSvgoConfig();
 
 // Optimize the SVG to generate the extended path data.
 const result = optimize(svgInput, svgoConfig);
-console.log(result.data); // Outputs the extended path data string.
+console.log(result.data); // Outputs the extended path data: o0.5 Fff0000 f00ff00 w2 M10 10L20 20
 ```
 
 ### getSvg
@@ -63,7 +63,7 @@ Converts an extended path data string back into a full SVG string for rendering.
 ```typescript
 import { getSvg } from '@svgd/core';
 
-const extendedPathData = "M10 10L20 20 o0.5 Fff0000 f00ff00 w2";
+const extendedPathData = "o0.5 Fff0000 f00ff00 w2 M10 10L20 20";
 
 // Generate an SVG string from the extended path data.
 const svgString = getSvg(extendedPathData, { minX: 0, minY: 0, width: 24, height: 24 });
@@ -77,7 +77,7 @@ Parses an extended path data string and returns an array of objects representing
 ```typescript
 import { getPaths } from '@svgd/core';
 
-const extendedPathData = "M10 10L20 20 o0.5 Fff0000 f00ff00 w2";
+const extendedPathData = "o0.5 Fff0000 f00ff00 w2 M10 10L20 20";
 
 // Parse the extended path data into structured objects.
 const paths = getPaths(extendedPathData);
