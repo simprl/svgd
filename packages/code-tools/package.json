@@ -1,0 +1,46 @@
+{
+  "name": "code-tools",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./tests": {
+      "types": "./dist/tests.d.ts",
+      "import": "./dist/tests.js",
+      "require": "./dist/tests.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "minimatch": "^9.0.3"
+  },
+  "peerDependencies": {
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.71",
+    "tsup": "^8.3.5"
+  },
+
+  "keywords": [
+  ]
+}

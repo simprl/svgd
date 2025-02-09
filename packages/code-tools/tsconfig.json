@@ -20,5 +20,5 @@
       "@svgo/core": ["src/index"]
     }
   },
-  "include": ["src", "tests", "scripts"]
+  "include": ["src", "tests"]
 }
