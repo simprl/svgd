@@ -1,5 +1,5 @@
 {
-  "name": "code-tools",
+  "name": "codools",
   "version": "0.1.0",
   "description": "",
   "type": "module",
@@ -23,7 +23,10 @@
   ],
   "scripts": {
     "build": "tsup",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest tests/stories/stories.test.ts",
+    "codeDoc": "tsx scripts/codeDoc.ts",
+    "useCasesDoc": "tsx scripts/useCasesDoc.ts"
   },
   "author": "",
   "license": "MIT",

@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -60,7 +60,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
-    "code-tools": "*",
+    "codools": "*",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
@@ -73,6 +73,7 @@
     "svgd",
     "svgo",
     "path",
+    "pathD",
     "optimize",
     "compression",
     "svg-to-path",
@@ -94,7 +95,7 @@
 ## scripts\codeDoc.ts
 
 ```typescript
-import { getCodeMD, getESMDir, saveMD } from "code-tools";
+import { getCodeMD, getESMDir, saveMD } from "codools";
 
 saveMD("code.md", getCodeMD(getESMDir(import.meta.url, "..")));
 
@@ -103,7 +104,7 @@ saveMD("code.md", getCodeMD(getESMDir(import.meta.url, "..")));
 ## scripts\useCasesDoc.ts
 
 ```typescript
-import { getApiMD, saveMD } from "code-tools";
+import { getApiMD, saveMD } from "codools";
 import { stories as getPaths } from "tests/stories/getPaths/stories";
 import { stories as getSvg } from "tests/stories/getSvg/stories";
 import { stories as getSvgoConfig } from "tests/stories/getSvgoConfig/stories";

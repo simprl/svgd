@@ -1,7 +1,7 @@
 import { join } from "path";
 import { readFileSync } from "fs";
 import { PathAttributes } from "@svgo/core";
-import { getESMDir } from "code-tools";
+import { getESMDir } from "codools";
 
 const inputDir = getESMDir(import.meta.url, './inputIcons');
 const outputDir = getESMDir(import.meta.url, './outputIcons');

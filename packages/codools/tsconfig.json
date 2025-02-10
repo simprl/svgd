@@ -17,8 +17,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@svgo/core": ["src/index"]
+      "codools": ["src/index"]
     }
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "scripts"]
 }
