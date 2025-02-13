@@ -1,6 +1,6 @@
 import path from 'path';
 import { optimize } from "svgo";
-import { getSvgoConfig, generateConstantName, generateFileName, collectSvgsInDirectory, getPng, getSvg } from "@svgd/utils";
+import { getSvgoConfig, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
 import { readFileSync } from "fs";
 import { CLIOptions } from "./parseCliArgs";
 import {
@@ -44,7 +44,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
     const baseDir = path.resolve(root, options.input);
 
     // Find all .svg files inside `baseDir`.
-    const svgFiles = collectSvgsInDirectory(baseDir);
+    const svgFiles = getSvgFileNames(baseDir);
 
     const singleQuote = options.quote;
     const quote = singleQuote ? "'" : '"';

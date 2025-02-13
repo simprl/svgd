@@ -1,12 +1,16 @@
 {
-  "name": "@svgd",
+  "name": "@svgd/all",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/codools",
+    "packages/core",
+    "packages/utils"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build --workspaces",
+    "docs": "npm run docs --workspaces",
+    "test": "npm run test --workspaces"
   },
   "type": "module",
   "keywords": [],

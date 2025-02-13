@@ -1,7 +1,7 @@
 import { getDTS, getExports } from './exports';
 import { getSvgoConfig, getSvg } from "@svgd/core";
 import { getPng } from "./png";
-import { exportAllSvgInDirectory, collectSvgsInDirectory } from "./exportAllSvgInDirectory";
+import { getSvgFileNames } from "./getSvgFileNames";
 import { generateFileName, generateConstantName, NameFormats } from "./nameFormat";
 
 import type { NameFormat } from "./nameFormat";
@@ -13,8 +13,7 @@ export {
     getExports,
     getDTS,
     getSvgoConfig,
-    exportAllSvgInDirectory,
-    collectSvgsInDirectory,
+    getSvgFileNames,
     generateFileName,
     generateConstantName,
     NameFormats,

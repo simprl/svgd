@@ -64,7 +64,7 @@ function getLanguageForFile(filePath: string): string {
     return extensionToLang[ext] || '';
 }
 
-export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'build/**', '**/*.test.ts'];
+export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
 
 /**
  * Generates a Markdown file listing:
@@ -81,6 +81,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Read package.json content
     const packageJsonPath = path.join(rootDir, 'package.json');
     const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+    const projectName = JSON.parse(packageJsonContent).name;
 
     // Get the list of source files from tsconfig.json
     let files: string[] = getSourceFilesFromTsConfig(rootDir);
@@ -99,7 +100,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     });
 
     // Begin building the Markdown content
-    let mdContent = '# Project Files\n\n';
+    let mdContent = `# Project "${projectName}"\n\n`;
 
     // Append tsconfig.json content
     mdContent += '## tsconfig.json\n\n';

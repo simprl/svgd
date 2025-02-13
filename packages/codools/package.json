@@ -23,10 +23,11 @@
   ],
   "scripts": {
     "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "npm run codeDoc && npm run useCasesDoc",
     "lint": "eslint",
-    "test": "vitest tests/stories/stories.test.ts",
-    "codeDoc": "tsx scripts/codeDoc.ts",
-    "useCasesDoc": "tsx scripts/useCasesDoc.ts"
+    "codeDoc": "tsx scripts/codeDoc",
+    "useCasesDoc": "tsx scripts/useCasesDoc"
   },
   "author": "",
   "license": "MIT",
@@ -41,9 +42,9 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
-    "tsup": "^8.3.5"
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2"
   },
-
   "keywords": [
   ]
 }

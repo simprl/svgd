@@ -1,11 +1,10 @@
-import { resolve } from "path";
+import { dirname } from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 
-export const saveMD = (fileName: string, content: string) => {
-    const docsDir = resolve("docs");
+export const saveMD = (filePath: string, content: string) => {
+    const docsDir = dirname(filePath);
     if (!existsSync(docsDir)) mkdirSync(docsDir);
 
-    const filePath = resolve(docsDir, fileName);
     writeFileSync(filePath, content, "utf8");
     console.log(`✅ Saved: ${filePath}`);
 };

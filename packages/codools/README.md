@@ -1,8 +1,8 @@
-# Code Tools
+# Codools - Code Tools
 
 ## Introduction
 
-**Code Tools** is a utility library designed to:
+**Codools** is a utility library designed to:
 - **Document Code:** Automatically generate detailed Markdown documentation of your project's source files, configuration files (such as `tsconfig.json` and `package.json`), and API use cases. This documentation can then be provided to ChatGPT to help it fully understand the project's structure and logic.
 - **Simplify Testing:** Facilitate testing by providing helper functions for defining and executing test scenarios (or "stories") using [vitest](https://vitest.dev/). This allows you to easily mock data and verify outputs, making your tests more maintainable and easier to understand.
 
@@ -20,7 +20,7 @@
 
 ## Installation
 
-You can install **Code Tools** via npm or yarn:
+You can install **Codools** via npm or yarn:
 
 ```bash
 # Using npm
@@ -38,9 +38,9 @@ The following example demonstrates how to generate a Markdown file that document
 
 ```typescript
 // scripts/codeDoc.ts
-import { getCodeMD, getESMDir, saveMD } from "codools";
+import { getCodeMD, getESMPath, saveMD } from "codools";
 
-saveMD("code.md", getCodeMD(getESMDir(import.meta.url, "..")));
+saveMD("code.md", getCodeMD(getESMPath(import.meta.url, "..")));
 ```
 
 ### Generating API Documentation
@@ -63,7 +63,7 @@ saveMD("api.md", [
 
 ### Using in Tests
 
-You can integrate **Code Tools** into your testing suite to automatically describe and run your test stories. The following example demonstrates how to use the library with [vitest](https://vitest.dev/) for testing your API functions.
+You can integrate **Codools** into your testing suite to automatically describe and run your test stories. The following example demonstrates how to use the library with [vitest](https://vitest.dev/) for testing your API functions.
 
 ```typescript
 // tests/stories/stories.test.ts
@@ -94,7 +94,7 @@ The library exports several key functions and types:
 - **`getCodeMD`**  
   Scans the project directory (using `tsconfig.json`) and generates Markdown documentation that includes configuration files and all relevant source files.
 
-- **`getESMDir`**  
+- **`getESMPath`**  
   Utility function to resolve the directory in an ES Module context.
 
 - **`saveMD`**  
@@ -102,7 +102,7 @@ The library exports several key functions and types:
 
 ## Testing
 
-**Code Tools** integrates with [vitest](https://vitest.dev/) to support testing scenarios through the use of "stories". The sample test file provided in the usage section demonstrates how to describe and run test cases automatically. By dynamically mocking data and transforming code, you can validate both successful and error cases in your API functions.
+**Codools** integrates with [vitest](https://vitest.dev/) to support testing scenarios through the use of "stories". The sample test file provided in the usage section demonstrates how to describe and run test cases automatically. By dynamically mocking data and transforming code, you can validate both successful and error cases in your API functions.
 
 ## Contributing
 
@@ -119,7 +119,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Note:** The primary goals of **Code Tools** are to:
+**Note:** The primary goals of **Codools** are to:
 1. **Document Code:** Provide comprehensive documentation to feed information to ChatGPT, helping it fully understand your codebase and project.
 2. **Simplify Testing:** Offer tools to streamline testing by integrating documentation generation and test scenario management.
 ````markdown

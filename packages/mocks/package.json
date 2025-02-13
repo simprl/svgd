@@ -1,0 +1,12 @@
+{
+  "name": "@svgd/mocks",
+  "version": "1.0.0",
+  "description": "Common mocks for tests of the workspace packages",
+  "main": "index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./mocks": "./mocks.ts"
+  },
+  "private": true
+}

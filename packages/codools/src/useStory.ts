@@ -1,9 +1,7 @@
 import { Story } from "src/types";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 interface UseStoryProps {
-    url: string;
+    dir: string;
 }
 
 interface DefMock {
@@ -24,9 +22,7 @@ export interface UseStory <Input extends Record<string, unknown>, Output extends
 export const useStory = <
     Input extends Record<string, unknown>,
     Output extends Record<string, unknown>
->({ url }: UseStoryProps): UseStory<Input, Output> => {
-    const __filename = fileURLToPath(url);
-    const dir = dirname(__filename);
+>({ dir }: UseStoryProps): UseStory<Input, Output> => {
     return {
         getStories: ({ mocks, input, output }) => (
             mocks.map((mock, i) => mock?.isThrow ? ({

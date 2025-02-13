@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "strict": true,
 
@@ -10,10 +10,15 @@
     "declarationMap": true,
     "sourceMap": true,
 
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@svgd/utils": ["src/index"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "tests", "scripts"]
 }

@@ -4,27 +4,26 @@
   "description": "Utility functions to convert SVG to path d.",
 
   "type": "module",
-
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
   },
-
   "scripts": {
     "build": "tsup",
-    "lint": "eslint"
+    "test": "vitest related tests/stories/stories.test.ts",
+    "docs": "npm run codeDoc && npm run useCasesDoc",
+    "lint": "eslint",
+    "codeDoc": "tsx scripts/codeDoc",
+    "useCasesDoc": "tsx scripts/useCasesDoc"
   },
-
   "author": "",
   "license": "MIT",
   "private": false,
-
   "devDependencies": {
     "@types/node": "^18.19.71",
     "tsup": "^8.3.5"

@@ -1,4 +1,4 @@
-# Project Files
+# Project "@svgd/core"
 
 ## tsconfig.json
 
@@ -49,10 +49,11 @@
   },
   "scripts": {
     "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "npm run codeDoc && npm run useCasesDoc",
     "lint": "eslint",
-    "test": "vitest tests/stories/stories.test.ts",
-    "codeDoc": "tsx scripts/codeDoc.ts",
-    "useCasesDoc": "tsx scripts/useCasesDoc.ts"
+    "codeDoc": "tsx scripts/codeDoc",
+    "useCasesDoc": "tsx scripts/useCasesDoc"
   },
   "author": "",
   "license": "MIT",
@@ -61,6 +62,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
     "codools": "*",
+    "@svgd/mocks": "*",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
@@ -89,31 +91,6 @@
     "svg-utils"
   ]
 }
-
-```
-
-## scripts\codeDoc.ts
-
-```typescript
-import { getCodeMD, getESMDir, saveMD } from "codools";
-
-saveMD("code.md", getCodeMD(getESMDir(import.meta.url, "..")));
-
-```
-
-## scripts\useCasesDoc.ts
-
-```typescript
-import { getApiMD, saveMD } from "codools";
-import { stories as getPaths } from "tests/stories/getPaths/stories";
-import { stories as getSvg } from "tests/stories/getSvg/stories";
-import { stories as getSvgoConfig } from "tests/stories/getSvgoConfig/stories";
-
-saveMD("api.md", [
-    getApiMD({ title: "getSvgoConfig", stories: getSvgoConfig }),
-    getApiMD({ title: "getPaths", stories: getPaths }),
-    getApiMD({ title: "getSvg", stories: getSvg }),
-].join("\n---\n\n"));
 
 ```
 

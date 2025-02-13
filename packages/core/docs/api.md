@@ -249,7 +249,7 @@ export { attributes };
 ### Code:
 ```ts
 import { getPaths } from "@svgo/core";
-const pathD = "";
+const pathD = null;
 const attributes = getPaths(pathD);
 export { attributes };
 
@@ -351,7 +351,7 @@ export const svgOutput = getSvg(pathD);
 ### Code:
 ```ts
 import { getSvg } from "@svgo/core";
-const pathD = "";
+const pathD = null;
 export const svgOutput = getSvg(pathD);
 
 ```

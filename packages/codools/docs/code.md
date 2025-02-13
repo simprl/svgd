@@ -1,4 +1,4 @@
-# Project Files
+# Project "codools"
 
 ## tsconfig.json
 
@@ -35,7 +35,7 @@
 ```json
 {
   "name": "codools",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -58,10 +58,11 @@
   ],
   "scripts": {
     "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "npm run codeDoc && npm run useCasesDoc",
     "lint": "eslint",
-    "test": "vitest tests/stories/stories.test.ts",
-    "codeDoc": "tsx scripts/codeDoc.ts",
-    "useCasesDoc": "tsx scripts/useCasesDoc.ts"
+    "codeDoc": "tsx scripts/codeDoc",
+    "useCasesDoc": "tsx scripts/useCasesDoc"
   },
   "author": "",
   "license": "MIT",
@@ -76,37 +77,12 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
-    "tsup": "^8.3.5"
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2"
   },
-
   "keywords": [
   ]
 }
-
-```
-
-## scripts\codeDoc.ts
-
-```typescript
-import { getCodeMD, getESMDir, saveMD } from "codools";
-
-saveMD("code.md", getCodeMD(getESMDir(import.meta.url, "..")));
-
-```
-
-## scripts\useCasesDoc.ts
-
-```typescript
-import { getApiMD, saveMD } from "codools";
-import { stories as getPaths } from "tests/stories/getPaths/stories";
-import { stories as getSvg } from "tests/stories/getSvg/stories";
-import { stories as getSvgoConfig } from "tests/stories/getSvgoConfig/stories";
-
-saveMD("api.md", [
-    getApiMD({ title: "getSvgoConfig", stories: getSvgoConfig }),
-    getApiMD({ title: "getPaths", stories: getPaths }),
-    getApiMD({ title: "getSvg", stories: getSvg }),
-].join("\n---\n\n"));
 
 ```
 
@@ -276,7 +252,7 @@ function getLanguageForFile(filePath: string): string {
     return extensionToLang[ext] || '';
 }
 
-export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'build/**', '**/*.test.ts'];
+export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
 
 /**
  * Generates a Markdown file listing:
@@ -293,6 +269,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Read package.json content
     const packageJsonPath = path.join(rootDir, 'package.json');
     const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+    const projectName = JSON.parse(packageJsonContent).name;
 
     // Get the list of source files from tsconfig.json
     let files: string[] = getSourceFilesFromTsConfig(rootDir);
@@ -311,7 +288,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     });
 
     // Begin building the Markdown content
-    let mdContent = '# Project Files\n\n';
+    let mdContent = `# Project "${projectName}"\n\n`;
 
     // Append tsconfig.json content
     mdContent += '## tsconfig.json\n\n';
@@ -349,82 +326,33 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
 
 ```
 
-## src\getESMDir.ts
+## src\getESMPath.ts
 
 ```typescript
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
-export const getESMDir = (importMetaUrl: string, relativePath?: string) => {
-    const root = dirname(fileURLToPath(importMetaUrl));
-    return relativePath ? resolve(root, relativePath) : root;
-};
-
-```
-
-## src\getStories.ts
-
-```typescript
-import { Story } from "src/types";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-
-interface UseStoryProps {
+export interface ImportMeta {
     url: string;
 }
 
-interface DefMock {
-    title?: string;
-    isThrow?: boolean;
-}
-
-interface DescribeProps <Input extends Record<string, unknown>, Output extends Record<string, unknown>, Mock>{
-    mocks: Mock[];
-    input: (mock: Mock) => Input;
-    output: (mock: Mock) => Output;
-}
-
-export interface UseStory <Input extends Record<string, unknown>, Output extends Record<string, unknown>>{
-    getStories: <Mock extends DefMock>(props: DescribeProps<Input, Output, Mock>) => Story<Input, Output>[];
-}
-
-export const useStory = <
-    Input extends Record<string, unknown>,
-    Output extends Record<string, unknown>
->({ url }: UseStoryProps): UseStory<Input, Output> => {
-    const __filename = fileURLToPath(url);
-    const dir = dirname(__filename);
-    return {
-        getStories: ({ mocks, input, output }) => (
-            mocks.map((mock, i) => mock?.isThrow ? ({
-                isThrow: true,
-                input: input(mock),
-                output: undefined,
-                title: mock?.title ?? String(i),
-                dir
-            }) : ({
-                isThrow: false,
-                input: input(mock),
-                output: output(mock),
-                title: mock?.title ?? String(i),
-                dir
-            }))
-        ),
-    };
-}
+export const getESMPath = (meta: ImportMeta, relativePath?: string) => {
+    const root = dirname(fileURLToPath(meta.url));
+    return relativePath ? resolve(root, relativePath) : root;
+};
 
 ```
 
 ## src\index.ts
 
 ```typescript
-export { useStory } from "./getStories";
+export { useStory } from "./useStory";
 export { transformImports } from "./transformer";
 export { getApiMD } from "./generateApi";
 export { getCodeMD } from "./getCodeMD";
-export { getESMDir } from "./getESMDir";
+export { getESMPath } from "./getESMPath";
 export { saveMD } from "./saveMD";
-export type { UseStory } from "./getStories";
+export type { UseStory } from "./useStory";
 export type { Story } from "./types"
 
 ```
@@ -432,14 +360,13 @@ export type { Story } from "./types"
 ## src\saveMD.ts
 
 ```typescript
-import { resolve } from "path";
+import { dirname } from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 
-export const saveMD = (fileName: string, content: string) => {
-    const docsDir = resolve("docs");
+export const saveMD = (filePath: string, content: string) => {
+    const docsDir = dirname(filePath);
     if (!existsSync(docsDir)) mkdirSync(docsDir);
 
-    const filePath = resolve(docsDir, fileName);
     writeFileSync(filePath, content, "utf8");
     console.log(`✅ Saved: ${filePath}`);
 };
@@ -456,9 +383,9 @@ export { describeStories } from "./describeStory";
 ## src\transformer.ts
 
 ```typescript
-import * as ts from 'typescript';
+import ts from 'typescript';
 
-function transformImports(filePath: string, code: string, mockValues: Record<string, any>): string {
+function transformImports(filePath: string, code: string, mockValues: Record<string, unknown>): string {
     const sourceFile = ts.createSourceFile(filePath, code, ts.ScriptTarget.ESNext, true);
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
@@ -472,22 +399,25 @@ function transformImports(filePath: string, code: string, mockValues: Record<str
                 ) {
                     const importClause = node.importClause;
                     if (importClause && importClause.namedBindings && ts.isNamedImports(importClause.namedBindings)) {
-                        return importClause.namedBindings.elements.map((element) =>
-                            ts.factory.createVariableStatement(
+                        return importClause.namedBindings.elements.map((element) => {
+                            const key = element.name.text;
+                            const value = mockValues[key];
+                            const initializer = createLiteralFromValue(key, value);
+                            return ts.factory.createVariableStatement(
                                 undefined,
                                 ts.factory.createVariableDeclarationList(
                                     [
                                         ts.factory.createVariableDeclaration(
-                                            ts.factory.createIdentifier(element.name.text),
+                                            ts.factory.createIdentifier(key),
                                             undefined,
                                             undefined,
-                                            ts.factory.createStringLiteral(mockValues[element.name.text] || "")
+                                            initializer
                                         ),
                                     ],
                                     ts.NodeFlags.Const
                                 )
-                            )
-                        );
+                            );
+                        });
                     }
                 }
                 return ts.visitEachChild(node, visit, context);
@@ -500,6 +430,46 @@ function transformImports(filePath: string, code: string, mockValues: Record<str
     const transformedSource = ts.transform(sourceFile, [transformer]);
     return  printer.printFile(transformedSource.transformed[0] as ts.SourceFile);
 }
+
+function createLiteralFromValue(key: string | undefined, value: unknown): ts.Expression {
+    if (value === undefined) {
+        return ts.factory.createStringLiteral("");
+    }
+    if (key === "importMeta") {
+        return ts.factory.createMetaProperty(
+            ts.SyntaxKind.ImportKeyword,
+            ts.factory.createIdentifier("meta")
+        )
+    }
+    if (typeof value === 'string') {
+        return ts.factory.createStringLiteral(value);
+    }
+    if (typeof value === 'number') {
+        return ts.factory.createNumericLiteral(value.toString());
+    }
+    if (typeof value === 'boolean') {
+        return value ? ts.factory.createTrue() : ts.factory.createFalse();
+    }
+    if (value === null) {
+        return ts.factory.createNull();
+    }
+    if (Array.isArray(value)) {
+        const elements = value.map(item => createLiteralFromValue(undefined, item));
+        return ts.factory.createArrayLiteralExpression(elements, false);
+    }
+    if (typeof value === 'object') {
+        const properties = Object.entries(value).map(([key, val]) => {
+            const isValidIdentifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
+            const keyName = isValidIdentifier
+                ? ts.factory.createIdentifier(key)
+                : ts.factory.createStringLiteral(key);
+            return ts.factory.createPropertyAssignment(keyName, createLiteralFromValue(keyName.text, val));
+        });
+        return ts.factory.createObjectLiteralExpression(properties, true);
+    }
+    return ts.factory.createIdentifier("undefined");
+}
+
 export { transformImports };
 
 ```
@@ -520,6 +490,55 @@ export type Story<Input, Output> = {
     output?: undefined;
     title: string;
     dir: string;
+}
+
+```
+
+## src\useStory.ts
+
+```typescript
+import { Story } from "src/types";
+
+interface UseStoryProps {
+    dir: string;
+}
+
+interface DefMock {
+    title?: string;
+    isThrow?: boolean;
+}
+
+interface DescribeProps <Input extends Record<string, unknown>, Output extends Record<string, unknown>, Mock>{
+    mocks: Mock[];
+    input: (mock: Mock) => Input;
+    output: (mock: Mock) => Output;
+}
+
+export interface UseStory <Input extends Record<string, unknown>, Output extends Record<string, unknown>>{
+    getStories: <Mock extends DefMock>(props: DescribeProps<Input, Output, Mock>) => Story<Input, Output>[];
+}
+
+export const useStory = <
+    Input extends Record<string, unknown>,
+    Output extends Record<string, unknown>
+>({ dir }: UseStoryProps): UseStory<Input, Output> => {
+    return {
+        getStories: ({ mocks, input, output }) => (
+            mocks.map((mock, i) => mock?.isThrow ? ({
+                isThrow: true,
+                input: input(mock),
+                output: undefined,
+                title: mock?.title ?? String(i),
+                dir
+            }) : ({
+                isThrow: false,
+                input: input(mock),
+                output: output(mock),
+                title: mock?.title ?? String(i),
+                dir
+            }))
+        ),
+    };
 }
 
 ```

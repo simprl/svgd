@@ -16,7 +16,7 @@ function toPascalCase(str: string): string {
     // Example: "my-icon_name" -> "MyIconName"
     return str.replace(/(^|[-_ ])+./g, (match) =>
         match.charAt(match.length - 1).toUpperCase()
-    );
+    ).replace(/[-_ ]/g, "");
 }
 
 /**
@@ -46,15 +46,17 @@ function formatWithTemplateAndRange(
                 startIndex,
                 endIndex === -1 ? undefined : endIndex + 1
             );
-            return elements.join(separator);
+            return `${separator}${elements.join(separator)}${separator}`;
         })
         .replace(/{(-?\d+)}/g, (_match, indexStr) => {
             let idx = parseInt(indexStr, 10);
             if (idx < 0) {
                 idx = array.length + idx;
             }
-            return array[idx] !== undefined ? array[idx] : _match;
-        });
+            return array[idx] !== undefined ? `${separator}${array[idx]}${separator}` : separator;
+        })
+        .replace(new RegExp(`[${separator}]+`, 'g'), separator)
+        .replace(new RegExp(`^[${separator}]|[${separator}]$`, 'g'), "");
 }
 
 /**

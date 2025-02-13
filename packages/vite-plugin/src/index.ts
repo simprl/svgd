@@ -1,8 +1,12 @@
 import {PluginOption} from "vite";
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
-import { getExports, getDTS, parseSvg, exportAllSvgInDirectory } from 'svgd-utils';
+import { getExports, getDTS, getSvgoConfig, getSvgFileNames } from 'svgd-utils';
+import { optimize } from "svgo";
+
 import type { DCollection } from 'svgd-utils';
+
+const svgoConfig = getSvgoConfig();
 
 export default function svgDExtractorPlugin(): PluginOption {
     let projectRoot = '';
@@ -41,10 +45,10 @@ export default function svgDExtractorPlugin(): PluginOption {
                 if (!id.startsWith('\0svgd:') || filePath.startsWith('/')) {
                     return null;
                 }
-                return exportAllSvgInDirectory(filePath.slice('\0svgd:'.length), projectRoot);
+                return exportAllSvgInDirectory(filePath.slice('\0svgd:'.length));
             }
 
-            const combinedD = parseSvg(readFileSync(filePath, 'utf8'));
+            const combinedD = optimize(readFileSync(filePath, 'utf8'), svgoConfig).data;
 
             dList[combinedD] = { d: combinedD, filePath };
             return `export default ${JSON.stringify(combinedD)};`;
@@ -67,4 +71,15 @@ export default function svgDExtractorPlugin(): PluginOption {
             }
         },
     };
+}
+
+
+export function exportAllSvgInDirectory(purePath: string): string {
+    const svgFiles = getSvgFileNames(purePath);
+
+    const imports = svgFiles.map((svgFile, i) => {
+        const relativePath = svgFile.replace(/\\/g, '/');
+        return `export { default as icon${i} } from "${relativePath}?path";`;
+    });
+    return imports.join('\r\n');
 }
