@@ -54,12 +54,12 @@ const getStories = <Input extends Record<string, unknown>, Output extends Record
     });
 };
 
-interface GetApiMD <Input extends Record<string, unknown>, Output extends Record<string, unknown>>{
+interface GetStoriesMDProps <Input extends Record<string, unknown>, Output extends Record<string, unknown>>{
     title: string;
     stories: Story<Input, Output>[];
 }
 
-export const getStoriesMD = <Input extends Record<string, unknown>, Output extends Record<string, unknown>>({ title, stories }: GetApiMD<Input, Output>) => (
+export const getStoriesMD = <Input extends Record<string, unknown>, Output extends Record<string, unknown>>({ title, stories }: GetStoriesMDProps<Input, Output>) => (
     getMD({ title, stories: getStories(stories) })
 )
 

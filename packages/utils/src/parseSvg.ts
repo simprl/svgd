@@ -3,13 +3,13 @@ import { getSvgoConfig } from '@svgd/core';
 
 let defSVGOConfig: Config;
 
-export const parseSVG = (svg: string, svgoConfig?: Config) => {
+export const parseSvg = (svg: string, svgoConfig?: Config): string => {
     if (svgoConfig) {
-        return optimize(svg, svgoConfig);
+        return optimize(svg, svgoConfig).data;
     }
 
     if (!defSVGOConfig) {
         defSVGOConfig = getSvgoConfig();
     }
-    return optimize(svg, defSVGOConfig);
+    return optimize(svg, defSVGOConfig).data;
 };

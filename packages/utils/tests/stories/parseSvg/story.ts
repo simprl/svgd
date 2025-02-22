@@ -1,4 +1,4 @@
-import { parseSvg } from "../../../src/parseSvg";
+import { parseSvg } from "@svgd/utils";
 import { svgInput } from "./data";
 
-export const optimizedSvg = parseSvg(svgInput);
+export const pathD = parseSvg(svgInput);

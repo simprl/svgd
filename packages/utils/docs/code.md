@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Utility functions to convert SVG to path d.",
 
   "type": "module",
@@ -73,365 +73,19 @@
 
 ```
 
-## src\exports\getDTS.ts
+## src\getPng.ts
 
 ```typescript
-import * as ts from 'typescript';
-import { getSvg } from "@svgd/core";
-import { getPng } from "../png";
-import { Declaration, Declarations } from "./types";
+import sharp from "sharp";
 
-export async function getDTS(declarations: Declarations): Promise<string> {
-    const generateType = async (info: Declaration): Promise<ts.TypeNode> => {
-        if ("d" in info) {
-            return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
-        }
-        if ("children" in info) {
-            const members: Promise<ts.TypeElement>[] = Object.entries(info.children).map(async ([key, child]) => {
-                const typeNode = await generateType(child);
-                const jsDocComment = await generateJsDoc(child);
-
-                const propertySignature = ts.factory.createPropertySignature(
-                    undefined,
-                    key,
-                    undefined,
-                    typeNode
-                );
-
-                if (jsDocComment) {
-                    ts.addSyntheticLeadingComment(
-                        propertySignature,
-                        ts.SyntaxKind.MultiLineCommentTrivia,
-                        jsDocComment,
-                        true
-                    );
-                }
-
-                return propertySignature;
-            });
-            return ts.factory.createTypeLiteralNode(await Promise.all(members));
-        }
-        return ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
-    };
-
-    const textToComment = (text: string): string => text.replace(/\n/g, '\n * ');
-
-    const generateJsDoc = async (info: Declaration): Promise<string | undefined> => {
-        if ("d" in info) {
-            const text = `![](data:image/png;base64,${await getPng(getSvg(info.d))})`;
-            return `*
- * ${textToComment(text)}
- `;
-        }
-        return undefined;
-    };
-
-    const statements: Promise<ts.Statement>[] = Object.entries(declarations).map(async ([name, info]) => {
-        const type = await generateType(info);
-        const jsDocComment = await generateJsDoc(info);
-
-        // Create the variable declaration
-        const varDeclaration = ts.factory.createVariableDeclaration(name, undefined, type, undefined);
-
-        // Create the variable statement with export modifier
-        const varStatement = ts.factory.createVariableStatement(
-            [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-            ts.factory.createVariableDeclarationList([varDeclaration], ts.NodeFlags.Const)
-        );
-
-        // If there's a JSDoc comment, add it as a leading comment
-        if (jsDocComment) {
-            ts.addSyntheticLeadingComment(
-                varStatement,
-                ts.SyntaxKind.MultiLineCommentTrivia,
-                jsDocComment,
-                true
-            );
-        }
-
-        return varStatement;
-    });
-
-    const sourceFile = ts.factory.createSourceFile(
-        await Promise.all(statements),
-        ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-        ts.NodeFlags.None
-    );
-
-    const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-    return printer.printFile(sourceFile);
+export const getPng = async (svgContent: string, width = 64, height = width) => {
+    if (!svgContent) return "";
+    const pngBuffer = await sharp(Buffer.from(svgContent))
+        .resize(width, height)
+        .png()
+        .toBuffer();
+    return pngBuffer.toString('base64');
 }
-
-```
-
-## src\exports\getExports.ts
-
-```typescript
-import { walk } from "estree-walker";
-import {
-    Node,
-    VariableDeclaration,
-    Identifier,
-    Literal,
-    CallExpression,
-    ObjectExpression,
-    ExportSpecifier,
-    SpreadElement,
-    ExportNamedDeclaration,
-    Property,
-} from "estree";
-import { DCollection, Declaration, Declarations } from "./types";
-
-
-interface GetExportsProps {
-    ast: Node;
-    dList: DCollection;
-}
-
-/**
- * Extracts TypeScript declarations from the given AST and data map.
- * @param params - The parameters containing the AST and the data map.
- * @returns An array of export objects with names and associated info.
- */
-export const getExports = ({ ast, dList }: GetExportsProps): Declarations => {
-    const foundExports: Declarations = {};
-    const declarations: Declarations = {};
-
-    // First pass: Analyze variable declarations
-    walk(ast, {
-        enter(node) {
-            if (node.type === "VariableDeclaration") {
-                for (const decl of (node as VariableDeclaration).declarations) {
-                    const result = analyzeDeclaration({
-                        id: decl.id,
-                        init: decl.init,
-                        dCollection: dList,
-                        declarations,
-                    });
-                    if (result) {
-                        declarations[result.declName] = result.info;
-                    }
-                }
-            }
-        },
-    });
-
-    // Second pass: Analyze export declarations
-    walk(ast, {
-        enter(node) {
-            if (node.type === "ExportNamedDeclaration") {
-                const exportNamedDeclaration = node as ExportNamedDeclaration;
-                if (
-                    exportNamedDeclaration.specifiers &&
-                    exportNamedDeclaration.specifiers.length > 0
-                ) {
-                    for (const spec of exportNamedDeclaration.specifiers as ExportSpecifier[]) {
-                        const local = (spec.local as Identifier).name;
-                        const exportedName = (spec.exported as Identifier).name;
-
-                        if (local && exportedName) {
-                            const info = declarations[local];
-                            if (!info) {
-                                console.log("!!! ExportNamedDeclaration in", exportedName, spec);
-                            }
-                            if (info) {
-                                // Found an exported constant with associated info
-                                foundExports[exportedName] = info;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-    });
-
-    return foundExports;
-};
-
-/**
- * Interface for the parameters accepted by the analyzeDeclaration function.
- */
-interface AnalyzeDeclarationParams {
-    id: Node;
-    init: Property["value"] | SpreadElement | null | undefined;
-    dCollection: DCollection;
-    declarations: Declarations;
-}
-
-/**
- * Interface for the result returned by the analyzeDeclaration function.
- */
-interface AnalyzeDeclarationResult {
-    declName: string;
-    info: Declaration;
-}
-
-/**
- * Recursively analyzes a declaration node to extract relevant information.
- * @param params - The parameters for analyzing the declaration.
- * @returns An object containing the declaration name and its associated info, or undefined if not applicable.
- */
-function analyzeDeclaration({ id, init, dCollection, declarations }: AnalyzeDeclarationParams): AnalyzeDeclarationResult | undefined {
-
-    // Ensure the id is an Identifier
-    if (id.type !== "Identifier") {
-        return;
-    }
-
-    const declName = (id as Identifier).name;
-
-    // Handle initialization with a string literal
-    if (
-        init &&
-        init.type === "Literal" &&
-        typeof (init as Literal).value === "string"
-    ) {
-        const literalValue = (init as Literal).value as string;
-        const info = dCollection[literalValue];
-        if (info) {
-            return { declName, info };
-        }
-        return;
-    }
-
-    // Handle initialization with another identifier
-    if (init && init.type === "Identifier") {
-        const localName = (init as Identifier).name;
-        const local = declarations[localName];
-        if (local) {
-            return { declName, info: local };
-        }
-        return;
-    }
-
-    // Handle Object.freeze calls
-    if (
-        init &&
-        init.type === "CallExpression" &&
-        isObjectMethodCall(init, "freeze")
-    ) {
-        const args = (init as CallExpression).arguments;
-        if (args.length > 0) {
-            return analyzeDeclaration({
-                id,
-                init: args[0],
-                dCollection,
-                declarations,
-            });
-        }
-    }
-
-    // Handle Object.defineProperty calls
-    if (
-        init &&
-        init.type === "CallExpression" &&
-        isObjectMethodCall(init, "defineProperty")
-    ) {
-        const args = (init as CallExpression).arguments;
-        if (args.length > 0) {
-            return analyzeDeclaration({
-                id,
-                init: args[0],
-                dCollection,
-                declarations,
-            });
-        }
-    }
-
-    // Handle Object expressions
-    if (init && init.type === "ObjectExpression") {
-        const entries: [string, Declaration][] = [];
-        for (const prop of (init as ObjectExpression).properties) {
-            if (prop.type === "Property") {
-                const key = getPropertyName(prop.key);
-                if (!key) continue;
-
-                const value = prop.value;
-                const result = analyzeDeclaration({
-                    id: { type: "Identifier", name: key } as Identifier,
-                    init: value,
-                    dCollection,
-                    declarations,
-                });
-
-                if (result) {
-                    entries.push([result.declName, result.info]);
-                }
-            }
-        }
-
-        if (entries.length > 0) {
-            return {
-                declName,
-                info: { children: Object.fromEntries(entries) },
-            };
-        }
-    }
-
-    return;
-}
-
-/**
- * Determines if a CallExpression is a call to a specific Object method.
- * @param expr - The CallExpression node.
- * @param methodName - The name of the method to check for (e.g., 'freeze').
- * @returns True if the expression is a call to Object.methodName, otherwise false.
- */
-function isObjectMethodCall(expr: CallExpression, methodName: string): boolean {
-    return (
-        expr.callee.type === "MemberExpression" &&
-        expr.callee.object.type === "Identifier" &&
-        expr.callee.object.name === "Object" &&
-        expr.callee.property.type === "Identifier" &&
-        expr.callee.property.name === methodName
-    );
-}
-
-/**
- * Retrieves the name of a property key, handling different key types.
- * @param key - The key node of a property.
- * @returns The property name as a string, or undefined if it cannot be determined.
- */
-function getPropertyName(key: Property["key"]): string | undefined {
-    if (key.type === "Identifier") {
-        return key.name;
-    }
-    if (key.type === "Literal" && typeof key.value === "string") {
-        return key.value;
-    }
-    return;
-}
-
-
-
-```
-
-## src\exports\index.ts
-
-```typescript
-export * from './getDTS';
-export * from './getExports';
-export type * from "./types";
-
-```
-
-## src\exports\types.ts
-
-```typescript
-export type DInfo = {
-    d: string;
-    filePath: string;
-}
-
-export type DCollection = Record<string, DInfo>;
-
-export type Declarations = Record<string, Declaration>;
-
-export type WithChildrenDeclarations = {
-    children: Declarations;
-}
-
-export type Declaration = DInfo | WithChildrenDeclarations;
 
 ```
 
@@ -453,34 +107,27 @@ export function getSvgFileNames(dir: string): string[] {
 ## src\index.ts
 
 ```typescript
-import { getDTS, getExports } from './exports';
 import { getSvgoConfig, getSvg } from "@svgd/core";
-import { getPng } from "./png";
+import { getPng } from "./getPng";
+import { parseSvg } from "src/parseSvg";
 import { getSvgFileNames } from "./getSvgFileNames";
 import { generateFileName, generateConstantName, NameFormats } from "./nameFormat";
 
 import type { NameFormat } from "./nameFormat";
-import type { DCollection, DInfo, Declaration, Declarations, WithChildrenDeclarations } from "./exports";
 
 export {
     getSvg,
     getPng,
-    getExports,
-    getDTS,
     getSvgoConfig,
     getSvgFileNames,
     generateFileName,
     generateConstantName,
     NameFormats,
+    parseSvg,
 }
 
 export type {
     NameFormat,
-    DCollection,
-    DInfo,
-    Declaration,
-    Declarations,
-    WithChildrenDeclarations
 };
 
 ```
@@ -597,25 +244,24 @@ export function generateFileName(filePath: string, baseDir: string, template: st
 
 ```
 
-## src\png\getPng.ts
+## src\parseSvg.ts
 
 ```typescript
-import sharp from "sharp";
+import { type Config, optimize } from 'svgo';
+import { getSvgoConfig } from '@svgd/core';
 
-export const getPng = async (svgContent: string, width = 64, height = width) => {
-    const pngBuffer = await sharp(Buffer.from(svgContent))
-        .resize(width, height)
-        .png()
-        .toBuffer();
-    return pngBuffer.toString('base64');
-}
+let defSVGOConfig: Config;
 
-```
+export const parseSvg = (svg: string, svgoConfig?: Config): string => {
+    if (svgoConfig) {
+        return optimize(svg, svgoConfig).data;
+    }
 
-## src\png\index.ts
-
-```typescript
-export * from './getPng';
+    if (!defSVGOConfig) {
+        defSVGOConfig = getSvgoConfig();
+    }
+    return optimize(svg, defSVGOConfig).data;
+};
 
 ```
 

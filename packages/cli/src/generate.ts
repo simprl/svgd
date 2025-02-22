@@ -1,6 +1,5 @@
 import path from 'path';
-import { optimize } from "svgo";
-import { getSvgoConfig, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
+import { parseSvg, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
 import { readFileSync } from "fs";
 import { CLIOptions } from "./parseCliArgs";
 import {
@@ -29,8 +28,6 @@ interface FileRawData {
     fileTemplate?: (rows: string) => string;
     rowTemplate: (rows: TemplateProps) => string;
 }
-
-const config = getSvgoConfig();
 
 /**
  * generateSvgConstants performs the main logic:
@@ -110,7 +107,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 }
             }
 
-            const d = optimize(readFileSync(file, 'utf8'), config).data;
+            const d = parseSvg(readFileSync(file, 'utf8'));
             const svg = getSvg(d);
             const png = await getPng(svg);
 

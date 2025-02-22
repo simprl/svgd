@@ -17,7 +17,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "codools": ["src/index"]
+      "codools": ["src/index"],
+      "codools/tests": ["src/tests"]
     }
   },
   "include": ["src", "tests", "scripts"]

@@ -20,12 +20,12 @@ const mocks = [
         relativePath: "../otherFolder/file.txt",
         esmPath: "Y:\\myproject\\otherFolder\\file.txt",
     },
-    // {
-    //     title: "Without relativePath provided",
-    //     meta: { url: "file:///Users/test/project/src/utils/getESMPath.ts"},
-    //     relativePath: undefined,
-    //     esmPath: "",
-    // }
+    {
+        title: "Without relativePath provided - just return absolute pathe to directory of current file",
+        importMeta: { url: "file://Y:/myproject/scripts/getESMPath.ts"},
+        relativePath: undefined,
+        esmPath: "Y:\\myproject\\scripts",
+    }
 ];
 
 export const stories = story.getStories({

@@ -1,12 +1,10 @@
 import {PluginOption} from "vite";
 import { existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
-import { getExports, getDTS, getSvgoConfig, getSvgFileNames } from 'svgd-utils';
-import { optimize } from "svgo";
+import { parseSvg, getSvgFileNames } from 'svgd-utils';
+import { getExports, getDTS } from './exports';
 
-import type { DCollection } from 'svgd-utils';
-
-const svgoConfig = getSvgoConfig();
+import type { DCollection } from './exports';
 
 export default function svgDExtractorPlugin(): PluginOption {
     let projectRoot = '';
@@ -48,7 +46,7 @@ export default function svgDExtractorPlugin(): PluginOption {
                 return exportAllSvgInDirectory(filePath.slice('\0svgd:'.length));
             }
 
-            const combinedD = optimize(readFileSync(filePath, 'utf8'), svgoConfig).data;
+            const combinedD = parseSvg(readFileSync(filePath, 'utf8'));
 
             dList[combinedD] = { d: combinedD, filePath };
             return `export default ${JSON.stringify(combinedD)};`;

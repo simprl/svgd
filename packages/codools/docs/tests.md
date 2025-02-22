@@ -26,8 +26,11 @@ tests/
     └── stories.test.ts     // Aggregates all test stories and runs them with Vitest
 ```
 
-**story.ts** - it is actually a test and use case of a some npm library function. It should show how to use some functionality of the npm library
+**story.ts** - it is actually a test and use case of a some npm library function. It should show how to use some functionality of the npm library.
+
 In generally **data.ts** use for provide example of input data for test in the store.ts
+**Important:** The actual values in data.ts are not crucial; its primary purpose is to extract the input type definitions for store.ts. This provides the necessary types for mocks and enables type checking. Additionally, data.ts allows store.ts to be executed directly (outside of the test environment) to facilitate debugging of store.ts.
+
 **stories.ts** combine test (file story.ts) with each mock data.
 
 ---
@@ -41,8 +44,8 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import { getESMPath } from "codools";
 
-const inputDir = getESMPath(import.meta.url, './inputIcons');
-const outputDir = getESMPath(import.meta.url, './outputIcons');
+const inputDir = getESMPath(import.meta, './inputIcons');
+const outputDir = getESMPath(import.meta, './outputIcons');
 
 export interface PathAttributes {
   d: string;
@@ -160,7 +163,7 @@ This file contains the input data for testing the **getSvgoConfig** feature. It 
 
 ```typescript
 // tests/stories/getSvgoConfig/data.ts
-// Example SVG input as a string. When test run this data will replace to maock data
+// Example SVG input as a string. When test run this data will replace to mock data
 export const svgInput: string = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 <path d="M12 2L2 22h20L12 2z"/>
@@ -178,7 +181,7 @@ This file implements the test case for the **getSvgoConfig** function. It import
 // tests/stories/getSvgoConfig/story.ts
 import { optimize } from "svgo";
 import { getSvgoConfig } from "@svgo/core";
-import { svgInput } from "./data"; // When test run this data will replace to maock data
+import { svgInput } from "./data"; // When test run this data will replace to mock data
 
 // Retrieve the svgo configuration
 const svgoConfig = getSvgoConfig();
@@ -198,10 +201,10 @@ This file combines the test case from `story.ts` with the mock data. It defines 
 import type * as input from "./data";
 import type * as output from "./story";
 import { commonMocks } from '@svgd/mocks';
-import { useStory } from "codools";
+import { useStory, getESMPath } from "codools";
 
 // Initialize the story with the current module's URL for resolving the directory
-const story = useStory<typeof input, typeof output>({ url: import.meta.url });
+const story = useStory<typeof input, typeof output>({ dir: getESMPath(import.meta) });
 
 // Define mocks specific to getSvgoConfig tests, for example, a case where an incorrect SVG should throw an error
 const mocks = [
@@ -234,17 +237,13 @@ This file aggregates all test scenarios from different feature directories (e.g.
 // tests/stories/stories.test.ts
 import { describe } from "vitest";
 import { stories as getSvgoConfigStories } from "./getSvgoConfig/stories";
-// Similarly, import stories for other features if needed:
-// import { stories as getPathsStories } from "./getPaths/stories";
-// import { stories as getSvgStories } from "./getSvg/stories";
+import { stories as getPathsStories } from "./getPaths/stories";
+import { stories as getSvgStories } from "./getSvg/stories";
 import { describeStories } from "codools/tests";
 
-// Run tests for getSvgoConfig
 describe("getSvgoConfig", () => describeStories(getSvgoConfigStories));
-
-// Uncomment and add similar blocks for additional features:
-// describe("getPaths", () => describeStories(getPathsStories));
-// describe("getSvg", () => describeStories(getSvgStories));
+describe("getPaths", () => describeStories(getPathsStories));
+describe("getSvg", () => describeStories(getSvgStories));
 ```
 
 ---
@@ -257,11 +256,9 @@ The test scenarios are generated using two key utilities: **useStory** and **des
 
 ```typescript
 import { Story } from "src/types";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 interface UseStoryProps {
-  url: string;
+  dir: string;
 }
 
 interface DefMock {
@@ -269,22 +266,20 @@ interface DefMock {
   isThrow?: boolean;
 }
 
-interface DescribeProps<Input extends Record<string, unknown>, Output extends Record<string, unknown>, Mock> {
+interface DescribeProps <Input extends Record<string, unknown>, Output extends Record<string, unknown>, Mock>{
   mocks: Mock[];
   input: (mock: Mock) => Input;
   output: (mock: Mock) => Output;
 }
 
-export interface UseStory<Input extends Record<string, unknown>, Output extends Record<string, unknown>> {
+export interface UseStory <Input extends Record<string, unknown>, Output extends Record<string, unknown>>{
   getStories: <Mock extends DefMock>(props: DescribeProps<Input, Output, Mock>) => Story<Input, Output>[];
 }
 
 export const useStory = <
         Input extends Record<string, unknown>,
         Output extends Record<string, unknown>
->({ url }: UseStoryProps): UseStory<Input, Output> => {
-  const __filename = fileURLToPath(url);
-  const dir = dirname(__filename);
+>({ dir }: UseStoryProps): UseStory<Input, Output> => {
   return {
     getStories: ({ mocks, input, output }) => (
             mocks.map((mock, i) => mock?.isThrow ? ({
@@ -303,6 +298,7 @@ export const useStory = <
     ),
   };
 }
+
 ```
 
 ---
@@ -352,3 +348,187 @@ export const describeStories = <Input extends Record<string, unknown>, Output ex
   This structure can easily be extended to support additional features (e.g., getPaths, getSvg) without duplicating code.
 
 ---
+
+
+# Some more examples
+
+## tests\stories\getPaths\data.ts
+
+```typescript
+export const pathD: string = `M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16 M10,17c3.87,0,7-3.13,7-7c0-3.87-3.13-7-7-7 c-3.87,0-7,3.13-7,7C3,13.87,6.13,17,10,17L10,17z M10.5,10V7h-1v3H7l3,3l3-3H10.5z`;
+
+```
+
+## tests\stories\getPaths\stories.ts
+
+```typescript
+import type * as input from "./data";
+import type * as output from "./story";
+import { commonMocks } from '@svgd/mocks';
+import { getESMPath, useStory } from "codools";
+
+const story = useStory<typeof input, typeof output>({ dir: getESMPath(import.meta) });
+
+const mocks = [...commonMocks, {
+    title: "Throw if pathD is null",
+    isThrow: true,
+    pathD: null as unknown as string,
+    attributes: []
+}]
+
+export const stories = story.getStories({
+    mocks,
+    input: ({ pathD }) => ({ pathD }),
+    output: ({ attributes }) => ({ attributes })
+});
+
+```
+
+## tests\stories\getPaths\story.ts
+
+```typescript
+import { getPaths } from "@svgo/core";
+import { pathD } from "./data";
+
+const attributes = getPaths(pathD);
+
+export { attributes };
+
+```
+
+## tests\stories\getSvg\data.ts
+
+```typescript
+export const pathD: string = "sdasd";
+
+```
+
+## tests\stories\getSvg\stories.ts
+
+```typescript
+import type * as input from "./data";
+import type * as output from "./story";
+import { commonMocks } from '@svgd/mocks';
+import { getESMPath, useStory } from "codools";
+
+const story = useStory<typeof input, typeof output>({ dir: getESMPath(import.meta) });
+
+const mocks = [...commonMocks, {
+    title: "Throw if pathD is null",
+    isThrow: true,
+    pathD: null as unknown as string,
+    svgOutput: ""
+}]
+
+export const stories = story.getStories({
+    mocks,
+    input: ({ pathD }) => ({ pathD }),
+    output: ({ svgOutput }) => ({ svgOutput })
+});
+
+```
+
+## tests\stories\getSvg\story.ts
+
+```typescript
+import { getSvg } from "@svgo/core";
+import { pathD } from "./data";
+
+export const svgOutput = getSvg(pathD);
+
+```
+
+## tests\stories\getSvgoConfig\data.ts
+
+```typescript
+export const svgInput: string = 'ss';
+
+```
+
+## tests\stories\getSvgoConfig\stories.ts
+
+```typescript
+import type * as input from "./data";
+import type * as output from "./story";
+import { commonMocks } from '@svgd/mocks';
+import { getESMPath, useStory } from "codools";
+
+const story = useStory<typeof input, typeof output>({ dir: getESMPath(import.meta) });
+
+const mocks = [...commonMocks, {
+    title: "Throw if incorrect svg",
+    isThrow: true,
+    svgInput: "ss",
+    pathD: ""
+}]
+
+export const stories = story.getStories({
+    mocks,
+    input: ({ svgInput }) => ({ svgInput }),
+    output: ({ pathD }) => ({ pathD })
+});
+
+```
+
+## tests\stories\getSvgoConfig\story.ts
+
+```typescript
+import { optimize } from "svgo";
+import { getSvgoConfig } from "@svgo/core";
+import { svgInput } from "./data";
+
+const svgoConfig = getSvgoConfig();
+export const pathD = optimize(svgInput, svgoConfig).data;
+
+```
+
+## Additional
+Important: If I ask generate patch then the result must be generated as a patch in the Unified Diff format with correct header lengths.
+
+Example of a Unified Diff patch:
+```dff
+diff --git a/packages/utils/tests/stories/getESMPath/stories.ts b/packages/utils/tests/stories/getESMPath/stories.ts
+new file mode 100644
+index 0000000..b8a6f1d
+--- /dev/null
++++ b/packages/utils/tests/stories/getESMPath/stories.ts
+@@ -0,0 +1,35 @@
++import type * as inputModule from "./data";
++import type * as outputModule from "./story";
++import { useStory } from "codools";
++import { dirname, resolve } from "path";
++import { fileURLToPath } from "url";
++
++const story = useStory<typeof inputModule, typeof outputModule>({
++    url: import.meta.url,
++});
++
++const computeExpected = (metaUrl: string, relativePath?: string): string => {
++    const root = dirname(fileURLToPath(metaUrl));
++    return relativePath ? resolve(root, relativePath) : root;
++};
++
++const mocks = [
++    {
++        title: "With relativePath provided",
++        metaUrl: "file:///Users/test/project/src/utils/getESMPath.ts",
++        relativePath: "../otherFolder/file.txt",
++        esmPath: computeExpected("file:///Users/test/project/src/utils/getESMPath.ts", "../otherFolder/file.txt"),
++    },
++    {
++        title: "Without relativePath provided",
++        metaUrl: "file:///Users/test/project/src/utils/getESMPath.ts",
++        relativePath: undefined,
++        esmPath: computeExpected("file:///Users/test/project/src/utils/getESMPath.ts", undefined),
++    }
++];
++
++export const stories = story.getStories({
++    mocks,
++    input: ({ metaUrl, relativePath }) => ({ metaUrl, relativePath }),
++    output: ({ esmPath }) => ({ esmPath }),
++});
+```
+All file paths should start from "packages" (it is a project with workspaces).
+utils - it is one of the project packages. It will be different every time. You should know package name or ask me. 
+

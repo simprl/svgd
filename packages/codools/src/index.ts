@@ -1,6 +1,6 @@
 export { useStory } from "./useStory";
 export { transformImports } from "./transformer";
-export { getApiMD } from "./generateApi";
+export { getStoriesMD } from "./getStoriesMD";
 export { getCodeMD } from "./getCodeMD";
 export { getESMPath } from "./getESMPath";
 export { saveMD } from "./saveMD";

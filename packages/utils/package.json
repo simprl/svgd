@@ -1,6 +1,6 @@
 {
   "name": "@svgd/utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Utility functions to convert SVG to path d.",
 
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "vitest related tests/stories/stories.test.ts",
+    "test": "vitest run tests/stories/stories.test.ts",
     "docs": "npm run codeDoc && npm run useCasesDoc",
     "lint": "eslint",
     "codeDoc": "tsx scripts/codeDoc",

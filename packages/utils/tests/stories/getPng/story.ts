@@ -1,4 +1,4 @@
-import { getPng } from "../../../src/getPng";
-import { svgContent } from "./data";
+import { getPng } from "@svgd/utils";
+import { svgInput } from "./data";
 
-export const pngBase64 = await getPng(svgContent);
+export const pngBase64 = await getPng(svgInput);
