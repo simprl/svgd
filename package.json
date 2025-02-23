@@ -10,7 +10,8 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "docs": "npm run docs --workspaces",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces",
+    "version": "npm version patch -m \"[RELEASE] %s\" --workspaces"
   },
   "type": "module",
   "keywords": [],
