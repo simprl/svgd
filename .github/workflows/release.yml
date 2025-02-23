@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Filter changed paths using dorny/paths-filter
+      - name: Filter changed paths
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            codools:
+              - 'packages/codools/**'
+            core:
+              - 'packages/core/**'
+              - 'packages/codools/**'
+            utils:
+              - 'packages/utils/**'
+              - 'packages/core/**'
+              - 'packages/codools/**'
+
+      - name: codools
+        if: steps.filter.outputs.codools == 'true'
+        run: |
+          npm --workspace=packages/codools run test
+          npm --workspace=packages/codools run build
+          npm --workspace=packages/codools version patch --no-git-tag-version
+
+      - name: core
+        if: steps.filter.outputs.core == 'true'
+        run: |
+          npm --workspace=packages/core run test
+          npm --workspace=packages/core run build
+          npm --workspace=packages/core version patch --no-git-tag-version
+
+      - name: utils
+        if: steps.filter.outputs.utils == 'true'
+        run: |
+          npm --workspace=packages/utils run test
+          npm --workspace=packages/utils run build
+          npm --workspace=packages/utils version patch --no-git-tag-version
+
+      - name: Bump version for root
+        run: npm version patch --no-git-tag-version
+
+      # Commit all changes in a single commit with a message containing the new version
+      - name: Commit changes
+        run: |
+          git config user.name "${{ secrets.GIT_USER_NAME }}"
+          git config user.email "${{ secrets.GIT_USER_EMAIL }}"
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          git add .
+          git commit -m "[RELEASE] ${NEW_VERSION}"
+          git push origin HEAD:${{ github.ref }}
+
+      # Publish changed workspaces (the root module is not published)
+      - name: Publish codools
+        if: steps.filter.outputs.codools == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
+        run: npm publish --workspace=packages/codools
+
+      - name: Publish core
+        if: steps.filter.outputs.core == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+        run: npm publish --workspace=packages/core
+
+      - name: Publish utils
+        if: steps.filter.outputs.utils == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+        run: npm publish --workspace=packages/utils
