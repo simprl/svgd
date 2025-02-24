@@ -9,7 +9,7 @@ on:
 jobs:
   release:
     if: "!startsWith(github.event.head_commit.message, '[RELEASE]')"
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       # Checkout the repository
       - name: Checkout repository
