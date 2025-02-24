@@ -8,23 +8,18 @@ const story = useStory<typeof inputModule, typeof outputModule>({
     dir: getESMPath(import.meta),
 });
 
-const computeExpected = (metaUrl: string, relativePath?: string): string => {
-    const root = dirname(fileURLToPath(metaUrl));
-    return relativePath ? resolve(root, relativePath) : root;
-};
-
 const mocks = [
     {
         title: "With relativePath provided",
-        importMeta: { url: "file://Y:/myproject/scripts/getESMPath.ts" },
+        importMeta: import.meta,
         relativePath: "../otherFolder/file.txt",
-        esmPath: "Y:\\myproject\\otherFolder\\file.txt",
+        esmPath: resolve(dirname(fileURLToPath(import.meta.url)), "../otherFolder/file.txt"),
     },
     {
         title: "Without relativePath provided - just return absolute pathe to directory of current file",
-        importMeta: { url: "file://Y:/myproject/scripts/getESMPath.ts"},
+        importMeta: import.meta,
         relativePath: undefined,
-        esmPath: "Y:\\myproject\\scripts",
+        esmPath: dirname(fileURLToPath(import.meta.url)),
     }
 ];
 
