@@ -3,6 +3,7 @@
   "version": "1.0.5",
   "private": true,
   "workspaces": [
+    "packages/mocks",
     "packages/codools",
     "packages/core",
     "packages/utils"
