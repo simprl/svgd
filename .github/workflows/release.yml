@@ -26,7 +26,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm i
 
       # Filter changed paths using dorny/paths-filter
       - name: Filter changed paths
