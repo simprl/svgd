@@ -118,7 +118,6 @@ Contributions are welcome! If you'd like to improve the library, please follow t
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-
 **Note:** The primary goals of **Codools** are to:
 1. **Document Code:** Provide comprehensive documentation to feed information to ChatGPT, helping it fully understand your codebase and project.
 2. **Simplify Testing:** Offer tools to streamline testing by integrating documentation generation and test scenario management.
