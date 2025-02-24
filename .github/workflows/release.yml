@@ -8,11 +8,14 @@ on:
 
 jobs:
   release:
+    if: "!startsWith(github.event.head_commit.message, '[RELEASE]')"
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: '${{ secrets.PAT_TOKEN }}'
 
       # Setup Node.js environment
       - name: Setup Node.js
@@ -41,6 +44,7 @@ jobs:
               - 'packages/core/**'
               - 'packages/codools/**'
 
+      # Build, test, and bump version for codools if changes detected
       - name: codools
         if: steps.filter.outputs.codools == 'true'
         run: |
@@ -48,6 +52,7 @@ jobs:
           npm --workspace=packages/codools run build
           npm --workspace=packages/codools version patch --no-git-tag-version
 
+      # Build, test, and bump version for core if changes detected
       - name: core
         if: steps.filter.outputs.core == 'true'
         run: |
@@ -55,6 +60,7 @@ jobs:
           npm --workspace=packages/core run build
           npm --workspace=packages/core version patch --no-git-tag-version
 
+      # Build, test, and bump version for utils if changes detected
       - name: utils
         if: steps.filter.outputs.utils == 'true'
         run: |
@@ -62,6 +68,7 @@ jobs:
           npm --workspace=packages/utils run build
           npm --workspace=packages/utils version patch --no-git-tag-version
 
+      # Always bump version for the root module
       - name: Bump version for root
         run: npm version patch --no-git-tag-version
 
@@ -73,7 +80,7 @@ jobs:
           NEW_VERSION=$(node -p "require('./package.json').version")
           git add .
           git commit -m "[RELEASE] ${NEW_VERSION}"
-          git push origin HEAD:${{ github.ref }}
+          git push
 
       # Publish changed workspaces (the root module is not published)
       - name: Publish codools
