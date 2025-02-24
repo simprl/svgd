@@ -246,5 +246,4 @@ For more detailed contribution guidelines, please see [CONTRIBUTING.md](CONTRIBU
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-
 If you have any questions or need further assistance, please feel free to open an issue or reach out. Enjoy using **@svgd/core**!
