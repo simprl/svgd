@@ -84,8 +84,8 @@ jobs:
 
       # Publish changed workspaces (the root module is not published)
       - name: Publish codools
-#        if: steps.filter.outputs.codools == 'true'
-        run: npm publish --workspace=packages/codools
+        working-directory: packages/codools
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
 
