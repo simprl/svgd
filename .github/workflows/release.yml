@@ -27,13 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      # Install dependencies
-      - name: Build
-        run: |
-          npm --workspace=packages/codools run build
-          npm --workspace=packages/core run build
-          npm --workspace=packages/utils run build
-
       # Filter changed paths using dorny/paths-filter
       - name: Filter changed paths
         id: filter
@@ -49,6 +42,13 @@ jobs:
               - 'packages/utils/**'
               - 'packages/core/**'
               - 'packages/codools/**'
+
+      # Install dependencies
+      - name: Build
+        run: |
+          npm --workspace=packages/codools run build
+          npm --workspace=packages/core run build
+          npm --workspace=packages/utils run build
 
       - name: codools
         if: steps.filter.outputs.codools == 'true'
