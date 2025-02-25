@@ -89,14 +89,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
 
-      - name: Publish core
-#        if: steps.filter.outputs.core == 'true'
-        run: npm publish --workspace=packages/core
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
-
-      - name: Publish utils
-#        if: steps.filter.outputs.utils == 'true'
-        run: npm publish --workspace=packages/utils
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+#      - name: Publish core
+##        if: steps.filter.outputs.core == 'true'
+#        run: npm publish --workspace=packages/core
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+#
+#      - name: Publish utils
+##        if: steps.filter.outputs.utils == 'true'
+#        run: npm publish --workspace=packages/utils
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
