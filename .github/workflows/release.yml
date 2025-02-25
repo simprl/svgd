@@ -98,6 +98,6 @@ jobs:
 
       - name: Publish utils
         if: steps.filter.outputs.utils == 'true'
-        run: npm publish --workspace=packages/utils
+        run: npm publish --workspace=packages/utils --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
