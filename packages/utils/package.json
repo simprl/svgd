@@ -1,6 +1,6 @@
 {
   "name": "@svgd/utils",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Utility functions to convert SVG to path d.",
   "type": "module",
   "main": "./dist/index.cjs",
