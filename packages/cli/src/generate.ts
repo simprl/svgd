@@ -29,6 +29,14 @@ interface FileRawData {
     rowTemplate: (rows: TemplateProps) => string;
 }
 
+const defoultOptions: CLIOptions = {
+    input: "src/assets/icons",
+    output: "src/components/Icon/paths.js",
+    quote: false,
+    template: "",
+    format: "camelCase"
+}
+
 /**
  * generateSvgConstants performs the main logic:
  * 1) Search for all .svg files under the given folder.
@@ -38,34 +46,36 @@ interface FileRawData {
 export async function generateSvgConstants(options: CLIOptions): Promise<GeneratedFile[]> {
     const root = process.cwd();
 
-    const baseDir = path.resolve(root, options.input);
+    const filledOptions = { ...defoultOptions, ...options };
+
+    const baseDir = path.resolve(root, filledOptions.input);
 
     // Find all .svg files inside `baseDir`.
     const svgFiles = getSvgFileNames(baseDir);
 
-    const singleQuote = options.quote;
+    const singleQuote = filledOptions.quote;
     const quote = singleQuote ? "'" : '"';
 
     const outputs = new Map<string, FileRawData>();
 
     let md: FileRawData | undefined;
-    if (options.md) {
+    if (filledOptions.md) {
         md = {
             rows: [],
             fileTemplate: mdFileTemplate,
             rowTemplate: mdRowTemplate,
-            path: path.resolve(root, options.md)
+            path: path.resolve(root, filledOptions.md)
         };
         outputs.set(md.path, md)
     }
 
     let html: FileRawData | undefined;
-    if (options.html) {
+    if (filledOptions.html) {
         html = {
             rows: [],
             fileTemplate: htmlFileTemplate,
             rowTemplate: htmlRowTemplate,
-            path: path.resolve(root, options.html)
+            path: path.resolve(root, filledOptions.html)
         };
         outputs.set(html.path, html)
     }
@@ -77,10 +87,10 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
             const constantName = generateConstantName(
                 file,
                 baseDir,
-                options.template,
-                options.format
+                filledOptions.template,
+                filledOptions.format
             );
-            const outputFileName = generateFileName(file, baseDir, options.output);
+            const outputFileName = generateFileName(file, baseDir, filledOptions.output);
             const outputFilePath = path.resolve(root, outputFileName);
 
             let constants = outputs.get(outputFilePath);
@@ -88,13 +98,13 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 constants = {
                     rows: [],
                     path: outputFilePath,
-                    rowTemplate: options.dts ? jsRowTemplate : jsRowTemplateWithJSDoc
+                    rowTemplate: filledOptions.dts ? jsRowTemplate : jsRowTemplateWithJSDoc
                 };
                 outputs.set(outputFilePath, constants);
             }
 
             let dts: FileRawData | undefined;
-            if (options.dts) {
+            if (filledOptions.dts) {
                 const dtsOutputFilePath = outputFilePath.replace(/\.js|\.ts$/, ".d.ts");
                 dts = outputs.get(dtsOutputFilePath);
                 if (!dts) {

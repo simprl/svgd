@@ -14,7 +14,7 @@ export const esmPath = getESMPath(importMeta, relativePath);
 #### Result:
 ```json
 {
-  "esmPath": "Y:\\myproject\\otherFolder\\file.txt"
+  "esmPath": "C:\\work\\svg\\svgd\\packages\\codools\\tests\\stories\\otherFolder\\file.txt"
 }
 ```
 
@@ -32,7 +32,7 @@ export const esmPath = getESMPath(importMeta, relativePath);
 #### Result:
 ```json
 {
-  "esmPath": "Y:\\myproject\\scripts"
+  "esmPath": "C:\\work\\svg\\svgd\\packages\\codools\\tests\\stories\\getESMPath"
 }
 ```
 

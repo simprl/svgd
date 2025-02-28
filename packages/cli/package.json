@@ -21,24 +21,25 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "commander": "^12.1.0",
-    "@svgd/utils": "*",
-    "svgo": "^3.3.2"
-  },
-
+  "private": false,
   "devDependencies": {
     "@types/node": "^18.19.71",
+    "codools": "*",
+    "@svgd/mocks": "*",
     "tsup": "^8.3.5",
-    "typescript": "5.7.3",
-    "codools": "*"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "@svgd/utils": "*"
   }
 }

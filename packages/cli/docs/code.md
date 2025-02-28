@@ -7,7 +7,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "strict": true,
 
@@ -15,10 +15,15 @@
     "declarationMap": true,
     "sourceMap": true,
 
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@svgd/cli": ["src/index"]
+    }
   },
   "include": ["src", "tests", "scripts"]
 }
@@ -51,25 +56,26 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "commander": "^12.1.0",
-    "@svgd/utils": "*",
-    "svgo": "^3.3.2"
-  },
-
+  "private": false,
   "devDependencies": {
     "@types/node": "^18.19.71",
+    "codools": "*",
+    "@svgd/mocks": "*",
     "tsup": "^8.3.5",
-    "typescript": "5.7.3",
-    "codools": "*"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "@svgd/utils": "*"
   }
 }
 
@@ -89,8 +95,7 @@ await runCLI(process.argv);
 
 ```typescript
 import path from 'path';
-import { optimize } from "svgo";
-import { getSvgoConfig, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
+import { parseSvg, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
 import { readFileSync } from "fs";
 import { CLIOptions } from "./parseCliArgs";
 import {
@@ -120,7 +125,13 @@ interface FileRawData {
     rowTemplate: (rows: TemplateProps) => string;
 }
 
-const config = getSvgoConfig();
+const defoultOptions: CLIOptions = {
+    input: "src/assets/icons",
+    output: "src/components/Icon/paths.js",
+    quote: false,
+    template: "",
+    format: "camelCase"
+}
 
 /**
  * generateSvgConstants performs the main logic:
@@ -131,34 +142,36 @@ const config = getSvgoConfig();
 export async function generateSvgConstants(options: CLIOptions): Promise<GeneratedFile[]> {
     const root = process.cwd();
 
-    const baseDir = path.resolve(root, options.input);
+    const filledOptions = { ...defoultOptions, ...options };
+
+    const baseDir = path.resolve(root, filledOptions.input);
 
     // Find all .svg files inside `baseDir`.
     const svgFiles = getSvgFileNames(baseDir);
 
-    const singleQuote = options.quote;
+    const singleQuote = filledOptions.quote;
     const quote = singleQuote ? "'" : '"';
 
     const outputs = new Map<string, FileRawData>();
 
     let md: FileRawData | undefined;
-    if (options.md) {
+    if (filledOptions.md) {
         md = {
             rows: [],
             fileTemplate: mdFileTemplate,
             rowTemplate: mdRowTemplate,
-            path: path.resolve(root, options.md)
+            path: path.resolve(root, filledOptions.md)
         };
         outputs.set(md.path, md)
     }
 
     let html: FileRawData | undefined;
-    if (options.html) {
+    if (filledOptions.html) {
         html = {
             rows: [],
             fileTemplate: htmlFileTemplate,
             rowTemplate: htmlRowTemplate,
-            path: path.resolve(root, options.html)
+            path: path.resolve(root, filledOptions.html)
         };
         outputs.set(html.path, html)
     }
@@ -170,10 +183,10 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
             const constantName = generateConstantName(
                 file,
                 baseDir,
-                options.template,
-                options.format
+                filledOptions.template,
+                filledOptions.format
             );
-            const outputFileName = generateFileName(file, baseDir, options.output);
+            const outputFileName = generateFileName(file, baseDir, filledOptions.output);
             const outputFilePath = path.resolve(root, outputFileName);
 
             let constants = outputs.get(outputFilePath);
@@ -181,13 +194,13 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 constants = {
                     rows: [],
                     path: outputFilePath,
-                    rowTemplate: options.dts ? jsRowTemplate : jsRowTemplateWithJSDoc
+                    rowTemplate: filledOptions.dts ? jsRowTemplate : jsRowTemplateWithJSDoc
                 };
                 outputs.set(outputFilePath, constants);
             }
 
             let dts: FileRawData | undefined;
-            if (options.dts) {
+            if (filledOptions.dts) {
                 const dtsOutputFilePath = outputFilePath.replace(/\.js|\.ts$/, ".d.ts");
                 dts = outputs.get(dtsOutputFilePath);
                 if (!dts) {
@@ -200,7 +213,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 }
             }
 
-            const d = optimize(readFileSync(file, 'utf8'), config).data;
+            const d = parseSvg(readFileSync(file, 'utf8'));
             const svg = getSvg(d);
             const png = await getPng(svg);
 
@@ -297,7 +310,7 @@ function ensureDirectoryExistence(filePath: string): void {
     }
 }
 
-export { generateSvgConstants, runCLI };
+export { generateSvgConstants, runCLI, parseCliArgs };
 export type { CLIOptions, GeneratedFile };
 
 ```
@@ -336,7 +349,7 @@ export function parseCliArgs(argv: string[]): CLIOptions {
         .option('-t, --template <string>', 'Template string for naming convention', '')
         .option('-m, --md <string>', 'Path to the output MD file', '')
         .option('-h, --html <string>', 'Path to the output HTML file', '')
-        .option('-d, --dts <boolean>', 'Path to the output HTML file', false)
+        .option('-d, --dts', 'Path to the output HTML file', false)
         .option(
             '-f, --format <format>',
             'Naming format: camelCase, PascalCase, snake_case, or SCREAMING_SNAKE_CASE',

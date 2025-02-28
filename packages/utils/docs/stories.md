@@ -472,7 +472,7 @@ export const outputFileName = generateFileName(filePath, baseDir, template);
 #### Code:
 ```ts
 import { getSvgFileNames } from "@svgd/utils";
-const filePath = "C:\\work\\svg\\svgd\\packages\\utils\\tests\\stories\\svgFiles";
+const filePath = "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons";
 export const svgFileNames = getSvgFileNames(filePath);
 
 ```
@@ -481,10 +481,10 @@ export const svgFileNames = getSvgFileNames(filePath);
 ```json
 {
   "svgFileNames": [
-    "C:\\work\\svg\\svgd\\packages\\utils\\tests\\stories\\svgFiles\\test_icon.svg",
-    "C:\\work\\svg\\svgd\\packages\\utils\\tests\\stories\\svgFiles\\subdir1\\icon1_20px.svg",
-    "C:\\work\\svg\\svgd\\packages\\utils\\tests\\stories\\svgFiles\\subdir1\\icon1_24px.svg",
-    "C:\\work\\svg\\svgd\\packages\\utils\\tests\\stories\\svgFiles\\subdir1\\subdir2\\icon5_24px.svg"
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\test_icon.svg",
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_20px.svg",
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_24px.svg",
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\subdir2\\icon5_24px.svg"
   ]
 }
 ```

@@ -1,5 +1,5 @@
 import { defaultConfig } from "./defaultConfig";
-import { XastChild, XastRoot } from "svgo/lib/types";
+import type { XastChild, XastRoot } from "svgo/lib/types";
 import type { Config, CustomPlugin } from "svgo";
 import { resizePlugin } from "./resizePlugin";
 import { commands } from "./commands";

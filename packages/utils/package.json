@@ -15,22 +15,24 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "author": "",
   "license": "MIT",
   "private": false,
   "devDependencies": {
     "@types/node": "^18.19.71",
+    "codools": "*",
+    "@svgd/mocks": "*",
     "tsup": "^8.3.5",
-    "@svgd/mocks": "*"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5",
+    "tsx": "^4.19.2"
   },
   "dependencies": {
-    "estree-walker": "^3.0.3",
     "sharp": "^0.33.5",
+    "svgo": "^3.3.2",
     "@svgd/core": "*",
     "typescript": "^5.7.3"
   }

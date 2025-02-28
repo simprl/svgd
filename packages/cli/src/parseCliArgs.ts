@@ -29,7 +29,7 @@ export function parseCliArgs(argv: string[]): CLIOptions {
         .option('-t, --template <string>', 'Template string for naming convention', '')
         .option('-m, --md <string>', 'Path to the output MD file', '')
         .option('-h, --html <string>', 'Path to the output HTML file', '')
-        .option('-d, --dts <boolean>', 'Path to the output HTML file', false)
+        .option('-d, --dts', 'Path to the output HTML file', false)
         .option(
             '-f, --format <format>',
             'Naming format: camelCase, PascalCase, snake_case, or SCREAMING_SNAKE_CASE',

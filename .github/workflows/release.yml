@@ -43,6 +43,11 @@ jobs:
               - 'packages/utils/**'
               - 'packages/core/**'
               - 'packages/codools/**'
+            cli:
+              - 'packages/cli/**'
+              - 'packages/utils/**'
+              - 'packages/core/**'
+              - 'packages/codools/**'
 
       # Install dependencies
       - name: Build
@@ -50,6 +55,7 @@ jobs:
           npm --workspace=packages/codools run build
           npm --workspace=packages/core run build
           npm --workspace=packages/utils run build
+          npm --workspace=packages/cli run build
 
       - name: codools
         if: steps.filter.outputs.codools == 'true'
@@ -68,6 +74,12 @@ jobs:
         run: |
           npm --workspace=packages/utils run test
           npm --workspace=packages/utils version patch --no-git-tag-version
+
+      - name: cli
+        if: steps.filter.outputs.cli == 'true'
+        run: |
+          npm --workspace=packages/cli run test
+          npm --workspace=packages/cli version patch --no-git-tag-version
 
       # Always bump version for the root module
       - name: Bump version for root
@@ -99,5 +111,11 @@ jobs:
       - name: Publish utils
         if: steps.filter.outputs.utils == 'true'
         run: npm publish --workspace=packages/utils --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+
+      - name: Publish cli
+        if: steps.filter.outputs.cli == 'true'
+        run: npm publish --workspace=packages/cli --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}

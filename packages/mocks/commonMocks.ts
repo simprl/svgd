@@ -2,8 +2,8 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import { getESMPath } from "codools";
 
-const inputDir = getESMPath(import.meta, './inputIcons');
-const outputDir = getESMPath(import.meta, './outputIcons');
+export const inputDir = getESMPath(import.meta, './inputIcons');
+export const outputDir = getESMPath(import.meta, './outputIcons');
 
 export interface PathAttributes {
   d: string;
@@ -28,7 +28,7 @@ export interface Mock {
 export const mocks: Mock[] = [
   {
     title: "Material UI icon with size 20",
-    svgFile: "icon1_20px.svg",
+    svgFile: "subdir1/icon1_20px.svg",
     pathD: "M12 19.2c-3.972 0-7.2-3.228-7.2-7.2S8.028 4.8 12 4.8s7.2 3.228 7.2 7.2-3.228 7.2-7.2 7.2m0 1.2c4.644 0 8.4-3.756 8.4-8.4S16.644 3.6 12 3.6 3.6 7.356 3.6 12s3.756 8.4 8.4 8.4m.6-8.4V8.4h-1.2V12h-3l3.6 3.6 3.6-3.6z",
     attributes: [
       {
@@ -39,7 +39,7 @@ export const mocks: Mock[] = [
   },
   {
     title: "Material UI icon with size 24",
-    svgFile: "icon1_24px.svg",
+    svgFile: "subdir1/icon1_24px.svg",
     pathD: "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z",
     "attributes": [
       {
@@ -50,7 +50,7 @@ export const mocks: Mock[] = [
   },
   {
     title: "Transparent Material UI icon",
-    svgFile: "icon5_24px.svg",
+    svgFile: "subdir1/subdir2/icon5_24px.svg",
     pathD: "o.3 M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0 12-4-4h3V8h2v4h3z o1 M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z",
     "attributes": [
       {

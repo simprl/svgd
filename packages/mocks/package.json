@@ -8,5 +8,10 @@
     ".": "./index.ts",
     "./mocks": "./mocks.ts"
   },
+  "scripts": {
+    "build": "",
+    "docs": "",
+    "test": ""
+  },
   "private": true
 }

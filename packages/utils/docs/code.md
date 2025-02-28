@@ -35,9 +35,8 @@
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Utility functions to convert SVG to path d.",
-
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -51,21 +50,24 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "author": "",
   "license": "MIT",
   "private": false,
   "devDependencies": {
     "@types/node": "^18.19.71",
-    "tsup": "^8.3.5"
+    "codools": "*",
+    "@svgd/mocks": "*",
+    "tsup": "^8.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5",
+    "tsx": "^4.19.2"
   },
   "dependencies": {
-    "estree-walker": "^3.0.3",
     "sharp": "^0.33.5",
+    "svgo": "^3.3.2",
     "@svgd/core": "*",
     "typescript": "^5.7.3"
   }
@@ -93,13 +95,13 @@ export const getPng = async (svgContent: string, width = 64, height = width) => 
 
 ```typescript
 import { readdirSync } from "fs";
-import path from "path";
+import { resolve, join } from "path";
 
 export function getSvgFileNames(dir: string): string[] {
-    const entries = readdirSync(dir, { withFileTypes: true, recursive: true });
+    const entries = readdirSync(resolve(dir), { withFileTypes: true, recursive: true });
     return entries
         .filter((entry) => /\.(svg)$/i.test(entry.name) && !entry.isDirectory())
-        .map(({ name, parentPath }) => path.join(parentPath, name))
+        .map(({ name, parentPath }) => join(parentPath, name))
 }
 
 ```

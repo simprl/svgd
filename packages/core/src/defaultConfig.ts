@@ -1,4 +1,4 @@
-import { Config } from 'svgo';
+import { type Config } from 'svgo';
 import { ResizeParams } from "./resizePlugin";
 
 export interface SVGDConfig {

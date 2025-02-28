@@ -1,5 +1,5 @@
-import { CustomPlugin } from 'svgo';
-import { XastElement, XastRoot } from 'svgo/lib/types';
+import type { CustomPlugin } from 'svgo';
+import type { XastElement, XastRoot } from 'svgo/lib/types';
 
 export interface ViewBox {
     minX: number;

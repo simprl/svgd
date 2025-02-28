@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -50,16 +50,13 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "author": "",
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
     "codools": "*",
     "@svgd/mocks": "*",

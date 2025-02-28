@@ -60,10 +60,8 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "npm run codeDoc && npm run useCasesDoc",
-    "lint": "eslint",
-    "codeDoc": "tsx scripts/codeDoc",
-    "useCasesDoc": "tsx scripts/useCasesDoc"
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
   },
   "author": "",
   "license": "MIT",
@@ -76,11 +74,11 @@
   "peerDependencies": {
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
     "@types/node": "^18.19.71",
     "tsup": "^8.3.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "@svgd/mocks": "*"
   },
   "keywords": [
   ]

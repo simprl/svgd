@@ -35,5 +35,5 @@ function ensureDirectoryExistence(filePath: string): void {
     }
 }
 
-export { generateSvgConstants, runCLI };
+export { generateSvgConstants, runCLI, parseCliArgs };
 export type { CLIOptions, GeneratedFile };
