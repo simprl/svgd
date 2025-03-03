@@ -7,7 +7,8 @@
     "packages/codools",
     "packages/core",
     "packages/utils",
-    "packages/cli"
+    "packages/cli",
+    "packages/cli-example"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
