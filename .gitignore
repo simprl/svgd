@@ -9,6 +9,7 @@ lerna-debug.log*
 
 patches
 node_modules
+material-icons
 dist
 dist-ssr
 *.local
