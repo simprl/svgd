@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "commander": "^12.1.0",
-    "@svgd/utils": "*"
+    "@svgd/utils": "0.1.7"
   }
 }
