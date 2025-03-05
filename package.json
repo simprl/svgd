@@ -1,6 +1,6 @@
 {
   "name": "@svgd/all",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "private": true,
   "workspaces": [
     "packages/mocks",
