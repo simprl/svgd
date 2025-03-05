@@ -50,37 +50,49 @@ jobs:
               - 'packages/codools/**'
 
       - name: codools
-        if: steps.filter.outputs.codools == 'true'
         run: |
-          npm --workspace=packages/codools run build
-          npm --workspace=packages/codools run test
-          npm --workspace=packages/codools version patch --no-git-tag-version
+          if [ "${{ steps.filter.outputs.codools }}" = "true" ]; then
+            npm --workspace=packages/codools run build
+            npm --workspace=packages/codools run test
+            npm --workspace=packages/codools version patch --no-git-tag-version
+          else
+            npm --workspace=packages/codools run build
+          fi
 
       - name: core
-        if: steps.filter.outputs.core == 'true'
         run: |
-          npm --workspace=packages/core i codools@latest
-          npm --workspace=packages/core run build
-          npm --workspace=packages/core run test
-          npm --workspace=packages/core version patch --no-git-tag-version
+          if [ "${{ steps.filter.outputs.core }}" = "true" ]; then
+            npm --workspace=packages/core i codools@latest
+            npm --workspace=packages/core run build
+            npm --workspace=packages/core run test
+            npm --workspace=packages/core version patch --no-git-tag-version
+          else
+            npm --workspace=packages/core run build
+          fi
 
       - name: utils
-        if: steps.filter.outputs.utils == 'true'
         run: |
-          npm --workspace=packages/utils i codools@latest
-          npm --workspace=packages/utils i @svgd/core@latest
-          npm --workspace=packages/utils run build
-          npm --workspace=packages/utils run test
-          npm --workspace=packages/utils version patch --no-git-tag-version
+          if [ "${{ steps.filter.outputs.utils }}" = "true" ]; then
+            npm --workspace=packages/utils i codools@latest
+            npm --workspace=packages/utils i @svgd/core@latest
+            npm --workspace=packages/utils run build
+            npm --workspace=packages/utils run test
+            npm --workspace=packages/utils version patch --no-git-tag-version
+          else
+            npm --workspace=packages/utils run build
+          fi
 
       - name: cli
-        if: steps.filter.outputs.cli == 'true'
         run: |
-          npm --workspace=packages/cli i codools@latest
-          npm --workspace=packages/cli i @svgd/utils@latest
-          npm --workspace=packages/cli run build
-          npm --workspace=packages/cli run test
-          npm --workspace=packages/cli version patch --no-git-tag-version
+          if [ "${{ steps.filter.outputs.cli }}" = "true" ]; then
+            npm --workspace=packages/cli i codools@latest
+            npm --workspace=packages/cli i @svgd/utils@latest
+            npm --workspace=packages/cli run build
+            npm --workspace=packages/cli run test
+            npm --workspace=packages/cli version patch --no-git-tag-version
+          else
+            npm --workspace=packages/cli run build
+          fi
 
       # Always bump version for the root module
       - name: Bump version for root
