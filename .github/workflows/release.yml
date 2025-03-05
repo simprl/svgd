@@ -66,18 +66,23 @@ jobs:
       - name: core
         if: steps.filter.outputs.core == 'true'
         run: |
+          npm --workspace=packages/core i codools@latest
           npm --workspace=packages/core run test
           npm --workspace=packages/core version patch --no-git-tag-version
 
       - name: utils
         if: steps.filter.outputs.utils == 'true'
         run: |
+          npm --workspace=packages/utils i codools@latest
+          npm --workspace=packages/utils i @svgd/core@latest
           npm --workspace=packages/utils run test
           npm --workspace=packages/utils version patch --no-git-tag-version
 
       - name: cli
         if: steps.filter.outputs.cli == 'true'
         run: |
+          npm --workspace=packages/cli i codools@latest
+          npm --workspace=packages/cli i @svgd/utils@latest
           npm --workspace=packages/cli run test
           npm --workspace=packages/cli version patch --no-git-tag-version
 

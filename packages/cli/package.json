@@ -29,17 +29,17 @@
   ],
   "private": false,
   "devDependencies": {
+    "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
     "codools": "*",
-    "@svgd/mocks": "*",
     "tsup": "^8.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5"
   },
   "dependencies": {
-    "commander": "^12.1.0",
-    "@svgd/utils": "0.1.7"
+    "@svgd/utils": "^0.1.8",
+    "commander": "^12.1.0"
   }
 }
