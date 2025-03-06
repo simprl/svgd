@@ -9,14 +9,14 @@ const jsRow = `export const icon = "M0,0 L10,10";
 
 const jsRowWithJSDoc = `/**
  * @filepath icons/icon.svg
- * @var ![](data:image/png;base64,ABC)
+ * @return ![](data:image/png;base64,ABC)
  */
 export const icon = "M0,0 L10,10";
 `;
 
 export const dtsRow = `/**
  * @filepath icons/icon.svg
- * @var ![](data:image/png;base64,ABC)
+ * @return ![](data:image/png;base64,ABC)
  */
 export const icon: string;
 `;

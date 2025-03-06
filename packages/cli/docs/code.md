@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/cli",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "CLI tool to generate constants from SVG files",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -64,18 +64,18 @@
   ],
   "private": false,
   "devDependencies": {
-    "@types/node": "^18.19.71",
-    "codools": "*",
     "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.1",
     "tsup": "^8.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5"
   },
   "dependencies": {
-    "commander": "^12.1.0",
-    "@svgd/utils": "*"
+    "@svgd/utils": "^0.1.11",
+    "commander": "^12.1.0"
   }
 }
 
@@ -95,7 +95,16 @@ await runCLI(process.argv);
 
 ```typescript
 import path from 'path';
-import { parseSvg, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
+import {
+    parseSvg,
+    generateConstantName,
+    generateFileName,
+    getSvgFileNames,
+    getPng,
+    getSvg,
+    defaultConfig,
+    getSvgoConfig
+} from "@svgd/utils";
 import { readFileSync } from "fs";
 import { CLIOptions } from "./parseCliArgs";
 import {
@@ -130,7 +139,9 @@ const defoultOptions: CLIOptions = {
     output: "src/components/Icon/paths.js",
     quote: false,
     template: "",
-    format: "camelCase"
+    format: "camelCase",
+    colors: false,
+    size: 24,
 }
 
 /**
@@ -145,6 +156,19 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
     const filledOptions = { ...defoultOptions, ...options };
 
     const baseDir = path.resolve(root, filledOptions.input);
+
+    const svgoConfig = getSvgoConfig({
+        ...defaultConfig,
+        colors: filledOptions.colors,
+        resize: {
+            targetViewBox: {
+                minX: 0,
+                minY: 0,
+                width: filledOptions.size ?? 24,
+                height: filledOptions.size ?? 24,
+            }
+        }
+    })
 
     // Find all .svg files inside `baseDir`.
     const svgFiles = getSvgFileNames(baseDir);
@@ -213,7 +237,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 }
             }
 
-            const d = parseSvg(readFileSync(file, 'utf8'));
+            const d = parseSvg(readFileSync(file, 'utf8'), svgoConfig);
             const svg = getSvg(d);
             const png = await getPng(svg);
 
@@ -318,7 +342,7 @@ export type { CLIOptions, GeneratedFile };
 ## src\parseCliArgs.ts
 
 ```typescript
-import { createCommand } from 'commander';
+import { createCommand, InvalidArgumentError } from 'commander';
 
 /**
  * CLIOptions represent the final parsed arguments from the CLI.
@@ -326,14 +350,24 @@ import { createCommand } from 'commander';
 export interface CLIOptions {
     input: string;
     output: string;
+    colors?: boolean;
     quote: boolean;
     template: string;
     format: 'camelCase' | 'PascalCase' | 'snake_case' | 'SCREAMING_SNAKE_CASE';
     md?: string;
     html?: string;
     dts?: boolean;
+    size?: number;
 }
 
+
+function commanderParseInt(value: string): number {
+    const parsedValue = parseInt(value, 10);
+    if (isNaN(parsedValue)) {
+        throw new InvalidArgumentError('Not a number.');
+    }
+    return parsedValue;
+}
 /**
  * parseCliArgs takes the process.argv and parses it using commander.
  * It returns a CLIOptions object with the recognized arguments.
@@ -345,6 +379,8 @@ export function parseCliArgs(argv: string[]): CLIOptions {
         .description('CLI tool to generate constants from SVG files')
         .option('-i, --input <directory>', 'Input directory containing SVG files', 'src/assets/icons')
         .option('-o, --output <file>', 'Output file path or pattern', 'src/components/Icon/paths.js')
+        .option('-c, --colors', 'Keep colors', false)
+        .option('-s, --size <number>', 'Icon Size', commanderParseInt, 24)
         .option('-q, --quote', 'Use single quotes in the output', false)
         .option('-t, --template <string>', 'Template string for naming convention', '')
         .option('-m, --md <string>', 'Path to the output MD file', '')
@@ -382,7 +418,7 @@ export const jsRowTemplate = ({name, d, quote}: TemplateProps) =>
 export const jsRowTemplateWithJSDoc = ({name, d, image, quote, filePath}: TemplateProps) =>
 `/**
  * @filepath ${filePath}
- * @var ${image}
+ * @return ${image}
  */
 export const ${name} = ${quote}${d}${quote};
 `;
@@ -390,7 +426,7 @@ export const ${name} = ${quote}${d}${quote};
 export const dtsRowTemplate = ({name, image, filePath}: TemplateProps) =>
 `/**
  * @filepath ${filePath}
- * @var ${image}
+ * @return ${image}
  */
 export const ${name}: string;
 `;

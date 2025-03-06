@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.4",
+  "version": "0.1.11",
   "description": "Utility functions to convert SVG to path d.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -47,6 +47,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
@@ -57,18 +60,18 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@types/node": "^18.19.71",
-    "codools": "*",
     "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.1",
     "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
-    "tsx": "^4.19.2"
+    "vitest": "^3.0.5"
   },
   "dependencies": {
+    "@svgd/core": "^0.3.9",
     "sharp": "^0.33.5",
     "svgo": "^3.3.2",
-    "@svgd/core": "*",
     "typescript": "^5.7.3"
   }
 }
@@ -109,7 +112,7 @@ export function getSvgFileNames(dir: string): string[] {
 ## src\index.ts
 
 ```typescript
-import { getSvgoConfig, getSvg } from "@svgd/core";
+import { getSvgoConfig, getSvg, defaultConfig } from "@svgd/core";
 import { getPng } from "./getPng";
 import { parseSvg } from "src/parseSvg";
 import { getSvgFileNames } from "./getSvgFileNames";
@@ -126,6 +129,7 @@ export {
     generateConstantName,
     NameFormats,
     parseSvg,
+    defaultConfig
 }
 
 export type {

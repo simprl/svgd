@@ -15,7 +15,7 @@ export const jsRowTemplate = ({name, d, quote}: TemplateProps) =>
 export const jsRowTemplateWithJSDoc = ({name, d, image, quote, filePath}: TemplateProps) =>
 `/**
  * @filepath ${filePath}
- * @var ${image}
+ * @return ${image}
  */
 export const ${name} = ${quote}${d}${quote};
 `;
@@ -23,7 +23,7 @@ export const ${name} = ${quote}${d}${quote};
 export const dtsRowTemplate = ({name, image, filePath}: TemplateProps) =>
 `/**
  * @filepath ${filePath}
- * @var ${image}
+ * @return ${image}
  */
 export const ${name}: string;
 `;

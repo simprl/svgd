@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.3",
+  "version": "0.3.9",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -47,6 +47,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
@@ -57,15 +60,15 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@types/node": "^18.19.71",
-    "codools": "*",
     "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.1",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
-    "tsx": "^4.19.2"
+    "vitest": "^3.0.5"
   },
   "keywords": [
     "svg",
@@ -159,7 +162,7 @@ import { ResizeParams } from "./resizePlugin";
 
 export interface SVGDConfig {
     resize: ResizeParams;
-
+    colors?: boolean;
     svgo: Config;
 }
 
@@ -172,6 +175,7 @@ export const defaultConfig: SVGDConfig = {
             height: 24,
         }
     },
+    colors: false,
     svgo: {
         plugins: [
             {
@@ -187,11 +191,27 @@ export const defaultConfig: SVGDConfig = {
                 },
             },
             {
+                name: "inlineStyles",
+                params: {
+                    onlyMatchedOnce: false,
+                }
+            },
+            {
+                name: "convertStyleToAttrs",
+            },
+            {
                 name: 'convertShapeToPath',
                 params: {
                     convertArcs: true,
                 },
             },
+            {
+                name: "removeAttrs",
+                params: {
+                    "attrs": ["fill", "stroke"]
+                }
+            },
+
             {
                 name: 'mergePaths',
                 params: {
@@ -216,6 +236,9 @@ export const defaultConfig: SVGDConfig = {
             },
             {
                 name: "convertPathData",
+            },
+            {
+                name: "removeUselessDefs",
             },
         ],
     }
@@ -289,11 +312,15 @@ import { resizePlugin } from "./resizePlugin";
 import { commands } from "./commands";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
+    const plugins = (config.svgo.plugins ?? []);
+    const filteredPlugins = config.colors
+        ? plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "removeAttrs"))
+        : plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "convertColors"));
     return {
         ...config.svgo,
         plugins: [
             resizePlugin(config.resize),
-            ...(config.svgo.plugins ?? []),
+            ...filteredPlugins,
             extractPathDPlugin(),
         ],
     };

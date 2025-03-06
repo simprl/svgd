@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.3",
+  "version": "0.3.9",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -47,6 +47,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
@@ -57,15 +60,15 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@types/node": "^18.19.71",
-    "codools": "*",
     "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.1",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
-    "tsx": "^4.19.2"
+    "vitest": "^3.0.5"
   },
   "keywords": [
     "svg",
@@ -213,10 +216,11 @@ export const stories = story.getStories({
 
 ```typescript
 import { optimize } from "svgo";
-import { getSvgoConfig } from "@svgo/core";
+import { defaultConfig, getSvgoConfig } from "@svgo/core";
 import { svgInput } from "./data";
 
-const svgoConfig = getSvgoConfig();
+const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
+
 export const pathD = optimize(svgInput, svgoConfig).data;
 
 ```
