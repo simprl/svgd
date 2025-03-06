@@ -32,6 +32,12 @@ export const defaultConfig: SVGDConfig = {
                 },
             },
             {
+                name: "inlineStyles",
+                params: {
+                    onlyMatchedOnce: false,
+                }
+            },
+            {
                 name: "convertStyleToAttrs",
             },
             {
@@ -71,6 +77,9 @@ export const defaultConfig: SVGDConfig = {
             },
             {
                 name: "convertPathData",
+            },
+            {
+                name: "removeUselessDefs",
             },
         ],
     }
