@@ -1,5 +1,14 @@
 import path from 'path';
-import { parseSvg, generateConstantName, generateFileName, getSvgFileNames, getPng, getSvg } from "@svgd/utils";
+import {
+    parseSvg,
+    generateConstantName,
+    generateFileName,
+    getSvgFileNames,
+    getPng,
+    getSvg,
+    defaultConfig,
+    getSvgoConfig
+} from "@svgd/utils";
 import { readFileSync } from "fs";
 import { CLIOptions } from "./parseCliArgs";
 import {
@@ -34,7 +43,9 @@ const defoultOptions: CLIOptions = {
     output: "src/components/Icon/paths.js",
     quote: false,
     template: "",
-    format: "camelCase"
+    format: "camelCase",
+    colors: false,
+    size: 24,
 }
 
 /**
@@ -49,6 +60,19 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
     const filledOptions = { ...defoultOptions, ...options };
 
     const baseDir = path.resolve(root, filledOptions.input);
+
+    const svgoConfig = getSvgoConfig({
+        ...defaultConfig,
+        colors: filledOptions.colors,
+        resize: {
+            targetViewBox: {
+                minX: 0,
+                minY: 0,
+                width: filledOptions.size ?? 24,
+                height: filledOptions.size ?? 24,
+            }
+        }
+    })
 
     // Find all .svg files inside `baseDir`.
     const svgFiles = getSvgFileNames(baseDir);
@@ -117,7 +141,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 }
             }
 
-            const d = parseSvg(readFileSync(file, 'utf8'));
+            const d = parseSvg(readFileSync(file, 'utf8'), svgoConfig);
             const svg = getSvg(d);
             const png = await getPng(svg);
 

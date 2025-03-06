@@ -126,6 +126,7 @@ const mocks = [
     title: "Without options",
     cliOptions: {
       input: inputDir,
+      colors: true,
     } as CLIOptions,
     file1: {
       content: jsContent,
@@ -137,6 +138,7 @@ const mocks = [
     cliOptions: {
       input: inputDir,
       output: "icons.ts",
+      colors: true,
       quote: true,
       template: "",
       format: "SCREAMING_SNAKE_CASE",

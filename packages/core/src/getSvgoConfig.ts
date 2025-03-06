@@ -5,11 +5,15 @@ import { resizePlugin } from "./resizePlugin";
 import { commands } from "./commands";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
+    const plugins = (config.svgo.plugins ?? []);
+    const filteredPlugins = config.colors
+        ? plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "removeAttrs"))
+        : plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "convertColors"));
     return {
         ...config.svgo,
         plugins: [
             resizePlugin(config.resize),
-            ...(config.svgo.plugins ?? []),
+            ...filteredPlugins,
             extractPathDPlugin(),
         ],
     };

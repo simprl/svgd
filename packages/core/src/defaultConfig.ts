@@ -3,7 +3,7 @@ import { ResizeParams } from "./resizePlugin";
 
 export interface SVGDConfig {
     resize: ResizeParams;
-
+    colors?: boolean;
     svgo: Config;
 }
 
@@ -16,6 +16,7 @@ export const defaultConfig: SVGDConfig = {
             height: 24,
         }
     },
+    colors: false,
     svgo: {
         plugins: [
             {
@@ -31,11 +32,21 @@ export const defaultConfig: SVGDConfig = {
                 },
             },
             {
+                name: "convertStyleToAttrs",
+            },
+            {
                 name: 'convertShapeToPath',
                 params: {
                     convertArcs: true,
                 },
             },
+            {
+                name: "removeAttrs",
+                params: {
+                    "attrs": ["fill", "stroke"]
+                }
+            },
+
             {
                 name: 'mergePaths',
                 params: {
