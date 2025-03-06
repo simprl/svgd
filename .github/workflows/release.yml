@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      # Filter changed paths using dorny/paths-filter
+      # Filter changed paths
       - name: Filter changed paths
         id: filter
         uses: dorny/paths-filter@v2
@@ -58,35 +58,41 @@ jobs:
           else
             npm --workspace=packages/codools run build
           fi
+          NEW_CODETOOLS_VERSION=$(node -p "require('./packages/codools/package.json').version")
+          echo "CODETOOLS_VERSION=$NEW_CODETOOLS_VERSION" >> $GITHUB_ENV
 
       - name: core
         run: |
           if [ "${{ steps.filter.outputs.core }}" = "true" ]; then
-            npm --workspace=packages/core i codools@latest
+            npm --workspace=packages/core i codools@$CODETOOLS_VERSION
             npm --workspace=packages/core run build
             npm --workspace=packages/core run test
             npm --workspace=packages/core version patch --no-git-tag-version
           else
             npm --workspace=packages/core run build
           fi
+          NEW_CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+          echo "CORE_VERSION=$NEW_CORE_VERSION" >> $GITHUB_ENV
 
       - name: utils
         run: |
           if [ "${{ steps.filter.outputs.utils }}" = "true" ]; then
-            npm --workspace=packages/utils i codools@latest
-            npm --workspace=packages/utils i @svgd/core@latest
+            npm --workspace=packages/utils i codools@$CODETOOLS_VERSION
+            npm --workspace=packages/utils i @svgd/core@$CORE_VERSION
             npm --workspace=packages/utils run build
             npm --workspace=packages/utils run test
             npm --workspace=packages/utils version patch --no-git-tag-version
           else
             npm --workspace=packages/utils run build
           fi
+          NEW_UTILS_VERSION=$(node -p "require('./packages/utils/package.json').version")
+          echo "UTILS_VERSION=$NEW_UTILS_VERSION" >> $GITHUB_ENV
 
       - name: cli
         run: |
           if [ "${{ steps.filter.outputs.cli }}" = "true" ]; then
-            npm --workspace=packages/cli i codools@latest
-            npm --workspace=packages/cli i @svgd/utils@latest
+            npm --workspace=packages/cli i codools@$CODETOOLS_VERSION
+            npm --workspace=packages/cli i @svgd/utils@$UTILS_VERSION
             npm --workspace=packages/cli run build
             npm --workspace=packages/cli run test
             npm --workspace=packages/cli version patch --no-git-tag-version
