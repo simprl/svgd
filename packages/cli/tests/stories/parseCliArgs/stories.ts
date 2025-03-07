@@ -11,6 +11,8 @@ const mocks = [
     args: [
     ],
     options: {
+      colors: false,
+      size: 24,
       dts: false,
       format: "camelCase",
       html: "",
@@ -36,6 +38,8 @@ const mocks = [
       "--dts", "true"
     ],
     options: {
+      colors: false,
+      size: 24,
       input: "icons",
       output: "out.js",
       quote: true,

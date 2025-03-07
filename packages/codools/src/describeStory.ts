@@ -12,7 +12,11 @@ export const describeStories = <Input extends Record<string, unknown>, Output ex
                 const output = await import(`${story.dir}/story?update=${Date.now()}`);
 
                 Object.entries(story.output).forEach(([key, value]) => {
-                    expect(output[key]).toEqual(value);
+                    if (typeof output[key] === "string" && typeof value === "string") {
+                        expect(output[key].trim().replace(/\r\n/g, '\n'), key).toEqual(value.trim().replace(/\r\n/g, '\n'));
+                    } else {
+                        expect(output[key], key).toEqual(value);
+                    }
                 })
             }
         });

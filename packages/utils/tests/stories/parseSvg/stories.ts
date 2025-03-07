@@ -9,11 +9,12 @@ const mocks = [...commonMocks, {
   title: "Throw if incorrect svg",
   isThrow: true,
   svgInput: "ss",
-  pathD: ""
+  pathD: "",
+  config: undefined
 }]
 
 export const stories = story.getStories({
   mocks,
-  input: ({ svgInput }) => ({ svgInput }),
+  input: ({ svgInput, config }) => ({ svgInput, config }),
   output: ({ pathD }) => ({ pathD })
 });

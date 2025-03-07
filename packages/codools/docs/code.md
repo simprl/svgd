@@ -36,7 +36,7 @@
 ```json
 {
   "name": "codools",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -71,8 +71,7 @@
     "vitest": "^3.0.5",
     "minimatch": "^9.0.3"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "@types/node": "^18.19.71",
     "tsup": "^8.3.5",
@@ -80,8 +79,7 @@
     "tsx": "^4.19.2",
     "@svgd/mocks": "*"
   },
-  "keywords": [
-  ]
+  "keywords": []
 }
 
 ```
@@ -103,7 +101,11 @@ export const describeStories = <Input extends Record<string, unknown>, Output ex
                 const output = await import(`${story.dir}/story?update=${Date.now()}`);
 
                 Object.entries(story.output).forEach(([key, value]) => {
-                    expect(output[key]).toEqual(value);
+                    if (typeof output[key] === "string" && typeof value === "string") {
+                        expect(output[key].trim().replace(/\r\n/g, '\n'), key).toEqual(value.trim().replace(/\r\n/g, '\n'));
+                    } else {
+                        expect(output[key], key).toEqual(value);
+                    }
                 })
             }
         });

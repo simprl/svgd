@@ -2,9 +2,11 @@ export interface PathAttributes {
     d: string;
     opacity?: string;
     "fill-opacity"?: string;
+    "stroke-opacity"?: string;
     stroke?: string;
     fill?: string;
     "stroke-width"?: string;
+    "fill-rule"?: string;
 }
 
 export interface Comand {
@@ -12,7 +14,7 @@ export interface Comand {
     attribute: keyof PathAttributes,
     regexp: string,
     toAttribute: (codeValue: string) => string,
-    toCommand: (attributeValue: string) => string,
+    toCommand: (attributeValue: string) => string | null,
 }
 
 export const commands: Comand[] = [
@@ -24,8 +26,15 @@ export const commands: Comand[] = [
         toCommand: (attributeValue) => attributeValue,
     },
     {
-        code: "O",
+        code: "of",
         attribute: "fill-opacity",
+        regexp: "[\\d.]+",
+        toAttribute: (codeValue) => codeValue,
+        toCommand: (attributeValue) => attributeValue,
+    },
+    {
+        code: "os",
+        attribute: "stroke-opacity",
         regexp: "[\\d.]+",
         toAttribute: (codeValue) => codeValue,
         toCommand: (attributeValue) => attributeValue,
@@ -33,16 +42,40 @@ export const commands: Comand[] = [
     {
         code: "f",
         attribute: "stroke",
-        regexp: "[0-9a-fA-F]+",
-        toAttribute: (codeValue) => `#${codeValue}`,
-        toCommand: (attributeValue) => attributeValue.replace(/^#/, ''),
+        regexp: "[#0-9a-zA-Z]+",
+        toAttribute: (codeValue) => {
+            switch (codeValue) {
+                case 'c': return 'currentColor';
+                case 'n': return 'none';
+                default: return codeValue;
+            }
+        },
+        toCommand: (attributeValue) => {
+            switch (attributeValue) {
+                case 'currentColor': return 'c';
+                case 'none': return 'n';
+                default: return attributeValue;
+            }
+        },
     },
     {
         code: "F",
         attribute: "fill",
-        regexp: "[0-9a-fA-F]+",
-        toAttribute: (codeValue) => `#${codeValue}`,
-        toCommand: (attributeValue) => attributeValue.replace(/^#/, ''),
+        regexp: "[#0-9a-zA-Z]+",
+        toAttribute: (codeValue) => {
+            switch (codeValue) {
+                case 'c': return 'currentColor';
+                case 'n': return 'none';
+                default: return codeValue;
+            }
+        },
+        toCommand: (attributeValue) => {
+            switch (attributeValue) {
+                case 'currentColor': return null;
+                case 'none': return 'n';
+                default: return attributeValue;
+            }
+        },
     },
     {
         code: "w",
@@ -50,5 +83,12 @@ export const commands: Comand[] = [
         regexp: "[\\d.]+",
         toAttribute: (codeValue) => codeValue,
         toCommand: (attributeValue) => attributeValue,
+    },
+    {
+        code: "e",
+        attribute: "fill-rule",
+        regexp: "",
+        toAttribute: () => 'evenodd',
+        toCommand: (attributeValue) => attributeValue === 'evenodd' ? '' : null,
     }
 ]

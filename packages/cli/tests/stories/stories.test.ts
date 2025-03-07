@@ -8,5 +8,5 @@ import { stories as templatesStories } from "./templates/stories";
 describe("generateSvgConstants", () => describeStories(generateStories));
 // describe("index CLI run", () => describeStories(indexStories));
 
-// describe("parseCliArgs", () => describeStories(parseCliArgsStories));
-// describe("templates", () => describeStories(templatesStories));
+describe("parseCliArgs", () => describeStories(parseCliArgsStories));
+describe("templates", () => describeStories(templatesStories));

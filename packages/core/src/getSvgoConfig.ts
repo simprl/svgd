@@ -6,14 +6,19 @@ import { commands } from "./commands";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
     const plugins = (config.svgo.plugins ?? []);
-    const filteredPlugins = config.colors
-        ? plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "removeAttrs"))
-        : plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "convertColors"));
+    const pluginsByColor = config.colors
+        ? plugins
+        : plugins.map((plugin) => (typeof plugin === "object" && plugin.name === "convertColors") ? {
+            ...plugin,
+            params: {
+                currentColor: true
+            }
+        } : plugin);
     return {
         ...config.svgo,
         plugins: [
             resizePlugin(config.resize),
-            ...filteredPlugins,
+            ...pluginsByColor,
             extractPathDPlugin(),
         ],
     };
@@ -50,8 +55,7 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
     if (
         node.type === 'element' &&
         node.name === 'path' &&
-        node.attributes.d &&
-        node.attributes.fill !== 'none'
+        node.attributes.d
     ) {
         const { attributes } = node;
         const d = attributes.d;
@@ -59,7 +63,10 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
 
         commands.forEach(({ code, toCommand, attribute }) => {
             if (attribute in attributes) {
-                commandsArray.push(`${code}${toCommand(attributes[attribute])}`);
+                const commandValue = toCommand(attributes[attribute]);
+                if (commandValue !== null) {
+                    commandsArray.push(`${code}${commandValue}`);
+                }
             }
         });
 

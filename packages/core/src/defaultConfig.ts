@@ -41,23 +41,12 @@ export const defaultConfig: SVGDConfig = {
                 name: "convertStyleToAttrs",
             },
             {
-                name: 'convertShapeToPath',
+                name: "removeUselessStrokeAndFill",
                 params: {
-                    convertArcs: true,
-                },
-            },
-            {
-                name: "removeAttrs",
-                params: {
-                    "attrs": ["fill", "stroke"]
+                    stroke: true,
+                    fill: true,
+                    removeNone: true
                 }
-            },
-
-            {
-                name: 'mergePaths',
-                params: {
-                    force: true,
-                },
             },
             {
                 name: 'convertColors',
@@ -70,6 +59,18 @@ export const defaultConfig: SVGDConfig = {
                 },
             },
             {
+                name: 'convertShapeToPath',
+                params: {
+                    convertArcs: true,
+                },
+            },
+            {
+                name: 'mergePaths',
+                params: {
+                    force: true,
+                },
+            },
+            {
                 name: 'moveGroupAttrsToElems',
             },
             {
@@ -77,6 +78,9 @@ export const defaultConfig: SVGDConfig = {
             },
             {
                 name: "convertPathData",
+            },
+            {
+                name: "removeHiddenElems",
             },
             {
                 name: "removeUselessDefs",

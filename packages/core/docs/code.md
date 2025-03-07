@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -101,9 +101,11 @@ export interface PathAttributes {
     d: string;
     opacity?: string;
     "fill-opacity"?: string;
+    "stroke-opacity"?: string;
     stroke?: string;
     fill?: string;
     "stroke-width"?: string;
+    "fill-rule"?: string;
 }
 
 export interface Comand {
@@ -111,7 +113,7 @@ export interface Comand {
     attribute: keyof PathAttributes,
     regexp: string,
     toAttribute: (codeValue: string) => string,
-    toCommand: (attributeValue: string) => string,
+    toCommand: (attributeValue: string) => string | null,
 }
 
 export const commands: Comand[] = [
@@ -123,8 +125,15 @@ export const commands: Comand[] = [
         toCommand: (attributeValue) => attributeValue,
     },
     {
-        code: "O",
+        code: "of",
         attribute: "fill-opacity",
+        regexp: "[\\d.]+",
+        toAttribute: (codeValue) => codeValue,
+        toCommand: (attributeValue) => attributeValue,
+    },
+    {
+        code: "os",
+        attribute: "stroke-opacity",
         regexp: "[\\d.]+",
         toAttribute: (codeValue) => codeValue,
         toCommand: (attributeValue) => attributeValue,
@@ -132,16 +141,40 @@ export const commands: Comand[] = [
     {
         code: "f",
         attribute: "stroke",
-        regexp: "[0-9a-fA-F]+",
-        toAttribute: (codeValue) => `#${codeValue}`,
-        toCommand: (attributeValue) => attributeValue.replace(/^#/, ''),
+        regexp: "[#0-9a-zA-Z]+",
+        toAttribute: (codeValue) => {
+            switch (codeValue) {
+                case 'c': return 'currentColor';
+                case 'n': return 'none';
+                default: return codeValue;
+            }
+        },
+        toCommand: (attributeValue) => {
+            switch (attributeValue) {
+                case 'currentColor': return 'c';
+                case 'none': return 'n';
+                default: return attributeValue;
+            }
+        },
     },
     {
         code: "F",
         attribute: "fill",
-        regexp: "[0-9a-fA-F]+",
-        toAttribute: (codeValue) => `#${codeValue}`,
-        toCommand: (attributeValue) => attributeValue.replace(/^#/, ''),
+        regexp: "[#0-9a-zA-Z]+",
+        toAttribute: (codeValue) => {
+            switch (codeValue) {
+                case 'c': return 'currentColor';
+                case 'n': return 'none';
+                default: return codeValue;
+            }
+        },
+        toCommand: (attributeValue) => {
+            switch (attributeValue) {
+                case 'currentColor': return null;
+                case 'none': return 'n';
+                default: return attributeValue;
+            }
+        },
     },
     {
         code: "w",
@@ -149,6 +182,13 @@ export const commands: Comand[] = [
         regexp: "[\\d.]+",
         toAttribute: (codeValue) => codeValue,
         toCommand: (attributeValue) => attributeValue,
+    },
+    {
+        code: "e",
+        attribute: "fill-rule",
+        regexp: "",
+        toAttribute: () => 'evenodd',
+        toCommand: (attributeValue) => attributeValue === 'evenodd' ? '' : null,
     }
 ]
 
@@ -200,23 +240,12 @@ export const defaultConfig: SVGDConfig = {
                 name: "convertStyleToAttrs",
             },
             {
-                name: 'convertShapeToPath',
+                name: "removeUselessStrokeAndFill",
                 params: {
-                    convertArcs: true,
-                },
-            },
-            {
-                name: "removeAttrs",
-                params: {
-                    "attrs": ["fill", "stroke"]
+                    stroke: true,
+                    fill: true,
+                    removeNone: true
                 }
-            },
-
-            {
-                name: 'mergePaths',
-                params: {
-                    force: true,
-                },
             },
             {
                 name: 'convertColors',
@@ -229,6 +258,18 @@ export const defaultConfig: SVGDConfig = {
                 },
             },
             {
+                name: 'convertShapeToPath',
+                params: {
+                    convertArcs: true,
+                },
+            },
+            {
+                name: 'mergePaths',
+                params: {
+                    force: true,
+                },
+            },
+            {
                 name: 'moveGroupAttrsToElems',
             },
             {
@@ -236,6 +277,9 @@ export const defaultConfig: SVGDConfig = {
             },
             {
                 name: "convertPathData",
+            },
+            {
+                name: "removeHiddenElems",
             },
             {
                 name: "removeUselessDefs",
@@ -313,14 +357,19 @@ import { commands } from "./commands";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
     const plugins = (config.svgo.plugins ?? []);
-    const filteredPlugins = config.colors
-        ? plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "removeAttrs"))
-        : plugins.filter((plugin) => !(typeof plugin === "object" && plugin.name === "convertColors"));
+    const pluginsByColor = config.colors
+        ? plugins
+        : plugins.map((plugin) => (typeof plugin === "object" && plugin.name === "convertColors") ? {
+            ...plugin,
+            params: {
+                currentColor: true
+            }
+        } : plugin);
     return {
         ...config.svgo,
         plugins: [
             resizePlugin(config.resize),
-            ...filteredPlugins,
+            ...pluginsByColor,
             extractPathDPlugin(),
         ],
     };
@@ -357,8 +406,7 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
     if (
         node.type === 'element' &&
         node.name === 'path' &&
-        node.attributes.d &&
-        node.attributes.fill !== 'none'
+        node.attributes.d
     ) {
         const { attributes } = node;
         const d = attributes.d;
@@ -366,7 +414,10 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
 
         commands.forEach(({ code, toCommand, attribute }) => {
             if (attribute in attributes) {
-                commandsArray.push(`${code}${toCommand(attributes[attribute])}`);
+                const commandValue = toCommand(attributes[attribute]);
+                if (commandValue !== null) {
+                    commandsArray.push(`${code}${commandValue}`);
+                }
             }
         });
 

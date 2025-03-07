@@ -1,84 +1,13 @@
 ## Parse svg to path d
 
-### Use Case 1. Material UI icon with size 20
-
-#### Code:
-```ts
-import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 20 20\" height=\"20\" viewBox=\"0 0 20 20\" width=\"20\"><g><rect fill=\"none\" height=\"20\" width=\"20\"/><path d=\"M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16 M10,17c3.87,0,7-3.13,7-7c0-3.87-3.13-7-7-7 c-3.87,0-7,3.13-7,7C3,13.87,6.13,17,10,17L10,17z M10.5,10V7h-1v3H7l3,3l3-3H10.5z\"/></g></svg>";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
-export const pathD = parseSvg(svgInput, svgoConfig);
-
-```
-
-#### Result:
-```json
-{
-  "pathD": "M12 19.2c-3.972 0-7.2-3.228-7.2-7.2S8.028 4.8 12 4.8s7.2 3.228 7.2 7.2-3.228 7.2-7.2 7.2m0 1.2c4.644 0 8.4-3.756 8.4-8.4S16.644 3.6 12 3.6 3.6 7.356 3.6 12s3.756 8.4 8.4 8.4m.6-8.4V8.4h-1.2V12h-3l3.6 3.6 3.6-3.6z"
-}
-```
-
-### Use Case 2. Material UI icon with size 24
-
-#### Code:
-```ts
-import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
-export const pathD = parseSvg(svgInput, svgoConfig);
-
-```
-
-#### Result:
-```json
-{
-  "pathD": "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z"
-}
-```
-
-### Use Case 3. Transparent Material UI icon
-
-#### Code:
-```ts
-import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c-4.41,0-8,3.59-8,8s3.59,8,8,8s8-3.59,8-8S16.41,4,12,4z M12,16l-4-4h3l0-4h2l0,4h3L12,16z\" opacity=\".3\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
-export const pathD = parseSvg(svgInput, svgoConfig);
-
-```
-
-#### Result:
-```json
-{
-  "pathD": "o.3 M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0 12-4-4h3V8h2v4h3z o1 M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z"
-}
-```
-
-### Use Case 4. Additional attributes
-
-#### Code:
-```ts
-import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
-const svgInput = "<svg id=\"a\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <defs><style>.b{fill:#00ff00;}</style></defs>\r\n    <circle class=\"b\" cx=\"50\" cy=\"50\" r=\"40\" opacity=\"0.8\"/>\r\n    <rect x=\"10\" y=\"10\" width=\"30\" height=\"30\" fill=\"#0000ff\" opacity=\"0.6\"/>\r\n    <line x1=\"10\" y1=\"80\" x2=\"90\" y2=\"80\" stroke=\"#ff00ff\" stroke-width=\"2\"/>\r\n    <polygon points=\"50,10 90,90 10,90\" fill=\"#ffff00\"/>\r\n    <ellipse transform=\"scale(.24)\" cx=\"50\" cy=\"50\" rx=\"30\" ry=\"20\" fill=\"#ff9900\"/>\r\n</svg>";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
-export const pathD = parseSvg(svgInput, svgoConfig);
-
-```
-
-#### Result:
-```json
-{
-  "pathD": "o.8 F0f0 M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 1 0 0-19.2 o.6 F00f M2.4 2.4h7.2v7.2H2.4z ff0f w.48 M2.4 19.2h19.2 Fff0 m12 2.4 9.6 19.2H2.4z Ff90 M2.88 1.728a1.728 1.152 0 1 0 0 2.304 1.728 1.152 0 1 0 0-2.304"
-}
-```
-
-### Use Case 5. Empty svg
+### Use Case 1. Empty svg
 
 #### Code:
 ```ts
 import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
 const svgInput = "";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
 export const pathD = parseSvg(svgInput, svgoConfig);
 
 ```
@@ -90,13 +19,191 @@ export const pathD = parseSvg(svgInput, svgoConfig);
 }
 ```
 
-### Use Case 6. Throw if incorrect svg
+### Use Case 2. Material UI icon with size 20
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 20 20\" height=\"20\" viewBox=\"0 0 20 20\" width=\"20\">\r\n    <g>\r\n        <rect fill=\"none\" height=\"20\" width=\"20\"/>\r\n        <path d=\"M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16 M10,17c3.87,0,7-3.13,7-7c0-3.87-3.13-7-7-7 c-3.87,0-7,3.13-7,7C3,13.87,6.13,17,10,17L10,17z M10.5,10V7h-1v3H7l3,3l3-3H10.5z\"/>\r\n    </g>\r\n</svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M12 19.2c-3.972 0-7.2-3.228-7.2-7.2S8.028 4.8 12 4.8s7.2 3.228 7.2 7.2-3.228 7.2-7.2 7.2m0 1.2c4.644 0 8.4-3.756 8.4-8.4S16.644 3.6 12 3.6 3.6 7.356 3.6 12s3.756 8.4 8.4 8.4m.6-8.4V8.4h-1.2V12h-3l3.6 3.6 3.6-3.6z"
+}
+```
+
+### Use Case 3. Material UI icon with size 24
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z"
+}
+```
+
+### Use Case 4. Transparent Material UI icon
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c-4.41,0-8,3.59-8,8s3.59,8,8,8s8-3.59,8-8S16.41,4,12,4z M12,16l-4-4h3l0-4h2l0,4h3L12,16z\" opacity=\".3\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "o.3 M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0 12-4-4h3V8h2v4h3z o1 M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z"
+}
+```
+
+### Use Case 5. Additional attributes (remove colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg id=\"a\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <defs><style>.b{fill:#00ff00;}</style></defs>\r\n    <circle class=\"b\" cx=\"50\" cy=\"50\" r=\"40\" opacity=\"0.8\"/>\r\n    <rect x=\"10\" y=\"10\" width=\"30\" height=\"30\" fill=\"#0000ff\" stroke=\"#ff00ff\" opacity=\"0.8\" fill-opacity=\"0.5\" stroke-opacity=\"0.3\"/>\r\n    <line x1=\"10\" y1=\"80\" x2=\"90\" y2=\"80\" stroke=\"#ff00ff\" stroke-width=\"2\"/>\r\n    <polygon points=\"50,10 90,90 10,90\" fill=\"#ffff00\"/>\r\n    <ellipse transform=\"scale(.24)\" cx=\"50\" cy=\"50\" rx=\"30\" ry=\"20\" fill=\"#ff9900\"/>\r\n</svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "o.8 M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 1 0 0-19.2 o.8 of.5 os.3 fc w.24 M2.4 2.4h7.2v7.2H2.4z fc w.48 M2.4 19.2h19.2 o1 m12 2.4 9.6 19.2H2.4z o1 M2.88 1.728a1.728 1.152 0 1 0 0 2.304 1.728 1.152 0 1 0 0-2.304"
+}
+```
+
+### Use Case 6. Additional attributes (with colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg id=\"a\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <defs><style>.b{fill:#00ff00;}</style></defs>\r\n    <circle class=\"b\" cx=\"50\" cy=\"50\" r=\"40\" opacity=\"0.8\"/>\r\n    <rect x=\"10\" y=\"10\" width=\"30\" height=\"30\" fill=\"#0000ff\" stroke=\"#ff00ff\" opacity=\"0.8\" fill-opacity=\"0.5\" stroke-opacity=\"0.3\"/>\r\n    <line x1=\"10\" y1=\"80\" x2=\"90\" y2=\"80\" stroke=\"#ff00ff\" stroke-width=\"2\"/>\r\n    <polygon points=\"50,10 90,90 10,90\" fill=\"#ffff00\"/>\r\n    <ellipse transform=\"scale(.24)\" cx=\"50\" cy=\"50\" rx=\"30\" ry=\"20\" fill=\"#ff9900\"/>\r\n</svg>";
+const config = {
+    colors: true
+};
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "o.8 F#0f0 M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 1 0 0-19.2 o.8 of.5 os.3 f#f0f F#00f w.24 M2.4 2.4h7.2v7.2H2.4z f#f0f w.48 M2.4 19.2h19.2 F#ff0 m12 2.4 9.6 19.2H2.4z F#f90 M2.88 1.728a1.728 1.152 0 1 0 0 2.304 1.728 1.152 0 1 0 0-2.304"
+}
+```
+
+### Use Case 7. Fill None (remove colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg  xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 24 24\">\r\n    <path d=\"M12,20.5a8.5,8.5,0,0,1,0-17Z\" stroke-width=\"1\"/>\r\n    <circle cx=\"12\" cy=\"12\" r=\"8.7\" fill=\"none\" stroke=\"#000\" stroke-width=\"0.5\"/>\r\n</svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M12 20.5a8.5 8.5 0 0 1 0-17Z fc Fn w.5 M12 3.3a8.7 8.7 0 1 0 0 17.4 8.7 8.7 0 1 0 0-17.4z"
+}
+```
+
+### Use Case 8. Fill None (with colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg  xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 24 24\">\r\n    <path d=\"M12,20.5a8.5,8.5,0,0,1,0-17Z\" stroke-width=\"1\"/>\r\n    <circle cx=\"12\" cy=\"12\" r=\"8.7\" fill=\"none\" stroke=\"#000\" stroke-width=\"0.5\"/>\r\n</svg>";
+const config = {
+    colors: true
+};
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M12 20.5a8.5 8.5 0 0 1 0-17Z f#000 Fn w.5 M12 3.3a8.7 8.7 0 1 0 0 17.4 8.7 8.7 0 1 0 0-17.4z"
+}
+```
+
+### Use Case 9. Fill Rule Even Odd (remove colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg id=\"Layer_1\" data-name=\"Layer 1\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\">\r\n    <defs>\r\n        <style>.cls-1,.cls-2{fill:#f4f6f8;}.cls-2{fill-rule:evenodd;}</style>\r\n    </defs>\r\n    <path class=\"cls-1\" d=\"M2.75,10.3A.75.75,0,1,0,2,9.55.76.76,0,0,0,2.75,10.3Z\"/>\r\n    <path class=\"cls-1\" d=\"M21.25,10.3a.75.75,0,1,0-.75-.75A.76.76,0,0,0,21.25,10.3Z\"/>\r\n    <path class=\"cls-1\" d=\"M12,7.2A1.2,1.2,0,1,0,10.8,6,1.2,1.2,0,0,0,12,7.2Z\"/>\r\n    <path class=\"cls-2\"\r\n          d=\"M15.84,15.05,12,7,8.16,15.05,3,10.15a24.62,24.62,0,0,1,2.09,6.42A24.13,24.13,0,0,1,4.86,21H19.14a24.16,24.16,0,0,1-.23-4.34A24.75,24.75,0,0,1,21,10.15Zm-4,2.86a.65.65,0,0,0-.64-.59.82.82,0,0,0-.68.39.84.84,0,0,0-.68-.39.65.65,0,0,0-.64.59.9.9,0,0,0,.25.63l.25.26h0a4,4,0,0,1,.82,1,4,4,0,0,1,.82-1h0l.25-.26A1,1,0,0,0,11.84,17.91Zm2.27.46a.8.8,0,0,1,.26-.05.59.59,0,1,1,0,1.17.69.69,0,0,1-.57-.29,1.18,1.18,0,0,0,.29.76h-.74a1.18,1.18,0,0,0,.29-.76.69.69,0,0,1-.57.29.59.59,0,1,1,0-1.17.8.8,0,0,1,.26.05.57.57,0,0,1-.28-.47.68.68,0,0,1,1.34,0A.57.57,0,0,1,14.11,18.37ZM16.8,17a6.39,6.39,0,0,1-1.2,1.5A6.24,6.24,0,0,1,16.8,20,6,6,0,0,1,18,18.5,6.14,6.14,0,0,1,16.8,17ZM8,17.94a2.44,2.44,0,0,1,.24.25.87.87,0,0,1,.24.61.62.62,0,0,1-.62.56.77.77,0,0,1-.56-.27,1.31,1.31,0,0,0,.32.73h-.8a1.31,1.31,0,0,0,.32-.73.77.77,0,0,1-.57.27A.62.62,0,0,1,6,18.8a.87.87,0,0,1,.24-.61,2.44,2.44,0,0,1,.24-.25A3.83,3.83,0,0,0,7.26,17,3.83,3.83,0,0,0,8,17.94Z\"/>\r\n</svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M2.75 10.3A.75.75 0 1 0 2 9.55a.76.76 0 0 0 .75.75m18.5 0a.75.75 0 1 0-.75-.75.76.76 0 0 0 .75.75M12 7.2A1.2 1.2 0 1 0 10.8 6 1.2 1.2 0 0 0 12 7.2 e M15.84 15.05 12 7l-3.84 8.05L3 10.15a24.6 24.6 0 0 1 2.09 6.42A24 24 0 0 1 4.86 21h14.28a24 24 0 0 1-.23-4.34A24.8 24.8 0 0 1 21 10.15Zm-4 2.86a.65.65 0 0 0-.64-.59.82.82 0 0 0-.68.39.84.84 0 0 0-.68-.39.65.65 0 0 0-.64.59.9.9 0 0 0 .25.63l.25.26a4 4 0 0 1 .82 1 4 4 0 0 1 .82-1l.25-.26a1 1 0 0 0 .25-.63m2.27.46a.8.8 0 0 1 .26-.05.59.59 0 1 1 0 1.17.69.69 0 0 1-.57-.29 1.18 1.18 0 0 0 .29.76h-.74a1.18 1.18 0 0 0 .29-.76.69.69 0 0 1-.57.29.59.59 0 1 1 0-1.17.8.8 0 0 1 .26.05.57.57 0 0 1-.28-.47.68.68 0 0 1 1.34 0 .57.57 0 0 1-.28.47M16.8 17a6.4 6.4 0 0 1-1.2 1.5 6.2 6.2 0 0 1 1.2 1.5 6 6 0 0 1 1.2-1.5 6.1 6.1 0 0 1-1.2-1.5m-8.8.94a2.4 2.4 0 0 1 .24.25.87.87 0 0 1 .24.61.62.62 0 0 1-.62.56.77.77 0 0 1-.56-.27 1.3 1.3 0 0 0 .32.73h-.8a1.3 1.3 0 0 0 .32-.73.77.77 0 0 1-.57.27.62.62 0 0 1-.57-.56.87.87 0 0 1 .24-.61 2.4 2.4 0 0 1 .24-.25 3.8 3.8 0 0 0 .78-.94 3.8 3.8 0 0 0 .74.94"
+}
+```
+
+### Use Case 10. Fill Rule Even Odd (with colors)
+
+#### Code:
+```ts
+import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
+const svgInput = "<svg id=\"Layer_1\" data-name=\"Layer 1\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\">\r\n    <defs>\r\n        <style>.cls-1,.cls-2{fill:#f4f6f8;}.cls-2{fill-rule:evenodd;}</style>\r\n    </defs>\r\n    <path class=\"cls-1\" d=\"M2.75,10.3A.75.75,0,1,0,2,9.55.76.76,0,0,0,2.75,10.3Z\"/>\r\n    <path class=\"cls-1\" d=\"M21.25,10.3a.75.75,0,1,0-.75-.75A.76.76,0,0,0,21.25,10.3Z\"/>\r\n    <path class=\"cls-1\" d=\"M12,7.2A1.2,1.2,0,1,0,10.8,6,1.2,1.2,0,0,0,12,7.2Z\"/>\r\n    <path class=\"cls-2\"\r\n          d=\"M15.84,15.05,12,7,8.16,15.05,3,10.15a24.62,24.62,0,0,1,2.09,6.42A24.13,24.13,0,0,1,4.86,21H19.14a24.16,24.16,0,0,1-.23-4.34A24.75,24.75,0,0,1,21,10.15Zm-4,2.86a.65.65,0,0,0-.64-.59.82.82,0,0,0-.68.39.84.84,0,0,0-.68-.39.65.65,0,0,0-.64.59.9.9,0,0,0,.25.63l.25.26h0a4,4,0,0,1,.82,1,4,4,0,0,1,.82-1h0l.25-.26A1,1,0,0,0,11.84,17.91Zm2.27.46a.8.8,0,0,1,.26-.05.59.59,0,1,1,0,1.17.69.69,0,0,1-.57-.29,1.18,1.18,0,0,0,.29.76h-.74a1.18,1.18,0,0,0,.29-.76.69.69,0,0,1-.57.29.59.59,0,1,1,0-1.17.8.8,0,0,1,.26.05.57.57,0,0,1-.28-.47.68.68,0,0,1,1.34,0A.57.57,0,0,1,14.11,18.37ZM16.8,17a6.39,6.39,0,0,1-1.2,1.5A6.24,6.24,0,0,1,16.8,20,6,6,0,0,1,18,18.5,6.14,6.14,0,0,1,16.8,17ZM8,17.94a2.44,2.44,0,0,1,.24.25.87.87,0,0,1,.24.61.62.62,0,0,1-.62.56.77.77,0,0,1-.56-.27,1.31,1.31,0,0,0,.32.73h-.8a1.31,1.31,0,0,0,.32-.73.77.77,0,0,1-.57.27A.62.62,0,0,1,6,18.8a.87.87,0,0,1,.24-.61,2.44,2.44,0,0,1,.24-.25A3.83,3.83,0,0,0,7.26,17,3.83,3.83,0,0,0,8,17.94Z\"/>\r\n</svg>";
+const config = {
+    colors: true
+};
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = parseSvg(svgInput, svgoConfig);
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "F#f4f6f8 M2.75 10.3A.75.75 0 1 0 2 9.55a.76.76 0 0 0 .75.75m18.5 0a.75.75 0 1 0-.75-.75.76.76 0 0 0 .75.75M12 7.2A1.2 1.2 0 1 0 10.8 6 1.2 1.2 0 0 0 12 7.2 F#f4f6f8 e M15.84 15.05 12 7l-3.84 8.05L3 10.15a24.6 24.6 0 0 1 2.09 6.42A24 24 0 0 1 4.86 21h14.28a24 24 0 0 1-.23-4.34A24.8 24.8 0 0 1 21 10.15Zm-4 2.86a.65.65 0 0 0-.64-.59.82.82 0 0 0-.68.39.84.84 0 0 0-.68-.39.65.65 0 0 0-.64.59.9.9 0 0 0 .25.63l.25.26a4 4 0 0 1 .82 1 4 4 0 0 1 .82-1l.25-.26a1 1 0 0 0 .25-.63m2.27.46a.8.8 0 0 1 .26-.05.59.59 0 1 1 0 1.17.69.69 0 0 1-.57-.29 1.18 1.18 0 0 0 .29.76h-.74a1.18 1.18 0 0 0 .29-.76.69.69 0 0 1-.57.29.59.59 0 1 1 0-1.17.8.8 0 0 1 .26.05.57.57 0 0 1-.28-.47.68.68 0 0 1 1.34 0 .57.57 0 0 1-.28.47M16.8 17a6.4 6.4 0 0 1-1.2 1.5 6.2 6.2 0 0 1 1.2 1.5 6 6 0 0 1 1.2-1.5 6.1 6.1 0 0 1-1.2-1.5m-8.8.94a2.4 2.4 0 0 1 .24.25.87.87 0 0 1 .24.61.62.62 0 0 1-.62.56.77.77 0 0 1-.56-.27 1.3 1.3 0 0 0 .32.73h-.8a1.3 1.3 0 0 0 .32-.73.77.77 0 0 1-.57.27.62.62 0 0 1-.57-.56.87.87 0 0 1 .24-.61 2.4 2.4 0 0 1 .24-.25 3.8 3.8 0 0 0 .78-.94 3.8 3.8 0 0 0 .74.94"
+}
+```
+
+### Use Case 11. Throw if incorrect svg
 
 #### Code:
 ```ts
 import { parseSvg, defaultConfig, getSvgoConfig } from "@svgd/utils";
 const svgInput = "ss";
-const svgoConfig = getSvgoConfig({ ...defaultConfig, colors: true });
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
 export const pathD = parseSvg(svgInput, svgoConfig);
 
 ```
@@ -107,12 +214,29 @@ export const pathD = parseSvg(svgInput, svgoConfig);
 
 ## get base64 png from path d
 
-### Use Case 1. Material UI icon with size 20
+### Use Case 1. Empty svg
 
 #### Code:
 ```ts
 import { getPng } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 20 20\" height=\"20\" viewBox=\"0 0 20 20\" width=\"20\"><g><rect fill=\"none\" height=\"20\" width=\"20\"/><path d=\"M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16 M10,17c3.87,0,7-3.13,7-7c0-3.87-3.13-7-7-7 c-3.87,0-7,3.13-7,7C3,13.87,6.13,17,10,17L10,17z M10.5,10V7h-1v3H7l3,3l3-3H10.5z\"/></g></svg>";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"></svg>";
+export const pngBase64 = await getPng(svgInput);
+
+```
+
+#### Result:
+```json
+{
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAJ0lEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAIDODUBAAAENBzWNAAAAAElFTkSuQmCC"
+}
+```
+
+### Use Case 2. Material UI icon with size 20
+
+#### Code:
+```ts
+import { getPng } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path d=\"M12 19.2c-3.972 0-7.2-3.228-7.2-7.2S8.028 4.8 12 4.8s7.2 3.228 7.2 7.2-3.228 7.2-7.2 7.2m0 1.2c4.644 0 8.4-3.756 8.4-8.4S16.644 3.6 12 3.6 3.6 7.356 3.6 12s3.756 8.4 8.4 8.4m.6-8.4V8.4h-1.2V12h-3l3.6 3.6 3.6-3.6z\" />\n</svg>";
 export const pngBase64 = await getPng(svgInput);
 
 ```
@@ -124,12 +248,12 @@ export const pngBase64 = await getPng(svgInput);
 }
 ```
 
-### Use Case 2. Material UI icon with size 24
+### Use Case 3. Material UI icon with size 24
 
 #### Code:
 ```ts
 import { getPng } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path d=\"M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z\" />\n</svg>";
 export const pngBase64 = await getPng(svgInput);
 
 ```
@@ -141,12 +265,12 @@ export const pngBase64 = await getPng(svgInput);
 }
 ```
 
-### Use Case 3. Transparent Material UI icon
+### Use Case 4. Transparent Material UI icon
 
 #### Code:
 ```ts
 import { getPng } from "@svgd/utils";
-const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><path d=\"M12,4c-4.41,0-8,3.59-8,8s3.59,8,8,8s8-3.59,8-8S16.41,4,12,4z M12,16l-4-4h3l0-4h2l0,4h3L12,16z\" opacity=\".3\"/><path d=\"M12,4c4.41,0,8,3.59,8,8s-3.59,8-8,8s-8-3.59-8-8S7.59,4,12,4 M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10 c5.52,0,10-4.48,10-10C22,6.48,17.52,2,12,2L12,2z M13,12l0-4h-2l0,4H8l4,4l4-4H13z\"/></g></svg>";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path opacity=\".3\" d=\"M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0 12-4-4h3V8h2v4h3z\" />\n  <path opacity=\"1\" d=\"M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 10V8h-2v4H8l4 4 4-4z\" />\n</svg>";
 export const pngBase64 = await getPng(svgInput);
 
 ```
@@ -158,12 +282,12 @@ export const pngBase64 = await getPng(svgInput);
 }
 ```
 
-### Use Case 4. Additional attributes
+### Use Case 5. Additional attributes (remove colors)
 
 #### Code:
 ```ts
 import { getPng } from "@svgd/utils";
-const svgInput = "<svg id=\"a\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <defs><style>.b{fill:#00ff00;}</style></defs>\r\n    <circle class=\"b\" cx=\"50\" cy=\"50\" r=\"40\" opacity=\"0.8\"/>\r\n    <rect x=\"10\" y=\"10\" width=\"30\" height=\"30\" fill=\"#0000ff\" opacity=\"0.6\"/>\r\n    <line x1=\"10\" y1=\"80\" x2=\"90\" y2=\"80\" stroke=\"#ff00ff\" stroke-width=\"2\"/>\r\n    <polygon points=\"50,10 90,90 10,90\" fill=\"#ffff00\"/>\r\n    <ellipse transform=\"scale(.24)\" cx=\"50\" cy=\"50\" rx=\"30\" ry=\"20\" fill=\"#ff9900\"/>\r\n</svg>";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path opacity=\".8\" d=\"M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 1 0 0-19.2\" />\n  <path opacity=\".8\" fill-opacity=\".5\" stroke-opacity=\".3\" stroke=\"currentColor\" stroke-width=\".24\" d=\"M2.4 2.4h7.2v7.2H2.4z\" />\n  <path stroke=\"currentColor\" stroke-width=\".48\" d=\"M2.4 19.2h19.2\" />\n  <path opacity=\"1\" d=\"m12 2.4 9.6 19.2H2.4z\" />\n  <path opacity=\"1\" d=\"M2.88 1.728a1.728 1.152 0 1 0 0 2.304 1.728 1.152 0 1 0 0-2.304\" />\n</svg>";
 export const pngBase64 = await getPng(svgInput);
 
 ```
@@ -171,16 +295,16 @@ export const pngBase64 = await getPng(svgInput);
 #### Result:
 ```json
 {
-  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAET0lEQVR4nO2aXWgUVxzFz+qaF5FWqTRNV4pYm4JYEC2C+KCxMeqLviiRBqtvRqpoQR9UFJW+SamYTZ21UPwKflFLNVgfElpNjBhj/UCjFJVW/Dbqi18J21PuZEfW7exm5t47szc6fziwbBYy55zf3Jm9s0A00UQTTc5wJwbTwmSm8CW3YQaTGIG3YUjEaGENLTyiBWYpTQu/sA6leJOHFjblGH9Nj75799bwIfcWAazxqYkgSkB8AqISxAIQS8cSG4XE68x7lZnPlBQngG24WSgAoerPG361o/KioV27Mb79d2xc2wTiJIgz2bKIu0K574NoBfEDiEUgPgwvAAvHCpnvro+nP/3g8q6CpmPpFMo7GzGzsRPVDfdR3fAAydrruSYTxPlnRPoFkf6IOO8SgqN2ED+C+ALEgGADqEMpLVxwM/+yflDPsorvjxU0L4zP+fmGbTpbLgGI5klQKA8FbjpoBxFoCPsxkBbmtq8e39Sxetw/zd9M+Ss5v/bUyPeu7chrfNjDPag6eul/xvME4LTvBOCBglxtBZEINAj0Ll59n+ejrx7G3H2385p3CSC7fQkKHB0HUVW8AGLpFCa1tBU07hJAbvsKFDhaDiIWbgADe7ZjatNZT+ZzAnBrX4ECR5tAxMMLYEpzh2fzWQHka18DBULfar5K0D0Ar9i7BFCofQ0U9J4OgQZQ3tno23wmgL7a10SB0MxgAhj2cA/m7b0jG4CX9jVR8IemSyRfD2D6bxelzFc3PCj76au/vbSvkYI6vQGUS6KfUd3FMU+8mtdEgVCFngBi6RRmH7oua760Ntn1tDv+r98ANFBwUPGqwBod7W85WvXMr3mNFExTD2DWkStK7b8o8d2+RgpSagG883jXq6+0IbeviYJ2hf0E1tibGUVqXyMFC2UDmGjv5Ii7OAnJrPwBUZCU9I8St20sL/J61xcSBa1ye4y0NyelUvdz1xcSBR/LBDDdhPY1USBxOSQWmtK+BgoWyATwtSnta6BgiUwAq0xqX5GClYEHkAi4fUUKVgZ+ClghtK9AwZJAF8FESO0rUCC1CFaa2L4kBRWB3QglQm5fkoJRsrfCrSa275OCFvnH7bQfURvXvk8KJL8Miel9Pm9k+z4okFgAnSHKMpsKxrXvkQJx7GVQGto/TjCyfQ8UqGyJ5b8cmtK+BwoqdAQwAMR+U9svQMEBfQ9Laf8+x8j2C1AwVY95Z4gtprbvQsFWaB8iMYJoM7H9bApG9u5jKq78eeYccaDYJvvSn+KRWBBD4n0ST4tt0IOeMwgCSGw2wJxXbVY3DE4juMLWZ+fWsTv+0gBj3tQd7+GE0+tfHT/of1eY4AaCnbbqF3cV3ZRfiWN2jh/c8Dac+wxkLWD/Ovf1rgXsv+3roYD9u301Ctj/21ejgEQlCUuXeojtd4m9V4gjHURzG9FygjglJF6L98TfxGfEZ3X+b+FFioJoookmmmjwZs9/dbjGv+sJMQoAAAAASUVORK5CYII="
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADbElEQVR4nO2ay2vUQADGfz7oxT+gRetJ6V/hxbbrg549BEHqxZViQZG2B0FR8WSRio9i7cVbcXsQFEGUorKthS3C6kH0UBQ97KWiBxGVWhmYQIzJZjIzSaY1H3yw7IbdfI/MzE4CJUqUKPEvtgF7gMPAAWAn/wk2AWeAz8BagKvAPaCLDY6LIeFhfgKOAF5KDgAdQA9Qkd8xDFyQHJbvVeQx4thC8DHBAMHLwDFFjgF3gCfAArAUYksy/P48MAkcBXbkacCjBPG/gNEE0VVgAqgD7yWXI0Q25aW1Kl8vxbABTAP9wOasDegCXsWI/wncTBAvhL8MCG9nQCvw3VEtiOKsNCJTbAEOAY+B18Ci/OHTCVV/GiE8zgA//eAg264FYV4DurM2wlO8zq8Ab9uIjzIgmH7aFvh8Duwv0oAqUEsQHmVAOH3dFvg8KafvXA04DjxUFB82ICp93Rb4FNP31rwMqAL3U4gPGhCXvmkLBC/ZniW8GANUax9lQLv0TVvgXw6ZGjChId43ICl9Gy0QPJiVAWPAOwMDVNK30YJntqZIL2TAnKZ4wQ+K6dtqwXXbBkwYiBf8kkK8jRYI9toyoBqzvFWl+IP1W8MA0xbMms4KnqX0v2qIt9WCPhsG1AtI31YLpkwNGC0wfRstaJjsJ3hyM6Oo9G21YFDXgAG5k7OsSZ2RP4sW3NA1oCNmG0uFqqu+PFowr7vH2GPgeppVXx4t2K1jwD5H0rfRAq3pcNCh9E1bILbcU+OEQ+mbtmBIx4BRx9I3acFIHgY0M07fpAUjeVwCrRzE67ZgKOtBsJlT+rot0BoEK46mr9OC3iwXQs2c09dpwS4dAzrkMtLF9NO0oG5yu33S0fTTtED7zxDy/ryr6au2QGsA9LFdbiq4mL5KCxpSgxGmHU4/qQVGW2LtpkNX0k9qgfHWOHJr+a7D6ce1oGbzZmm/w+nHtWAvlnHV4fTDLRCP0FhHN/DC0fSDLViwMfLHoeaAyCSKW2KZoBP45oDAJH7PqgHjDohTpThXY/QBpyTPAj8cEKZK8UTrucD5a+0KnwfeSK44ICotVwLnL7Rs+Gt/LauxYNwBMYWNBZ3rNH1rLRh3QERhLehc5+kbt6AC3LLI28AM8EA+cleXj+Ivytdz8rMZeazN3xZaSpQoUaJECf7GH/czc/vKaIZfAAAAAElFTkSuQmCC"
 }
 ```
 
-### Use Case 5. Empty svg
+### Use Case 6. Additional attributes (with colors)
 
 #### Code:
 ```ts
 import { getPng } from "@svgd/utils";
-const svgInput = "";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path opacity=\".8\" fill=\"#0f0\" d=\"M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 1 0 0-19.2\" />\n  <path opacity=\".8\" fill-opacity=\".5\" stroke-opacity=\".3\" stroke=\"#f0f\" fill=\"#00f\" stroke-width=\".24\" d=\"M2.4 2.4h7.2v7.2H2.4z\" />\n  <path stroke=\"#f0f\" stroke-width=\".48\" d=\"M2.4 19.2h19.2\" />\n  <path fill=\"#ff0\" d=\"m12 2.4 9.6 19.2H2.4z\" />\n  <path fill=\"#f90\" d=\"M2.88 1.728a1.728 1.152 0 1 0 0 2.304 1.728 1.152 0 1 0 0-2.304\" />\n</svg>";
 export const pngBase64 = await getPng(svgInput);
 
 ```
@@ -188,11 +312,79 @@ export const pngBase64 = await getPng(svgInput);
 #### Result:
 ```json
 {
-  "pngBase64": ""
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAET0lEQVR4nO2aT2gUVxzHv66LF5Ee658VUUMPoqLgwYMXk0bbePLQg4jBXrJBlFXUbNGg1VQjrVrFGDMqSPRQMSkUGiqiiH8SFf8mVVBjKUo86MGiB7XdbPqVt8nUdTo7vnnzZvdF5wdfWDYLme/3+5k3s28WiCaaaKJxDI9iNC3M40EsZQu+4H5MxMcwJEbQwkZa+IsWmKcBWviFTRiLD3loocFh/B29+vGTx/VjnlanwCV+dARcBGIUiM9AVIKoBrFqBrFVSLweeq9y6DOjShNAC/q8AhBaU7HrB4A1UirrTWNZa+uc7d+cAXEJxPV8WcQTIef7ILpAHADxNYgJxQvAwikv89kDsf65Uy7VeZqOZZOo6tiDDd914vt1D4Wmt9T86TSZIHpeEQN/EwOTiB6XEGxdA3EYxOcgYuEG0ISxtPC7m/lMczyzY3G62dO8MP7tppu2ca8ARPMkKFSAAje154IINYQTGEkLX/XVzz79oGHq7Z76GVd+Ti5un5noXuuJerrxnNN4oQDs9u0AJChwah+IRKhBpMAlUuf5wpO70Zi+X8i8WwD57StQYOsCiIWlCyCWTaKmpc3LuFsAzvYDUGBrNYgRxQ0gnqnF6t2/yZh3BuDWfgAKbDWAiBcngFg2iVV7f5U1nx9AofY1UCC0TetVIlUoAEns3QLwal8DBYOnQ6gBVHXs8WveDuB97WuiQOjLcAIo602jMd2rGoBM+5ooOK/lEplyBlC346yKeaH5x5Y+kmlfIwVNegOoUkPf1k93pj2XNa+JAqFyPQHEskm321tZjWuu7XudGfmv3wA0UNAe6KqQsgMI2H7TzVkv/JrXSEFF8AA2vP1Wp9L+y0zcd/saKTgYLIApf9SVqn1NFFxT3k9IiQCWtbaWqn2NFCxXCuAIuEjs5IhruIpUVv6QKNivFAAG9/D+t40lI9m7viJR0KW2x8jc5qRS6n7u+opEQZlKAAtMaF8TBQqXQ2K5Ke1roKBaJYCVprSvgYIVKgHUmdR+QArWhx5AIuT2A1KwPvRTwCpC+wEoWBHqIpgoUvsBKFBaBCtNbF+RgvLQboQSRW5fkYKpqrfCXSa275OCTvXH7cw9ojaufZ8UKH4ZEjP4fN7I9n1QoLAA2kOMH9pUMK59SQrEsY9HoGHuxwlGti9BgfqWmNfl0JT2JSgo1xFADMQJU9v3oKBN38NS5n6fY2T7HhTM12PeHmKvqe27ULAP2odITCQum9h+PgWTB/cxA678BaabaCu1yffplngkFsaQ+JTEy1IblNBrhkEAiZ0GmJPVzuCGwQqCa3Ka2b2Jmfg/BhiTUybezzlXN/93/KD/XWGCWwjezam59lnJTfmVOGb7+MEtH8O5z1DWAg6vc1/vWsDh274eCji82w9GAYd/+8EoIFFJwtKlfuLQE+L4PaLjBnH2MtF5kbgiJF6L98TfxGfEZ3X+b+FFiYJoookmmmjwYc8b8pS8jlER8GoAAAAASUVORK5CYII="
 }
 ```
 
-### Use Case 6. Throw on invalid SVG for PNG conversion
+### Use Case 7. Fill None (remove colors)
+
+#### Code:
+```ts
+import { getPng } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\r\n  <path d=\"M12 20.5a8.5 8.5 0 0 1 0-17Z\" />\r\n  <path stroke=\"currentColor\" fill=\"none\" stroke-width=\".5\" d=\"M12 3.3a8.7 8.7 0 1 0 0 17.4 8.7 8.7 0 1 0 0-17.4z\" />\r\n</svg>";
+export const pngBase64 = await getPng(svgInput);
+
+```
+
+#### Result:
+```json
+{
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADUklEQVR4nO2az0uUQRjHP7WRnbIuJUW36lIqWV5jITINkf6JKAz78QdU14hOleStyMpMvFZegqg0UkgrtcxfFxMqM6FMPbgx8BVEVNbdmfd9B+cDyy7L7LMz33fmmWeeZyAQCAQCgUDALSmgHKgD6oFnQBfwWa8ufVevNkf0G69JAVXAI+A3kNH7F6AHeK/3y8A14C7wCviptpPAQ6DSNzG2ALXACDAPDAB9wLQGtvS1lA3AAeAC8Fo2hoGzQAEJ5xQwCszo6a406NUEWMpeLY1/ErWGBLIdaNXT+gjMZTHwbAVYYBfwQP/RAhSSEA7pyXwHvq1h4GsVYIFjwBgwBJQSM2lgSp58NofB5yKAYQfwQk7V9CEW0lqXPTkOPB8BkEN8oj6k45j2U0BvnoPPRwDDRolgZkIJETq8EU37TMwCLMwEsxwGo3KMrXJ4swkRwLBTDriZCPb5+Ry9vUsBDMdlrxqHEd6o9vlMAgVAYfewq4ixVhHeXIIF2K0+nrFsl01yfPluea4FMNxRkGT1AFWltT/tgQD71NcK22vrq4PBuxDA0A402jKWUqDR55EAF4FfCpTyplwd/euRAMWyXWbD2HllZzIeCWCSKhPAORvG6pXG8kkAwxvgpg1DbUC3hwKYHONzG4Y6PRXgBvDWhqF+RwGQawGuaufKm/71LkDnel8CbR47QVNtsrINDngoQLutbbBuUWlrXQZC5eroH48EKLEZCqcUCvd6JMAlzQArhyFUpfXpONwB3LdpsNKjhMh+2TVJUmukPEqJNbhIiaH6/IzFeoALAfaoj6dxlBYfSXhavFlPfzOOqJEvGEugACdk7ySOaUlgaawIGAeaiIBtmmZJKo6+1Da9lYgoVXichPJ4iwI1kwiN5YLEh5gEKNDgTWxylJhIL7r7F+UVmSJN+8k4B7/44GEuJ/zIcXfIxduPa80fJCEUag/OKE6YcSCACXIe6zdNUTq8tVCt+vyswuZsqknZxPYNEnUwin0+XwpUnx/WAM1U/bRKPmG5ZEaxjrQdajOk8NZZhOeClErUjSpUZnSzbEA5xm7NkivAdeCeqjkLbSd0pK3w7bL0Svv1YaWobgNPgXdKuffrs/nultqU2UxmBAKBQCAQCLAM/wHmwNLJpQ3dxwAAAABJRU5ErkJggg=="
+}
+```
+
+### Use Case 8. Fill None (with colors)
+
+#### Code:
+```ts
+import { getPng } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\r\n  <path d=\"M12 20.5a8.5 8.5 0 0 1 0-17Z\" />\r\n  <path stroke=\"#000\" fill=\"none\" stroke-width=\".5\" d=\"M12 3.3a8.7 8.7 0 1 0 0 17.4 8.7 8.7 0 1 0 0-17.4z\" />\r\n</svg>";
+export const pngBase64 = await getPng(svgInput);
+
+```
+
+#### Result:
+```json
+{
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADUklEQVR4nO2az0uUQRjHP7WRnbIuJUW36lIqWV5jITINkf6JKAz78QdU14hOleStyMpMvFZegqg0UkgrtcxfFxMqM6FMPbgx8BVEVNbdmfd9B+cDyy7L7LMz33fmmWeeZyAQCAQCgUDALSmgHKgD6oFnQBfwWa8ufVevNkf0G69JAVXAI+A3kNH7F6AHeK/3y8A14C7wCviptpPAQ6DSNzG2ALXACDAPDAB9wLQGtvS1lA3AAeAC8Fo2hoGzQAEJ5xQwCszo6a406NUEWMpeLY1/ErWGBLIdaNXT+gjMZTHwbAVYYBfwQP/RAhSSEA7pyXwHvq1h4GsVYIFjwBgwBJQSM2lgSp58NofB5yKAYQfwQk7V9CEW0lqXPTkOPB8BkEN8oj6k45j2U0BvnoPPRwDDRolgZkIJETq8EU37TMwCLMwEsxwGo3KMrXJ4swkRwLBTDriZCPb5+Ry9vUsBDMdlrxqHEd6o9vlMAgVAYfewq4ixVhHeXIIF2K0+nrFsl01yfPluea4FMNxRkGT1AFWltT/tgQD71NcK22vrq4PBuxDA0A402jKWUqDR55EAF4FfCpTyplwd/euRAMWyXWbD2HllZzIeCWCSKhPAORvG6pXG8kkAwxvgpg1DbUC3hwKYHONzG4Y6PRXgBvDWhqF+RwGQawGuaufKm/71LkDnel8CbR47QVNtsrINDngoQLutbbBuUWlrXQZC5eroH48EKLEZCqcUCvd6JMAlzQArhyFUpfXpONwB3LdpsNKjhMh+2TVJUmukPEqJNbhIiaH6/IzFeoALAfaoj6dxlBYfSXhavFlPfzOOqJEvGEugACdk7ySOaUlgaawIGAeaiIBtmmZJKo6+1Da9lYgoVXichPJ4iwI1kwiN5YLEh5gEKNDgTWxylJhIL7r7F+UVmSJN+8k4B7/44GEuJ/zIcXfIxduPa80fJCEUag/OKE6YcSCACXIe6zdNUTq8tVCt+vyswuZsqknZxPYNEnUwin0+XwpUnx/WAM1U/bRKPmG5ZEaxjrQdajOk8NZZhOeClErUjSpUZnSzbEA5xm7NkivAdeCeqjkLbSd0pK3w7bL0Svv1YaWobgNPgXdKuffrs/nultqU2UxmBAKBQCAQCLAM/wHmwNLJpQ3dxwAAAABJRU5ErkJggg=="
+}
+```
+
+### Use Case 9. Fill Rule Even Odd (remove colors)
+
+#### Code:
+```ts
+import { getPng } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\r\n  <path d=\"M2.75 10.3A.75.75 0 1 0 2 9.55a.76.76 0 0 0 .75.75m18.5 0a.75.75 0 1 0-.75-.75.76.76 0 0 0 .75.75M12 7.2A1.2 1.2 0 1 0 10.8 6 1.2 1.2 0 0 0 12 7.2\" />\r\n  <path fill-rule=\"evenodd\" d=\"M15.84 15.05 12 7l-3.84 8.05L3 10.15a24.6 24.6 0 0 1 2.09 6.42A24 24 0 0 1 4.86 21h14.28a24 24 0 0 1-.23-4.34A24.8 24.8 0 0 1 21 10.15Zm-4 2.86a.65.65 0 0 0-.64-.59.82.82 0 0 0-.68.39.84.84 0 0 0-.68-.39.65.65 0 0 0-.64.59.9.9 0 0 0 .25.63l.25.26a4 4 0 0 1 .82 1 4 4 0 0 1 .82-1l.25-.26a1 1 0 0 0 .25-.63m2.27.46a.8.8 0 0 1 .26-.05.59.59 0 1 1 0 1.17.69.69 0 0 1-.57-.29 1.18 1.18 0 0 0 .29.76h-.74a1.18 1.18 0 0 0 .29-.76.69.69 0 0 1-.57.29.59.59 0 1 1 0-1.17.8.8 0 0 1 .26.05.57.57 0 0 1-.28-.47.68.68 0 0 1 1.34 0 .57.57 0 0 1-.28.47M16.8 17a6.4 6.4 0 0 1-1.2 1.5 6.2 6.2 0 0 1 1.2 1.5 6 6 0 0 1 1.2-1.5 6.1 6.1 0 0 1-1.2-1.5m-8.8.94a2.4 2.4 0 0 1 .24.25.87.87 0 0 1 .24.61.62.62 0 0 1-.62.56.77.77 0 0 1-.56-.27 1.3 1.3 0 0 0 .32.73h-.8a1.3 1.3 0 0 0 .32-.73.77.77 0 0 1-.57.27.62.62 0 0 1-.57-.56.87.87 0 0 1 .24-.61 2.4 2.4 0 0 1 .24-.25 3.8 3.8 0 0 0 .78-.94 3.8 3.8 0 0 0 .74.94\" />\r\n</svg>";
+export const pngBase64 = await getPng(svgInput);
+
+```
+
+#### Result:
+```json
+{
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD00lEQVR4nO2aR2gWQRSAP2Psjdh7BUWI4MF6UVSwK3qwk4M38aASokHFBioKehEPSiKC7Wb3IjbUiNgOEURQRFQ0KnbBlsTIwFsYht3Nv9nZ9YedDx6BzMxr2WlvAg6Hw+FwOBwOh8ORPr1FMkd/oApoELkJ9CNDVGnBe3KDjNDHJ3hPepEBemY9AcicN4O/ToboJ3NeD74vGWQtUEZGaQ48AZ4BhWSQpdoUWELGaAY81BLwCCggz5gNbASGJqB7rs8uMCcBO8MkhllRB5Zojn0Gult27JZPAu5YttED+KLpXxZl8CHDuWkWHZsSchCabNHOdEO3iiln5gF/ZWANUGTRscshCbhk0U5n4K3o/SsxRWIcsAJYZNGpMSHBe6L62GKRxDA+jpISYJclh87kkIDTlmyVi++xaQG8AvbH3KqGA/U5JEB9rsUxt9i9wBugJZbYIM4diXFqO5ZD8J4cjXG6rBAdavuzRjfgjyg+IV9FFAYDtRESUCtjotBCfGsQX21v3ZzTHLwAtIkw9mCE4D05EEG/+tRPamPPkwALDAevAR1yLID8bEICfkn1qDHaAheNsYtJgNZyKtQN3ZX9Noy9TQjekz2N6O7kU1/8JklJhEofJx8AXQP6dwG+x0jAd9HhR1exbY5RC3VizA9w9HHA57otRvCebA2YVvptUpeFSSagvcxNP8PPgSFa33bABwsJ+GisNQOApwF963KYkrG5EuLsG+0Qs85C8J6o0pl3vX0Z0k/dMhOnrBFn1QVkrFyibCWgRnR6l5sg2ZRGAsbm4HCdxeCj6JyYRgJahawD/1PqczyXWOFOHgRsitoVUmNfHgTcEKfiE5dVeRCwKaVpJmB1wBw8n0KgVwNOl8qn1Fjj48AOWSCrjd//BlYCU+UWqd4EZ0q15qvR97gUYHcHBP9OrrkrfNqUT6lRahivkEoMciR+rrUd1sYVGtfoHcYhqiCkeFqn1feb+ZTXUp0CZZrhkz6lsiHazfFsiB6veqPkhRxzFR2B21plWv1cboxtI1dyb3yqj6zrNMODAvps15z3e5kZLdND9VkfoGOO9nSmplfYG4PyKTW2aoYHap+lNw3Mz/sHMElrGymXHK896PmtQCumnJKan0exoWMLKXJQM1wtC9ABeXzYLH99swqkVu4R8s8R7422SlncRsnr0Ay575cHFEiKpFLd1BKa1fpgg8hO+au8C9nCqht5GfoiBdjHAe1qq50gVWOzLWytsc69hPb4T8B92RGC+gTVGFR5LjVeJ5SAOKKmRCoURKzxpyW1+fhPFg6Hw+FwOMhb/gG+OGYZB8DSVwAAAABJRU5ErkJggg=="
+}
+```
+
+### Use Case 10. Fill Rule Even Odd (with colors)
+
+#### Code:
+```ts
+import { getPng } from "@svgd/utils";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\r\n  <path fill=\"#f4f6f8\" d=\"M2.75 10.3A.75.75 0 1 0 2 9.55a.76.76 0 0 0 .75.75m18.5 0a.75.75 0 1 0-.75-.75.76.76 0 0 0 .75.75M12 7.2A1.2 1.2 0 1 0 10.8 6 1.2 1.2 0 0 0 12 7.2\" />\r\n  <path fill=\"#f4f6f8\" fill-rule=\"evenodd\" d=\"M15.84 15.05 12 7l-3.84 8.05L3 10.15a24.6 24.6 0 0 1 2.09 6.42A24 24 0 0 1 4.86 21h14.28a24 24 0 0 1-.23-4.34A24.8 24.8 0 0 1 21 10.15Zm-4 2.86a.65.65 0 0 0-.64-.59.82.82 0 0 0-.68.39.84.84 0 0 0-.68-.39.65.65 0 0 0-.64.59.9.9 0 0 0 .25.63l.25.26a4 4 0 0 1 .82 1 4 4 0 0 1 .82-1l.25-.26a1 1 0 0 0 .25-.63m2.27.46a.8.8 0 0 1 .26-.05.59.59 0 1 1 0 1.17.69.69 0 0 1-.57-.29 1.18 1.18 0 0 0 .29.76h-.74a1.18 1.18 0 0 0 .29-.76.69.69 0 0 1-.57.29.59.59 0 1 1 0-1.17.8.8 0 0 1 .26.05.57.57 0 0 1-.28-.47.68.68 0 0 1 1.34 0 .57.57 0 0 1-.28.47M16.8 17a6.4 6.4 0 0 1-1.2 1.5 6.2 6.2 0 0 1 1.2 1.5 6 6 0 0 1 1.2-1.5 6.1 6.1 0 0 1-1.2-1.5m-8.8.94a2.4 2.4 0 0 1 .24.25.87.87 0 0 1 .24.61.62.62 0 0 1-.62.56.77.77 0 0 1-.56-.27 1.3 1.3 0 0 0 .32.73h-.8a1.3 1.3 0 0 0 .32-.73.77.77 0 0 1-.57.27.62.62 0 0 1-.57-.56.87.87 0 0 1 .24-.61 2.4 2.4 0 0 1 .24-.25 3.8 3.8 0 0 0 .78-.94 3.8 3.8 0 0 0 .74.94\" />\r\n</svg>";
+export const pngBase64 = await getPng(svgInput);
+
+```
+
+#### Result:
+```json
+{
+  "pngBase64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFBElEQVR4nO1aSahcRRStOMVZnMc4giJEcKFRN4oKzoounMnCnbjQEJKIBjWCioJuxIWSBCEOuzhvxAk1QeKw+AERFBEVv/kav919x+6f/Cv3d7/u193v9fi687HfgaKh+9Wte8+runXrVIeQI0eOHDly5MiRI0eOHGMGEZ3iLUwamPl0JN2GrLbQSL9k5mVhUoDx4BskfBEmAUR0alvwUUM8OfzfgYgnTTQBDl/zCUvg8zApYOZlvubjwRPRaWHSgMhrEXlNmESY2f5I8iOQ/mxmB4RJA3D5nmgJAJfvDpMEM1uCLDsbOUC+N7P9wmICot6ErOuLqudmbZtIb2ndBYj05qzHKaqe5zEg6o19dUTmlQ3n5F8AOCFLx4B0eysBwLIj0zEATkSWQsM+39uPg5ubCxS5NjPHRK5OK4RA5KqsxkGU65psk27uuTOR3gok81Xm9M9CwY7OzDHSj1MrQdKPshqnULBjkHVXNXiZ95j6MkBElxLJ/cB8Z1ZOEVVWpAZfzwWVFVmN5757DMx82cBGkHklkDybjUPyTjcCgOXtLMZC1ofd96ENmdmBwPo7sr40zFZVUj0fSPZ2JYBkHqC8fAh/lyDJC8A6bWYHhSyArI/WEsmWQas2JHm9W/CxXPDaoNUlsG6s2VkfskKpVDoeSCq1ouVNnxX99BeRs4FkrlcC/Fnv088Y7pP7VutfyXrrDsDyXmydfmBmh/TeV1/p+e3Xx9CXe7XvUx1Ztsb8e3/gQNMAXL69ZZp+9rfZEaEHAQRIpG8CSNTVo272zexQIP2wmbzyXSFrmNnBXhW2ZOyvfb/t1M8TUr/BN0iW5zvZnp21o9r0RZKSkxJGASDdlLBtfVcqlY5Ler5YLB6LJDAEAeA2kmz7mD52+8zRLWFUINLbUhz9IWm6AsmTAwffWAobknXF2GmyefrfMTICZswO97WZ7Kj+UhA5J3rWzA5D1t3DEoAs/8RzDTOfgaQ/pZC1p9uSHBpI+kmHzD0dFTHIum744OttbXS8BdLf0meLbh9p8A5kXdPF2V1EdIkforIiwG25zehw06E9FkYNqjrSbd3uyfDt92yzxHzFyAkws6VpeWBfNj9n9FKXZAJg2bGvA25vsjOMC8j64uKbAX0oPsMCSB9cdASwrh4nAQ8lrUE/hIw8WNJPk6pL92mcBKxKIOBpT5DIMtXyfblE8gCKXOOnyIU7QdQbFpRnkmJzcPKGC7BA8lwKATN+zHWZK4GAVeMjgHV1y/Tb6EqM/+YlsVeFMcdejfq5mBI/RjtpMRvTccWpVTxd2AZr+r6P1SqvjXUJYFMxJFtbpTIviaOTI7C8m2Ynpt44Ub96mevf7zY7Eli/qivT/ilyX7yvE+lH8hgJ47tkxViZKyJnJT0DJE/VnU+4mSGqXOzLo2bnkSQbflsUuzpb2uWOYV0YF4BkQ4yAM6NpGS2DtulNwiByZfQbYvlCP+REv6ddv/nMisQUYHnLNb+6fSgvj9tA1idGH3mixCVTnoBcwvLLB2R93N9+mwpEAgDlCxb+HMH6V0sC21RNbpWL/HYIUa/3835V2m4XSPyipqZUDyShZaoPYuMtP1N9KzqTvo3JVMebIZaCC7CuLyTu9SR7S8yXu2rcXgek55pREPDNaPZ5mQWWb31H6PBcosbg8twYCdA/RkPA4M2XxFiCt2pimlt0BJDMLbo/WeTIkSNHjhw5wmLGf26RJBRR+0nMAAAAAElFTkSuQmCC"
+}
+```
+
+### Use Case 11. Throw on invalid SVG for PNG conversion
 
 #### Code:
 ```ts
@@ -487,6 +679,8 @@ export const svgFileNames = getSvgFileNames(filePath);
 ```json
 {
   "svgFileNames": [
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\fill-none.svg",
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\rule-even-odd.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\test_icon.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_20px.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_24px.svg",

@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Utility functions to convert SVG to path d.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -69,7 +69,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/core": "^0.3.9",
+    "@svgd/core": "^0.3.10",
     "sharp": "^0.33.5",
     "svgo": "^3.3.2",
     "typescript": "^5.7.3"
@@ -112,7 +112,7 @@ export function getSvgFileNames(dir: string): string[] {
 ## src\index.ts
 
 ```typescript
-import { getSvgoConfig, getSvg, defaultConfig } from "@svgd/core";
+import { getSvgoConfig, getSvg, defaultConfig, type SVGDConfig } from "@svgd/core";
 import { getPng } from "./getPng";
 import { parseSvg } from "src/parseSvg";
 import { getSvgFileNames } from "./getSvgFileNames";
@@ -134,6 +134,7 @@ export {
 
 export type {
     NameFormat,
+    SVGDConfig
 };
 
 ```

@@ -1,4 +1,4 @@
-import { getSvgoConfig, getSvg, defaultConfig } from "@svgd/core";
+import { getSvgoConfig, getSvg, defaultConfig, type SVGDConfig } from "@svgd/core";
 import { getPng } from "./getPng";
 import { parseSvg } from "src/parseSvg";
 import { getSvgFileNames } from "./getSvgFileNames";
@@ -20,4 +20,5 @@ export {
 
 export type {
     NameFormat,
+    SVGDConfig
 };

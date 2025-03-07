@@ -35,7 +35,7 @@
 ```json
 {
   "name": "@svgd/cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "CLI tool to generate constants from SVG files",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -74,7 +74,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/utils": "^0.1.11",
+    "@svgd/utils": "^0.1.12",
     "commander": "^12.1.0"
   }
 }

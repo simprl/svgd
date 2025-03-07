@@ -10,13 +10,13 @@ const mocks = [
   {
     title: "Throw on invalid SVG for PNG conversion",
     isThrow: true,
-    svgInput: "invalid_svg",
+    svgOutput: "invalid_svg",
     pngBase64: ""
   }
 ];
 
 export const stories = story.getStories({
   mocks,
-  input: ({ svgInput }) => ({ svgInput }),
+  input: ({ svgOutput }) => ({ svgInput: svgOutput }),
   output: ({ pngBase64 }) => ({ pngBase64 })
 });
