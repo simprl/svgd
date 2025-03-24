@@ -2,6 +2,7 @@ export interface TemplateProps {
     quote: string;
     filePath: string;
     relativePath: string;
+    ts: boolean;
     name: string;
     d: string;
     image: string;
@@ -12,12 +13,12 @@ export const jsRowTemplate = ({name, d, quote}: TemplateProps) =>
 `export const ${name} = ${quote}${d}${quote};
 `;
 
-export const jsRowTemplateWithJSDoc = ({name, d, image, quote, filePath}: TemplateProps) =>
+export const jsRowTemplateWithJSDoc = ({name, d, image, quote, filePath, ts}: TemplateProps) =>
 `/**
  * @filepath ${filePath}
  * @return ${image}
  */
-export const ${name} = ${quote}${d}${quote};
+export const ${name} = ${quote}${d}${quote}${ts ? ` as "${name}"` : ''};
 `;
 
 export const dtsRowTemplate = ({name, image, filePath}: TemplateProps) =>
@@ -25,7 +26,7 @@ export const dtsRowTemplate = ({name, image, filePath}: TemplateProps) =>
  * @filepath ${filePath}
  * @return ${image}
  */
-export const ${name}: string;
+export const ${name}: "${name}";
 `;
 
 export const mdRowTemplate = ({name, filePath, relativePath}: TemplateProps) =>

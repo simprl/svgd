@@ -151,7 +151,8 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 quote,
                 svg,
                 image: `![](data:image/png;base64,${png})`,
-                filePath: path.relative(baseDir, file).split('\\').join('/')
+                filePath: path.relative(baseDir, file).split('\\').join('/'),
+                ts: /\.ts$/.test(outputFilePath),
             }
 
             constants.rows.push(constants.rowTemplate( {
