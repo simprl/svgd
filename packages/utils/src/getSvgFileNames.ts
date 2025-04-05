@@ -6,4 +6,5 @@ export function getSvgFileNames(dir: string): string[] {
     return entries
         .filter((entry) => /\.(svg)$/i.test(entry.name) && !entry.isDirectory())
         .map(({ name, parentPath }) => join(parentPath, name))
+        .sort()
 }

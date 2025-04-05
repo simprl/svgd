@@ -15,10 +15,10 @@ const mocks = [
         svgFileNames: [
             join(inputDir, 'fill-none.svg'),
             join(inputDir, 'rule-even-odd.svg'),
-            join(inputDir, 'test_icon.svg'),
             join(inputDir, 'subdir1/icon1_20px.svg'),
             join(inputDir, 'subdir1/icon1_24px.svg'),
             join(inputDir, 'subdir1/subdir2/icon5_24px.svg'),
+            join(inputDir, 'test_icon.svg'),
         ]
     },
 ];
