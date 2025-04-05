@@ -122,7 +122,7 @@ All code and comments must be in English. Please follow the style and convention
     // Append each source file's content
     files.forEach((filePath) => {
         const relativePath = path.relative(rootDir, filePath);
-        mdContent += `## ${relativePath.replace('\\', '/')}\n\n`;
+        mdContent += `## ${relativePath.replace(/\\/g, '/')}\n\n`;
 
         // Read file content
         const fileContent = fs.readFileSync(filePath, 'utf8');
