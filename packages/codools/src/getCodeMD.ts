@@ -100,7 +100,12 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     });
 
     // Begin building the Markdown content
-    let mdContent = `# Project "${projectName}"\n\n`;
+    let mdContent = `
+    I will provide the source code of my project.
+Please analyze the code structure and help me extend the functionality when I ask. 
+All code and comments must be in English. Please follow the style and conventions used in the existing codebase. If something is unclear or needs clarification, feel free to ask me.
+
+    # Project "${projectName}"\n\n`;
 
     // Append tsconfig.json content
     mdContent += '## tsconfig.json\n\n';
