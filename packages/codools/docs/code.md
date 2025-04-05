@@ -36,7 +36,7 @@
 ```json
 {
   "name": "codools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -84,7 +84,7 @@
 
 ```
 
-## src\describeStory.ts
+## src/describeStory.ts
 
 ```typescript
 import { test, expect, vi } from "vitest";
@@ -114,7 +114,7 @@ export const describeStories = <Input extends Record<string, unknown>, Output ex
 
 ```
 
-## src\getCodeMD.ts
+## src/getCodeMD.ts
 
 ```typescript
 import * as fs from 'fs';
@@ -236,7 +236,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Append each source file's content
     files.forEach((filePath) => {
         const relativePath = path.relative(rootDir, filePath);
-        mdContent += `## ${relativePath}\n\n`;
+        mdContent += `## ${relativePath.replace('\\', '/')}\n\n`;
 
         // Read file content
         const fileContent = fs.readFileSync(filePath, 'utf8');
@@ -257,7 +257,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
 
 ```
 
-## src\getESMPath.ts
+## src/getESMPath.ts
 
 ```typescript
 import { fileURLToPath } from 'url';
@@ -274,7 +274,7 @@ export const getESMPath = (meta: ImportMeta, relativePath?: string) => {
 
 ```
 
-## src\getStoriesMD.ts
+## src/getStoriesMD.ts
 
 ```typescript
 import { resolve } from "path";
@@ -345,7 +345,7 @@ export const getStoriesMD = <Input extends Record<string, unknown>, Output exten
 
 ```
 
-## src\index.ts
+## src/index.ts
 
 ```typescript
 export { useStory } from "./useStory";
@@ -359,7 +359,7 @@ export type { Story } from "./types"
 
 ```
 
-## src\saveMD.ts
+## src/saveMD.ts
 
 ```typescript
 import { dirname } from "path";
@@ -375,14 +375,14 @@ export const saveMD = (filePath: string, content: string) => {
 
 ```
 
-## src\tests.ts
+## src/tests.ts
 
 ```typescript
 export { describeStories } from "./describeStory";
 
 ```
 
-## src\transformer.ts
+## src/transformer.ts
 
 ```typescript
 import ts from 'typescript';
@@ -476,7 +476,7 @@ export { transformImports };
 
 ```
 
-## src\types.ts
+## src/types.ts
 
 ```typescript
 
@@ -496,7 +496,7 @@ export type Story<Input, Output> = {
 
 ```
 
-## src\useStory.ts
+## src/useStory.ts
 
 ```typescript
 import { Story } from "src/types";

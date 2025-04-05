@@ -117,7 +117,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Append each source file's content
     files.forEach((filePath) => {
         const relativePath = path.relative(rootDir, filePath);
-        mdContent += `## ${relativePath}\n\n`;
+        mdContent += `## ${relativePath.replace('\\', '/')}\n\n`;
 
         // Read file content
         const fileContent = fs.readFileSync(filePath, 'utf8');
