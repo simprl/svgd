@@ -4,7 +4,7 @@ import * as ts from 'typescript';
 import { minimatch } from 'minimatch';
 
 // Mapping file extensions to syntax highlighting languages
-const extensionToLang: Record<string, string> = {
+export const defaultExtensionToLang: Record<string, string> = {
     '.js': 'javascript',
     '.jsx': 'javascript',
     '.ts': 'typescript',
@@ -12,10 +12,8 @@ const extensionToLang: Record<string, string> = {
     '.json': 'json',
     '.html': 'html',
     '.css': 'css',
+    '.scss': 'scss',
 };
-
-// Allowed file extensions to scan
-const ALLOWED_EXTENSIONS: string[] = Object.keys(extensionToLang);
 
 /**
  * Reads and parses tsconfig.json from the given root directory,
@@ -56,15 +54,23 @@ function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string):
     return ignorePatterns.some(pattern => minimatch(relativePath, pattern));
 }
 
-/**
- * Returns the language name for a given file based on its extension.
- */
-function getLanguageForFile(filePath: string): string {
-    const ext = path.extname(filePath).toLowerCase();
-    return extensionToLang[ext] || '';
-}
+
 
 export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
+
+export const defaultPrompt = {
+    intro: `I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.`,
+    commonStyle: `All code and comments must be in English. Please follow the style and conventions used in the existing codebase.`,
+    libs: `For react project use version 18 and 19 versions (with jsx-runtime style).`,
+    practices: `Also use Clean Architecture, SOLID, atomic design`,
+    end: `If something is unclear or needs clarification, feel free to ask me.`
+};
+
+interface GetCodeMDOptions {
+    ignorePatterns?: string[];
+    extensionToLang?: Record<string, string>;
+    prompts?: typeof defaultPrompt;
+}
 
 /**
  * Generates a Markdown file listing:
@@ -73,7 +79,25 @@ export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scrip
  * 3. All source files (from tsconfig.json) that have allowed extensions,
  *    excluding those that match ignore patterns.
  */
-export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPatterns): string {
+export function getCodeMD(
+    rootDir: string,
+    {
+        ignorePatterns = ignoredPatterns,
+        extensionToLang = defaultExtensionToLang,
+        prompts = defaultPrompt,
+    }: GetCodeMDOptions = {}
+): string {
+    // Allowed file extensions to scan
+    const allowedExtensions: string[] = Object.keys(extensionToLang);
+
+    /**
+     * Returns the language name for a given file based on its extension.
+     */
+    function getLanguageForFile(filePath: string): string {
+        const ext = path.extname(filePath).toLowerCase();
+        return extensionToLang[ext] || '';
+    }
+
     // Read tsconfig.json content
     const tsConfigPath = path.join(rootDir, 'tsconfig.json');
     const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
@@ -89,7 +113,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Filter files based on allowed extensions and ignore patterns
     files = files.filter((file) => {
         const ext = path.extname(file).toLowerCase();
-        return ALLOWED_EXTENSIONS.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
+        return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
     });
 
     // Sort files alphabetically by their path relative to the root directory
@@ -100,36 +124,32 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     });
 
     // Begin building the Markdown content
-    let mdContent = `
-    I will provide the source code of my project.
-Please analyze the code structure and help me extend the functionality when I ask. 
-All code and comments must be in English. Please follow the style and conventions used in the existing codebase. If something is unclear or needs clarification, feel free to ask me.
-
-    # Project "${projectName}"\n\n`;
+    const mdContent = [...Object.values(prompts)];
+    mdContent.push(`# Project "${projectName}"`, "");
 
     // Append tsconfig.json content
-    mdContent += '## tsconfig.json\n\n';
-    mdContent += '```json\n';
-    mdContent += tsConfigContent + '\n';
-    mdContent += '```\n\n';
+    mdContent.push('## tsconfig.json', '');
+    mdContent.push('```json');
+    mdContent.push(tsConfigContent);
+    mdContent.push('```', '');
 
     // Append package.json content
-    mdContent += '## package.json\n\n';
-    mdContent += '```json\n';
-    mdContent += packageJsonContent + '\n';
-    mdContent += '```\n\n';
+    mdContent.push('## package.json', '');
+    mdContent.push('```json');
+    mdContent.push(packageJsonContent + '');
+    mdContent.push('```', '');
 
     // Append each source file's content
     files.forEach((filePath) => {
         const relativePath = path.relative(rootDir, filePath);
-        mdContent += `## ${relativePath.replace(/\\/g, '/')}\n\n`;
+        mdContent.push(`## ${relativePath.replace(/\\/g, '/')}`, '');
 
         // Read file content
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const language = getLanguageForFile(filePath);
 
         // Append file content with syntax highlighting
-        mdContent += `\`\`\`${language}\n${fileContent}\n\`\`\`\n\n`;
+        mdContent.push(`\`\`\`${language}\n${fileContent}\n\`\`\``, '');
     });
 
     // Ensure the output directory exists
@@ -138,5 +158,5 @@ All code and comments must be in English. Please follow the style and convention
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    return mdContent;
+    return mdContent.join('\n');
 }
