@@ -109,6 +109,8 @@ jobs:
         run: |
           git config user.name "${{ secrets.GIT_USER_NAME }}"
           git config user.email "${{ secrets.GIT_USER_EMAIL }}"
+          git pull
+          git status
           NEW_VERSION=$(node -p "require('./package.json').version")
           git add .
           git commit -m "[RELEASE] ${NEW_VERSION}"
