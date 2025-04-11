@@ -16,7 +16,7 @@ export const defaultExtensionToLang: Record<string, string> = {
 };
 
 /**
- * Reads and parses tsconfig.json from the given root directory,
+ * Reads and parses tsconfig.json from the given root directory
  * and returns the list of file names determined by the configuration.
  */
 function getSourceFilesFromTsConfig(rootDir: string): string[] {
@@ -55,7 +55,7 @@ function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string):
 }
 
 /**
- * Traverses the AST of a source file and finds all import declarations and require calls
+ * Traverses the AST of a source file and finds all import declarations and require calls,
  * where the imported module's extension is included in allowedExtensions.
  */
 function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): string[] {
@@ -80,7 +80,8 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
             }
         }
         // Handle require calls: const x = require('module')
-        if (ts.isCallExpression(node) &&
+        if (
+            ts.isCallExpression(node) &&
             node.expression.getText(sourceFile) === 'require' &&
             node.arguments.length === 1 &&
             ts.isStringLiteral(node.arguments[0])
@@ -97,6 +98,43 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
     visit(sourceFile);
 
     return foundImports;
+}
+
+/**
+ * Resolves an import path using the "paths" alias from tsconfig.
+ * Example:
+ *   alias: "~/*" → target: "./src/*"
+ *   If imp is "~/components/atoms/Label.module.scss", it returns an absolute path
+ *   like "<rootDir>/src/components/atoms/Label.module.scss".
+ */
+function resolveAliasImport(
+    imp: string,
+    tsConfigPaths: Record<string, string[]>,
+    rootDir: string
+): string | null {
+    for (const aliasPattern in tsConfigPaths) {
+        const targets = tsConfigPaths[aliasPattern]; // Array of paths, e.g., ['./src/*']
+        if (aliasPattern.endsWith('/*')) {
+            // Get alias prefix without "/*"
+            const prefix = aliasPattern.slice(0, -1);
+            if (imp.startsWith(prefix)) {
+                const remainder = imp.slice(prefix.length);
+                const target = targets[0]; // Use the first target
+                if (target.endsWith('/*')) {
+                    const targetPrefix = target.slice(0, -1);
+                    return path.resolve(rootDir, targetPrefix + remainder);
+                } else {
+                    return path.resolve(rootDir, target);
+                }
+            }
+        } else {
+            // If alias is without wildcard
+            if (imp === aliasPattern) {
+                return path.resolve(rootDir, targets[0]);
+            }
+        }
+    }
+    return null;
 }
 
 export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
@@ -122,10 +160,9 @@ interface GetCodeMDOptions {
  * 3. All source files (from tsconfig.json) that have allowed extensions,
  *    excluding those that match ignore patterns.
  * Additionally, for each source file that can be parsed via AST,
- * it appends a list of detected import/require statements whose module paths
- * have extensions defined in extensionToLang.
- * For each detected import, instead of just listing the import string,
- * the content of the imported file (if found) is inserted as a code block.
+ * it analyzes the list of import/require calls and attempts to resolve
+ * the absolute path of the imported module using aliases from tsconfig.
+ * If found, the file content is inserted into the Markdown as a code block.
  */
 export function getCodeMD(
     rootDir: string,
@@ -137,27 +174,30 @@ export function getCodeMD(
 ): string {
     // Allowed file extensions to scan
     const allowedExtensions: string[] = Object.keys(extensionToLang);
-    // Extensions for which we attempt AST parsing (typically code files)
+    // File extensions for AST parsing (usually code files)
     const astParsableExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
     /**
-     * Returns the language name for a given file based on its extension.
+     * Returns the syntax highlighting language for a file based on its extension.
      */
     function getLanguageForFile(filePath: string): string {
         const ext = path.extname(filePath).toLowerCase();
         return extensionToLang[ext] || '';
     }
 
-    // Read tsconfig.json content
+    // Read tsconfig.json and package.json
     const tsConfigPath = path.join(rootDir, 'tsconfig.json');
     const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+    // Parse tsconfig to get alias paths
+    const tsConfigJson = JSON.parse(tsConfigContent);
+    const tsConfigPaths: Record<string, string[]> =
+        (tsConfigJson.compilerOptions && tsConfigJson.compilerOptions.paths) || {};
 
-    // Read package.json content
     const packageJsonPath = path.join(rootDir, 'package.json');
     const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
     const projectName = JSON.parse(packageJsonContent).name;
 
-    // Get the list of source files from tsconfig.json
+    // Get the list of source files from tsconfig
     let files: string[] = getSourceFilesFromTsConfig(rootDir);
 
     // Filter files based on allowed extensions and ignore patterns
@@ -166,7 +206,7 @@ export function getCodeMD(
         return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
     });
 
-    // Sort files alphabetically by their path relative to the root directory
+    // Sort files alphabetically by relative path
     files.sort((a, b) => {
         const relA = path.relative(rootDir, a);
         const relB = path.relative(rootDir, b);
@@ -216,11 +256,12 @@ export function getCodeMD(
             const detectedImports = findModuleImportsInAst(filePath, allowedExtensions);
             if (detectedImports.length > 0) {
                 detectedImports.forEach((imp) => {
-                    // Пытаемся вычислить абсолютный путь для импортированного модуля
                     let importedFileAbsolutePath: string | null = null;
-                    // Обрабатываем только относительные или абсолютные пути
                     if (imp.startsWith('.') || imp.startsWith('/')) {
                         importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                    } else {
+                        // Resolve alias using tsconfig paths
+                        importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
                     }
                     if (importedFileAbsolutePath && renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
                         renderedImports.add(importedFileAbsolutePath);
