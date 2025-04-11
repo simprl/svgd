@@ -1,6 +1,6 @@
 {
   "name": "@svgd/cli",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "CLI tool to generate constants from SVG files",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.5",
+    "codools": "^0.2.6",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
@@ -39,7 +39,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/utils": "^0.1.18",
+    "@svgd/utils": "^0.1.19",
     "commander": "^12.1.0"
   }
 }
