@@ -6,6 +6,7 @@
 - **Document Code:** Automatically generate detailed Markdown documentation of your project's source files, configuration files (such as `tsconfig.json` and `package.json`), and API use cases. This documentation can then be provided to ChatGPT to help it fully understand the project's structure and logic.
 - **Simplify Testing:** Facilitate testing by providing helper functions for defining and executing test scenarios (or "stories") using [vitest](https://vitest.dev/). This allows you to easily mock data and verify outputs, making your tests more maintainable and easier to understand.
 
+
 ## Table of Contents
 
 - [Installation](#installation)

@@ -1,7 +1,7 @@
 I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.
 All code and comments must be in English. Please follow the style and conventions used in the existing codebase.
 For react project use version 18 and 19 versions (with jsx-runtime style).
-Also use best practices (Clean Code, Clean Architecture, SOLID, Atomic design)
+Also use Clean Code, Clean Architecture, SOLID, Atomic design
 If something is unclear or needs clarification, feel free to ask me.
 # Project "codools"
 
@@ -41,7 +41,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "codools",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -184,7 +184,7 @@ function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string):
  */
 function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): string[] {
     const content = fs.readFileSync(filePath, 'utf8');
-    let foundImports: string[] = [];
+    const foundImports: string[] = [];
 
     let sourceFile: ts.SourceFile;
     try {
