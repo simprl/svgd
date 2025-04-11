@@ -32,10 +32,15 @@ export interface GeneratedFile {
 }
 
 interface FileRawData {
-    rows: string[];
+    rows: Row[];
     path: string;
     fileTemplate?: (rows: string) => string;
     rowTemplate: (rows: TemplateProps) => string;
+}
+
+interface Row {
+    order: number;
+    code: string;
 }
 
 const defoultOptions: CLIOptions = {
@@ -155,25 +160,30 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
                 ts: /\.ts$/.test(outputFilePath),
             }
 
-            constants.rows.push(constants.rowTemplate( {
+            const orderedRowItem = (code: string)  => ({
+                order: index,
+                code
+            });
+
+            constants.rows.push(orderedRowItem(constants.rowTemplate( {
                 ...templateProps,
                 relativePath: getRelativePath(outputFilePath)
-            }));
+            })));
 
-            dts?.rows.push(dts.rowTemplate({
+            dts?.rows.push(orderedRowItem(dts.rowTemplate({
                 ... templateProps,
                 relativePath: getRelativePath(dts.path)
-            }));
+            })));
 
-            md?.rows.push(md.rowTemplate({
+            md?.rows.push(orderedRowItem(md.rowTemplate({
                 ... templateProps,
                 relativePath: getRelativePath(md.path)
-            }));
+            })));
 
-            html?.rows.push(html.rowTemplate({
+            html?.rows.push(orderedRowItem(html.rowTemplate({
                 ... templateProps,
                 relativePath: getRelativePath(html.path)
-            }));
+            })));
 
         } catch (error) {
             console.error(`Error processing svg file ${file}:`, error);
@@ -185,7 +195,10 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
     }));
 
     return [...outputs.entries()].map(([outPath, rawData]) => {
-        const content = rawData.rows.join('\n');
+        const content = rawData.rows
+            .sort(({ order: a }, { order: b }) => a - b)
+            .map(({ code }) => code)
+            .join('\n');
         return {
             path: outPath,
             content: rawData.fileTemplate ? rawData.fileTemplate(content) : content,

@@ -1,3 +1,8 @@
+I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.
+All code and comments must be in English. Please follow the style and conventions used in the existing codebase.
+For react project use version 18 and 19 versions (with jsx-runtime style).
+Also use best practices (Clean Code, Clean Architecture, SOLID, Atomic design)
+If something is unclear or needs clarification, feel free to ask me.
 # Project "codools"
 
 ## tsconfig.json
@@ -36,7 +41,7 @@
 ```json
 {
   "name": "codools",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -123,7 +128,7 @@ import * as ts from 'typescript';
 import { minimatch } from 'minimatch';
 
 // Mapping file extensions to syntax highlighting languages
-const extensionToLang: Record<string, string> = {
+export const defaultExtensionToLang: Record<string, string> = {
     '.js': 'javascript',
     '.jsx': 'javascript',
     '.ts': 'typescript',
@@ -131,10 +136,8 @@ const extensionToLang: Record<string, string> = {
     '.json': 'json',
     '.html': 'html',
     '.css': 'css',
+    '.scss': 'scss',
 };
-
-// Allowed file extensions to scan
-const ALLOWED_EXTENSIONS: string[] = Object.keys(extensionToLang);
 
 /**
  * Reads and parses tsconfig.json from the given root directory,
@@ -176,14 +179,65 @@ function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string):
 }
 
 /**
- * Returns the language name for a given file based on its extension.
+ * Traverses the AST of a source file and finds all import declarations and require calls
+ * where the imported module's extension is included in allowedExtensions.
  */
-function getLanguageForFile(filePath: string): string {
-    const ext = path.extname(filePath).toLowerCase();
-    return extensionToLang[ext] || '';
+function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): string[] {
+    const content = fs.readFileSync(filePath, 'utf8');
+    let foundImports: string[] = [];
+
+    let sourceFile: ts.SourceFile;
+    try {
+        sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+    } catch (error) {
+        console.error(`Error creating source file for ${filePath}:`, error);
+        return foundImports;
+    }
+
+    function visit(node: ts.Node) {
+        // Handle import declarations: import ... from 'module'
+        if (ts.isImportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+            const moduleName = node.moduleSpecifier.text;
+            const moduleExt = path.extname(moduleName).toLowerCase();
+            if (allowedExtensions.includes(moduleExt)) {
+                foundImports.push(moduleName);
+            }
+        }
+        // Handle require calls: const x = require('module')
+        if (ts.isCallExpression(node) &&
+            node.expression.getText(sourceFile) === 'require' &&
+            node.arguments.length === 1 &&
+            ts.isStringLiteral(node.arguments[0])
+        ) {
+            const moduleName = node.arguments[0].text;
+            const moduleExt = path.extname(moduleName).toLowerCase();
+            if (allowedExtensions.includes(moduleExt)) {
+                foundImports.push(moduleName);
+            }
+        }
+        ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+
+    return foundImports;
 }
 
 export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
+
+export const defaultPrompt = {
+    intro: `I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.`,
+    commonStyle: `All code and comments must be in English. Please follow the style and conventions used in the existing codebase.`,
+    libs: `For react project use version 18 and 19 versions (with jsx-runtime style).`,
+    practices: `Also use Clean Code, Clean Architecture, SOLID, Atomic design`,
+    end: `If something is unclear or needs clarification, feel free to ask me.`
+};
+
+interface GetCodeMDOptions {
+    ignorePatterns?: string[];
+    extensionToLang?: Record<string, string>;
+    prompts?: typeof defaultPrompt;
+}
 
 /**
  * Generates a Markdown file listing:
@@ -191,8 +245,33 @@ export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scrip
  * 2. The package.json content,
  * 3. All source files (from tsconfig.json) that have allowed extensions,
  *    excluding those that match ignore patterns.
+ * Additionally, for each source file that can be parsed via AST,
+ * it appends a list of detected import/require statements whose module paths
+ * have extensions defined in extensionToLang.
+ * For each detected import, instead of just listing the import string,
+ * the content of the imported file (if found) is inserted as a code block.
  */
-export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPatterns): string {
+export function getCodeMD(
+    rootDir: string,
+    {
+        ignorePatterns = ignoredPatterns,
+        extensionToLang = defaultExtensionToLang,
+        prompts = defaultPrompt,
+    }: GetCodeMDOptions = {}
+): string {
+    // Allowed file extensions to scan
+    const allowedExtensions: string[] = Object.keys(extensionToLang);
+    // Extensions for which we attempt AST parsing (typically code files)
+    const astParsableExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
+
+    /**
+     * Returns the language name for a given file based on its extension.
+     */
+    function getLanguageForFile(filePath: string): string {
+        const ext = path.extname(filePath).toLowerCase();
+        return extensionToLang[ext] || '';
+    }
+
     // Read tsconfig.json content
     const tsConfigPath = path.join(rootDir, 'tsconfig.json');
     const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
@@ -208,7 +287,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     // Filter files based on allowed extensions and ignore patterns
     files = files.filter((file) => {
         const ext = path.extname(file).toLowerCase();
-        return ALLOWED_EXTENSIONS.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
+        return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
     });
 
     // Sort files alphabetically by their path relative to the root directory
@@ -219,31 +298,74 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
     });
 
     // Begin building the Markdown content
-    let mdContent = `# Project "${projectName}"\n\n`;
+    const mdContent: string[] = [...Object.values(prompts)];
+    mdContent.push(`# Project "${projectName}"`, "");
 
     // Append tsconfig.json content
-    mdContent += '## tsconfig.json\n\n';
-    mdContent += '```json\n';
-    mdContent += tsConfigContent + '\n';
-    mdContent += '```\n\n';
+    mdContent.push('## tsconfig.json', '');
+    mdContent.push('```json');
+    mdContent.push(tsConfigContent);
+    mdContent.push('```', '');
 
     // Append package.json content
-    mdContent += '## package.json\n\n';
-    mdContent += '```json\n';
-    mdContent += packageJsonContent + '\n';
-    mdContent += '```\n\n';
+    mdContent.push('## package.json', '');
+    mdContent.push('```json');
+    mdContent.push(packageJsonContent);
+    mdContent.push('```', '');
 
-    // Append each source file's content
+    const renderedImports = new Set();
+
+    // Append each source file's content along with its detected imports and imported file content
     files.forEach((filePath) => {
         const relativePath = path.relative(rootDir, filePath);
-        mdContent += `## ${relativePath.replace('\\', '/')}\n\n`;
+        const fileName = relativePath.replace(/\\/g, '/');
+        mdContent.push(`## ${fileName}`, '');
 
         // Read file content
-        const fileContent = fs.readFileSync(filePath, 'utf8');
+        let fileContent: string;
+        try {
+            fileContent = fs.readFileSync(filePath, 'utf8');
+        } catch (error) {
+            console.error(`Error reading file ${filePath}:`, error);
+            fileContent = '';
+        }
         const language = getLanguageForFile(filePath);
 
         // Append file content with syntax highlighting
-        mdContent += `\`\`\`${language}\n${fileContent}\n\`\`\`\n\n`;
+        mdContent.push(`\`\`\`${language}`, fileContent, '```', '');
+
+        // If the file's extension is AST-parsable, analyze its import statements
+        const ext = path.extname(filePath).toLowerCase();
+        if (astParsableExtensions.has(ext)) {
+            const detectedImports = findModuleImportsInAst(filePath, allowedExtensions);
+            if (detectedImports.length > 0) {
+                detectedImports.forEach((imp) => {
+                    // Пытаемся вычислить абсолютный путь для импортированного модуля
+                    let importedFileAbsolutePath: string | null = null;
+                    // Обрабатываем только относительные или абсолютные пути
+                    if (imp.startsWith('.') || imp.startsWith('/')) {
+                        importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                    }
+                    if (importedFileAbsolutePath && renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
+                        renderedImports.add(importedFileAbsolutePath);
+                        let importedContent: string;
+                        try {
+                            importedContent = fs.readFileSync(importedFileAbsolutePath, 'utf8');
+                        } catch (error) {
+                            console.error(`Error reading imported file ${importedFileAbsolutePath}:`, error);
+                            importedContent = '';
+                        }
+                        const importedLanguage = getLanguageForFile(importedFileAbsolutePath);
+                        const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
+                        mdContent.push(`## ${innerFileName}`, '');
+                        mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
+                    } else {
+                        mdContent.push(`#### ${imp} (file not found)`, '');
+                    }
+                });
+                mdContent.push('');
+            }
+        }
     });
 
     // Ensure the output directory exists
@@ -252,7 +374,7 @@ export function getCodeMD(rootDir: string, ignorePatterns: string[] = ignoredPat
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    return mdContent;
+    return mdContent.join('\n');
 }
 
 ```
@@ -351,7 +473,7 @@ export const getStoriesMD = <Input extends Record<string, unknown>, Output exten
 export { useStory } from "./useStory";
 export { transformImports } from "./transformer";
 export { getStoriesMD } from "./getStoriesMD";
-export { getCodeMD } from "./getCodeMD";
+export { getCodeMD, ignoredPatterns, defaultExtensionToLang, defaultPrompt } from "./getCodeMD";
 export { getESMPath } from "./getESMPath";
 export { saveMD } from "./saveMD";
 export type { UseStory } from "./useStory";
@@ -544,4 +666,3 @@ export const useStory = <
 }
 
 ```
-
