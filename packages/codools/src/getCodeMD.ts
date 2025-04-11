@@ -257,13 +257,16 @@ export function getCodeMD(
             if (detectedImports.length > 0) {
                 detectedImports.forEach((imp) => {
                     let importedFileAbsolutePath: string | null = null;
+                    let resolveType = "";
                     if (imp.startsWith('.') || imp.startsWith('/')) {
                         importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                        resolveType = "simple import";
                     } else {
                         // Resolve alias using tsconfig paths
                         importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
+                        resolveType = "alias import";
                     }
-                    if (importedFileAbsolutePath && renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
+                    if (importedFileAbsolutePath && !renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
                         renderedImports.add(importedFileAbsolutePath);
                         let importedContent: string;
                         try {
@@ -274,7 +277,7 @@ export function getCodeMD(
                         }
                         const importedLanguage = getLanguageForFile(importedFileAbsolutePath);
                         const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
-                        mdContent.push(`## ${innerFileName}`, '');
+                        mdContent.push(`## ${innerFileName} (${resolveType})`, '');
                         mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
                     } else {
                         mdContent.push(`#### ${imp} (file not found)`, '');
