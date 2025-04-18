@@ -1,3 +1,8 @@
+I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.
+All code and comments must be in English. Please follow the style and conventions used in the existing codebase.
+For react project use version 18 and 19 versions (with jsx-runtime style).
+Also use Clean Code, Clean Architecture, SOLID, Atomic design
+If something is unclear or needs clarification, feel free to ask me.
 # Project "@svgd/core"
 
 ## tsconfig.json
@@ -35,7 +40,7 @@
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.10",
+  "version": "0.3.18",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -53,7 +58,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "docs": "codools --root . --output docs/code.md && tsx scripts/useCasesDoc",
     "lint": "eslint"
   },
   "author": "",
@@ -62,7 +67,7 @@
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.1",
+    "codools": "^0.2.9",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
@@ -94,7 +99,7 @@
 
 ```
 
-## src\commands.ts
+## src/commands.ts
 
 ```typescript
 export interface PathAttributes {
@@ -194,7 +199,7 @@ export const commands: Comand[] = [
 
 ```
 
-## src\defaultConfig.ts
+## src/defaultConfig.ts
 
 ```typescript
 import { type Config } from 'svgo';
@@ -290,7 +295,7 @@ export const defaultConfig: SVGDConfig = {
 
 ```
 
-## src\getPaths.ts
+## src/getPaths.ts
 
 ```typescript
 import { commands, PathAttributes } from "./commands";
@@ -326,7 +331,7 @@ export function getPaths(d: string): PathAttributes[] {
 
 ```
 
-## src\getSvg.ts
+## src/getSvg.ts
 
 ```typescript
 import { getPaths } from "./getPaths";
@@ -346,7 +351,7 @@ export function getSvg(d: string, viewbox?: ViewBox): string {
 
 ```
 
-## src\getSvgoConfig.ts
+## src/getSvgoConfig.ts
 
 ```typescript
 import { defaultConfig } from "./defaultConfig";
@@ -436,7 +441,7 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
 
 ```
 
-## src\index.ts
+## src/index.ts
 
 ```typescript
 export { getPaths } from './getPaths';
@@ -450,7 +455,7 @@ export type { PathAttributes, Comand } from "./commands";
 
 ```
 
-## src\resizePlugin.ts
+## src/resizePlugin.ts
 
 ```typescript
 import type { CustomPlugin } from 'svgo';
@@ -571,4 +576,3 @@ function overrideSvgAttributesIfNeeded(svgNode: XastElement, params: ResizeParam
 }
 
 ```
-

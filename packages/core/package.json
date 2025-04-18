@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "docs": "codools --root . --output docs/code.md && tsx scripts/useCasesDoc",
     "lint": "eslint"
   },
   "author": "",
