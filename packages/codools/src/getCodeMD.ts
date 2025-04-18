@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-import { minimatch } from 'minimatch';
+import ignore, { Ignore } from 'ignore';
 
 // Mapping file extensions to syntax highlighting languages
 export const defaultExtensionToLang: Record<string, string> = {
@@ -18,15 +18,20 @@ export const defaultExtensionToLang: Record<string, string> = {
 /**
  * Recursively collects all files under a directory.
  */
-function getAllFiles(dir: string): string[] {
+function getAllFiles(dir: string, allowedExtensions: string[], ig: Ignore, rootDir: string): string[] {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    let results: string[] = [];
+    const results: string[] = [];
     for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-            results = results.concat(getAllFiles(fullPath));
-        } else {
-            results.push(fullPath);
+        if(!isIgnored(fullPath, ig, rootDir)) {
+            if (entry.isDirectory()) {
+                results.push(...getAllFiles(fullPath, allowedExtensions, ig, rootDir));
+            } else {
+                const ext = path.extname(fullPath).toLowerCase();
+                if (allowedExtensions.includes(ext)) {
+                    results.push(fullPath);
+                }
+            }
         }
     }
     return results;
@@ -66,9 +71,9 @@ function getSourceFilesFromTsConfig(rootDir: string): string[] {
 /**
  * Checks if a file matches any of the ignore patterns.
  */
-function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string): boolean {
+function isIgnored(filePath: string, ig: Ignore, rootDir: string): boolean {
     const relativePath = path.relative(rootDir, filePath);
-    return ignorePatterns.some(pattern => minimatch(relativePath, pattern));
+    return ig.ignores(relativePath);
 }
 
 /**
@@ -154,7 +159,7 @@ function resolveAliasImport(
     return null;
 }
 
-export const ignoredPatterns = ['node_modules/**', 'package-lock.json', 'yarn.lock', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
+export const ignoredPatterns = ['.git/**', 'node_modules/**', 'package-lock.json', 'yarn.lock', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
 
 export const defaultPrompt = {
     intro: `I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.`,
@@ -192,6 +197,21 @@ export function getCodeMD(
     const allowedExtensions = Object.keys(extensionToLang);
     const astParsableExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
+    const gitignorePath = path.join(rootDir, '.gitignore');
+    if (fs.existsSync(gitignorePath)) {
+        console.log("Codools Note! .gitignore was found. I will use it.");
+        const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+        ignorePatterns.push(
+            ...gitignoreContent
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('#'))
+        );
+    } else {
+        console.log("Codools Warning! .gitignore wasn't found.");
+    }
+    const ig = ignore().add(ignorePatterns)
+
     // Begin building the Markdown content
     const mdContent: string[] = [...Object.values(prompts)];
 
@@ -215,13 +235,8 @@ export function getCodeMD(
     const tsConfigPath = path.join(rootDir, 'tsconfig.json');
     if (!fs.existsSync(tsConfigPath)) {
         console.log("Codools Warning! tsconfig.json not found. I will scan all files");
-        let noTSFiles = getAllFiles(rootDir);
-        // const noTSExtensions = allowedExtensions.filter((ext) => ext !== '.ts' && ext !== '.tsx')
-        noTSFiles = noTSFiles.filter(file => {
-            const ext = path.extname(file).toLowerCase();
-            return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
-        });
 
+        const noTSFiles = getAllFiles(rootDir,allowedExtensions, ig, rootDir);
         noTSFiles.sort((a, b) => a.localeCompare(b));
         noTSFiles.forEach((noTSFile) => {
             let content: string;
@@ -251,7 +266,7 @@ export function getCodeMD(
     // Filter files based on allowed extensions and ignore patterns
     files = files.filter((file) => {
         const ext = path.extname(file).toLowerCase();
-        return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
+        return allowedExtensions.includes(ext) && !isIgnored(file, ig, rootDir);
     });
 
     // Sort files alphabetically by relative path
