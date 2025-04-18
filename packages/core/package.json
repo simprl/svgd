@@ -1,6 +1,6 @@
 {
   "name": "@svgd/core",
-  "version": "0.3.19",
+  "version": "0.3.20",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.9",
+    "codools": "^0.2.10",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
