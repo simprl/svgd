@@ -5,42 +5,12 @@ Also use Clean Code, Clean Architecture, SOLID, Atomic design
 If something is unclear or needs clarification, feel free to ask me.
 # Project "@svgd/core"
 
-## tsconfig.json
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "rootDir": ".",
-    "outDir": "dist",
-    "strict": true,
-
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@svgo/core": ["src/index"]
-    }
-  },
-  "include": ["src", "tests", "scripts"]
-}
-
-```
-
 ## package.json
 
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.18",
+  "version": "0.3.21",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -67,7 +37,7 @@ If something is unclear or needs clarification, feel free to ask me.
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.9",
+    "codools": "^0.2.11",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
@@ -95,6 +65,36 @@ If something is unclear or needs clarification, feel free to ask me.
     "svg-transform",
     "svg-utils"
   ]
+}
+
+```
+
+## tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "rootDir": ".",
+    "outDir": "dist",
+    "strict": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@svgo/core": ["src/index"]
+    }
+  },
+  "include": ["src", "tests", "scripts"]
 }
 
 ```
