@@ -28,8 +28,6 @@ program
       // Generate and save Markdown documentation
       const markdown = getCodeMD(rootDir);
       saveMD(outputFile, markdown);
-
-      console.log("✅ Documentation generated at", outputFile);
     } catch (error: unknown) {
       console.error("❌ Failed to generate documentation:", error);
       process.exit(1);
