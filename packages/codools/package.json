@@ -6,6 +6,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "codools": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,6 +19,9 @@
       "types": "./dist/tests.d.ts",
       "import": "./dist/tests.js",
       "require": "./dist/tests.cjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.js"
     }
   },
   "files": [
@@ -31,6 +37,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "commander": "^12.1.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5",
     "minimatch": "^9.0.3"

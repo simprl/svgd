@@ -41,12 +41,15 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "codools",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "codools": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -72,6 +75,7 @@ If something is unclear or needs clarification, feel free to ask me.
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "commander": "^12.1.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5",
     "minimatch": "^9.0.3"
@@ -86,6 +90,50 @@ If something is unclear or needs clarification, feel free to ask me.
   },
   "keywords": []
 }
+
+```
+
+## src/cli.ts
+
+```typescript
+#!/usr/bin/env node
+
+import { Command } from "commander";
+import { getCodeMD, getESMPath, saveMD } from "codools";
+
+const program = new Command();
+
+program
+    .name("codools")
+    .description("Generate project code documentation as Markdown")
+    .option(
+        "-r, --root <path>",
+        "Project root directory (relative to this script)",
+        "."
+    )
+    .option(
+        "-o, --output <path>",
+        "Output file path for generated Markdown (relative to this script)",
+        "docs/code.md"
+    )
+    .action((options) => {
+        try {
+            // Resolve absolute paths
+            const rootDir = getESMPath(import.meta, options.root);
+            const outputFile = getESMPath(import.meta, options.output);
+
+            // Generate and save Markdown
+            const markdown = getCodeMD(rootDir);
+            saveMD(outputFile, markdown);
+
+            console.log("✅ Documentation generated at", outputFile);
+        } catch (error: unknown) {
+            console.error("❌ Failed to generate documentation:", error);
+            process.exit(1);
+        }
+    });
+
+program.parse(process.argv);
 
 ```
 
@@ -381,13 +429,16 @@ export function getCodeMD(
             if (detectedImports.length > 0) {
                 detectedImports.forEach((imp) => {
                     let importedFileAbsolutePath: string | null = null;
+                    let resolveType = "";
                     if (imp.startsWith('.') || imp.startsWith('/')) {
                         importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                        resolveType = "simple import";
                     } else {
                         // Resolve alias using tsconfig paths
                         importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
+                        resolveType = "alias import";
                     }
-                    if (importedFileAbsolutePath && renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
+                    if (importedFileAbsolutePath && !renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
                         renderedImports.add(importedFileAbsolutePath);
                         let importedContent: string;
                         try {
@@ -398,7 +449,7 @@ export function getCodeMD(
                         }
                         const importedLanguage = getLanguageForFile(importedFileAbsolutePath);
                         const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
-                        mdContent.push(`## ${innerFileName}`, '');
+                        mdContent.push(`## ${innerFileName} (${resolveType})`, '');
                         mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
                     } else {
                         mdContent.push(`#### ${imp} (file not found)`, '');
