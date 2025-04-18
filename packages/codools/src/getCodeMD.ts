@@ -154,7 +154,7 @@ function resolveAliasImport(
     return null;
 }
 
-export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
+export const ignoredPatterns = ['node_modules/**', 'package-lock.json', 'yarn.lock', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
 
 export const defaultPrompt = {
     intro: `I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.`,
