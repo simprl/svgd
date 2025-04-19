@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-import ignore, { Ignore } from 'ignore';
+import ignore from 'ignore';
 
 // Mapping file extensions to syntax highlighting languages
 export const defaultExtensionToLang: Record<string, string> = {
@@ -16,35 +16,16 @@ export const defaultExtensionToLang: Record<string, string> = {
 };
 
 /**
- * Recursively collects all files under a directory.
- */
-function getAllFiles(dir: string, allowedExtensions: string[], ig: Ignore, rootDir: string): string[] {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    const results: string[] = [];
-    for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if(!isIgnored(fullPath, ig, rootDir)) {
-            if (entry.isDirectory()) {
-                results.push(...getAllFiles(fullPath, allowedExtensions, ig, rootDir));
-            } else {
-                const ext = path.extname(fullPath).toLowerCase();
-                if (allowedExtensions.includes(ext)) {
-                    results.push(fullPath);
-                }
-            }
-        }
-    }
-    return results;
-}
-
-/**
  * Reads and parses tsconfig.json from the given root directory
  * and returns the list of file names determined by the configuration.
  */
-function getSourceFilesFromTsConfig(rootDir: string): string[] {
-    const tsConfigPath = path.join(rootDir, 'tsconfig.json');
+export function getSourceFilesFromTsConfig(
+    tsConfigPath: string,
+    isAllowed: ReturnType<typeof getIsAllowed>
+): string[] {
+    const rootDir = path.dirname(tsConfigPath);
     if (!fs.existsSync(tsConfigPath)) {
-        console.error(`tsconfig.json not found in root directory: ${rootDir}`);
+        console.error(`tsconfig.json not found: ${tsConfigPath}`);
         process.exit(1);
     }
 
@@ -54,33 +35,55 @@ function getSourceFilesFromTsConfig(rootDir: string): string[] {
         process.exit(1);
     }
 
-    const parsedConfig = ts.parseJsonConfigFileContent(
+    const parsed = ts.parseJsonConfigFileContent(
         configFile.config,
         ts.sys,
         rootDir
     );
-
-    if (parsedConfig.errors && parsedConfig.errors.length > 0) {
-        console.error('Error parsing tsconfig.json:', parsedConfig.errors);
+    if (parsed.errors && parsed.errors.length > 0) {
+        console.error('Error parsing tsconfig.json:', parsed.errors);
         process.exit(1);
     }
 
-    return parsedConfig.fileNames;
+    const allFiles = [...parsed.fileNames];
+
+    if (parsed.projectReferences) {
+        for (const ref of parsed.projectReferences) {
+            const refConfigDir = path.resolve(rootDir, ref.path);
+            allFiles.push(
+                ...getSourceFilesFromTsConfig(refConfigDir, isAllowed)
+            );
+        }
+    }
+
+    return allFiles.filter(file => isAllowed(file, false));
 }
 
-/**
- * Checks if a file matches any of the ignore patterns.
- */
-function isIgnored(filePath: string, ig: Ignore, rootDir: string): boolean {
-    const relativePath = path.relative(rootDir, filePath);
-    return ig.ignores(relativePath);
+interface GetIsAllowed {
+    allowedExtensions: string[];
+    ignorePatterns: string[];
+    rootDir: string;
+    renderedImports: Set<string>;
+}
+function getIsAllowed({allowedExtensions, ignorePatterns, rootDir, renderedImports }: GetIsAllowed) {
+    const allowedExtensionsSet = new Set(allowedExtensions);
+    const ig = ignore().add(ignorePatterns)
+    return (filePath: string, isDirectory: boolean) => {
+        if (renderedImports.has(filePath)) {
+            return false;
+        }
+        if (!isDirectory && !allowedExtensionsSet.has(path.extname(filePath).toLowerCase())) {
+            return false;
+        }
+        return !ig.ignores(path.relative(rootDir, filePath));
+    }
 }
 
 /**
  * Traverses the AST of a source file and finds all import declarations and require calls,
  * where the imported module's extension is included in allowedExtensions.
  */
-function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): string[] {
+function findModuleImportsInAst(filePath: string): string[] {
     const content = fs.readFileSync(filePath, 'utf8');
     const foundImports: string[] = [];
 
@@ -96,10 +99,7 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
         // Handle import declarations: import ... from 'module'
         if (ts.isImportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
             const moduleName = node.moduleSpecifier.text;
-            const moduleExt = path.extname(moduleName).toLowerCase();
-            if (allowedExtensions.includes(moduleExt)) {
-                foundImports.push(moduleName);
-            }
+            foundImports.push(moduleName);
         }
         // Handle require calls: const x = require('module')
         if (
@@ -109,10 +109,7 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
             ts.isStringLiteral(node.arguments[0])
         ) {
             const moduleName = node.arguments[0].text;
-            const moduleExt = path.extname(moduleName).toLowerCase();
-            if (allowedExtensions.includes(moduleExt)) {
-                foundImports.push(moduleName);
-            }
+            foundImports.push(moduleName);
         }
         ts.forEachChild(node, visit);
     }
@@ -210,13 +207,14 @@ export function getCodeMD(
     } else {
         console.log("Codools Warning! .gitignore wasn't found.");
     }
-    const ig = ignore().add(ignorePatterns)
 
     // Begin building the Markdown content
     const mdContent: string[] = [...Object.values(prompts)];
+    const renderedImports = new Set<string>();
 
     const packageJsonPath = path.join(rootDir, 'package.json');
     if (fs.existsSync(packageJsonPath)) {
+        renderedImports.add(packageJsonPath);
         const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
         const projectName = JSON.parse(packageJsonContent).name;
         mdContent.push(`# Project "${projectName}"`, "");
@@ -232,114 +230,107 @@ export function getCodeMD(
 
 
     // Read tsconfig and package.json
-    const tsConfigPath = path.join(rootDir, 'tsconfig.json');
-    if (!fs.existsSync(tsConfigPath)) {
-        console.log("Codools Warning! tsconfig.json not found. I will scan all files");
-
-        const noTSFiles = getAllFiles(rootDir,allowedExtensions, ig, rootDir);
-        noTSFiles.sort((a, b) => a.localeCompare(b));
-        noTSFiles.forEach((noTSFile) => {
-            let content: string;
-            try {
-                content = fs.readFileSync(noTSFile, 'utf8');
-            } catch (error) {
-                console.error(`Error reading imported file ${noTSFile}:`, error);
-                content = '';
-            }
-            const importedLanguage = getLanguageForFile(noTSFile, extensionToLang);
-            const innerFileName = path.relative(rootDir, noTSFile).replace(/\\/g, '/');
-            mdContent.push(`## ${innerFileName}`, '');
-            mdContent.push(`\`\`\`${importedLanguage}`, content, '```', '');
-        })
-        return mdContent.join('\n');
+    const tsConfigPath = allowedExtensions.some((ext)=> astParsableExtensions.has(ext)) ? path.join(rootDir, 'tsconfig.json') : null;
+    const isTsConfigExists = tsConfigPath ? fs.existsSync(tsConfigPath) : false;
+    if (tsConfigPath && !isTsConfigExists) {
+        console.log("Codools Warning! tsconfig.json not found.");
     }
-    const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
-    // Parse tsconfig to get alias paths
-    const tsConfigJson = JSON.parse(tsConfigContent);
-    const tsConfigPaths: Record<string, string[]> =
-        (tsConfigJson.compilerOptions && tsConfigJson.compilerOptions.paths) || {};
 
 
-    // Get the list of source files from tsconfig
-    let files: string[] = getSourceFilesFromTsConfig(rootDir);
 
-    // Filter files based on allowed extensions and ignore patterns
-    files = files.filter((file) => {
-        const ext = path.extname(file).toLowerCase();
-        return allowedExtensions.includes(ext) && !isIgnored(file, ig, rootDir);
-    });
+    if (isTsConfigExists && tsConfigPath) {
+        renderedImports.add(tsConfigPath);
 
-    // Sort files alphabetically by relative path
-    files.sort((a, b) => {
-        const relA = path.relative(rootDir, a);
-        const relB = path.relative(rootDir, b);
-        return relA.localeCompare(relB);
-    });
+        const isAllowed = getIsAllowed({
+            allowedExtensions,
+            ignorePatterns,
+            rootDir,
+            renderedImports,
+        });
 
-    // Append tsconfig.json content
-    mdContent.push('## tsconfig.json', '');
-    mdContent.push('```json');
-    mdContent.push(tsConfigContent);
-    mdContent.push('```', '');
+        const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+        // Parse tsconfig to get alias paths
+        const tsConfigJson = JSON.parse(tsConfigContent);
+        const tsConfigPaths: Record<string, string[]> =
+            (tsConfigJson.compilerOptions && tsConfigJson.compilerOptions.paths) || {};
 
-    const renderedImports = new Set();
+        const files: string[] = getSourceFilesFromTsConfig(path.join(rootDir, 'tsconfig.json'), isAllowed)
+            .sort((a, b) => a.localeCompare(b));
 
-    // Append each source file's content along with its detected imports and imported file content
-    files.forEach((filePath) => {
-        const relativePath = path.relative(rootDir, filePath);
-        const fileName = relativePath.replace(/\\/g, '/');
-        mdContent.push(`## ${fileName}`, '');
+        // Append tsconfig.json content
+        mdContent.push('## tsconfig.json', '');
+        mdContent.push('```json');
+        mdContent.push(tsConfigContent);
+        mdContent.push('```', '');
 
-        // Read file content
-        let fileContent: string;
-        try {
-            fileContent = fs.readFileSync(filePath, 'utf8');
-        } catch (error) {
-            console.error(`Error reading file ${filePath}:`, error);
-            fileContent = '';
-        }
-        const language = getLanguageForFile(filePath, extensionToLang);
+        // Append each source file's content along with its detected imports and imported file content
+        files.forEach((filePath) => {
+            const relativePath = path.relative(rootDir, filePath);
+            const fileName = relativePath.replace(/\\/g, '/');
+            mdContent.push(`## ${fileName}`, '');
 
-        // Append file content with syntax highlighting
-        mdContent.push(`\`\`\`${language}`, fileContent, '```', '');
-
-        // If the file's extension is AST-parsable, analyze its import statements
-        const ext = path.extname(filePath).toLowerCase();
-        if (astParsableExtensions.has(ext)) {
-            const detectedImports = findModuleImportsInAst(filePath, allowedExtensions);
-            if (detectedImports.length > 0) {
-                detectedImports.forEach((imp) => {
-                    let importedFileAbsolutePath: string | null;
-                    let resolveType;
-                    if (imp.startsWith('.') || imp.startsWith('/')) {
-                        importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
-                        resolveType = "simple import";
-                    } else {
-                        // Resolve alias using tsconfig paths
-                        importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
-                        resolveType = "alias import";
-                    }
-                    if (importedFileAbsolutePath && !renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
-                        renderedImports.add(importedFileAbsolutePath);
-                        let importedContent: string;
-                        try {
-                            importedContent = fs.readFileSync(importedFileAbsolutePath, 'utf8');
-                        } catch (error) {
-                            console.error(`Error reading imported file ${importedFileAbsolutePath}:`, error);
-                            importedContent = '';
-                        }
-                        const importedLanguage = getLanguageForFile(importedFileAbsolutePath, extensionToLang);
-                        const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
-                        mdContent.push(`## ${innerFileName} (${resolveType})`, '');
-                        mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
-                    } else {
-                        mdContent.push(`#### ${imp} (file not found)`, '');
-                    }
-                });
-                mdContent.push('');
+            // Read file content
+            let fileContent: string;
+            try {
+                fileContent = fs.readFileSync(filePath, 'utf8');
+            } catch (error) {
+                console.error(`Error reading file ${filePath}:`, error);
+                fileContent = '';
             }
-        }
-    });
+            const language = getLanguageForFile(filePath, extensionToLang);
+
+            // Append file content with syntax highlighting
+            mdContent.push(`\`\`\`${language}`, fileContent, '```', '');
+
+            // If the file's extension is AST-parsable, analyze its import statements
+            const ext = path.extname(filePath).toLowerCase();
+            if (astParsableExtensions.has(ext)) {
+                const detectedImports = findModuleImportsInAst(filePath);
+
+                    detectedImports.forEach((imp) => {
+                        let importedFileAbsolutePath: string | null;
+                        if (imp.startsWith('.') || imp.startsWith('/')) {
+                            importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                        } else {
+                            // Resolve alias using tsconfig paths
+                            importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
+                        }
+                        if (!importedFileAbsolutePath || !isAllowed(importedFileAbsolutePath, false)) {
+                            return;
+                        }
+                        if (fs.existsSync(importedFileAbsolutePath)) {
+                            renderedImports.add(importedFileAbsolutePath);
+                            let importedContent: string;
+                            try {
+                                importedContent = fs.readFileSync(importedFileAbsolutePath, 'utf8');
+                            } catch (error) {
+                                console.error(`Error reading imported file ${importedFileAbsolutePath}:`, error);
+                                importedContent = '';
+                            }
+                            const importedLanguage = getLanguageForFile(importedFileAbsolutePath, extensionToLang);
+                            const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
+                            mdContent.push(`## ${innerFileName}`, '');
+                            mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
+                        } else {
+                            mdContent.push(`#### ${imp} (file not found)`, '');
+                        }
+                    });
+                    mdContent.push('');
+
+            }
+        });
+    }
+
+    mdContent.push(...getNoTsFilesMD({
+        rootDir,
+        extensionToLang,
+        isAllowed: getIsAllowed({
+            allowedExtensions: isTsConfigExists ? allowedExtensions.filter((ext) => !astParsableExtensions.has(ext)) : allowedExtensions,
+            ignorePatterns,
+            rootDir,
+            renderedImports
+        }),
+    }));
 
     return mdContent.join('\n');
 }
@@ -347,4 +338,50 @@ export function getCodeMD(
 function getLanguageForFile(filePath: string, extensionToLang: Record<string, string>): string {
     const ext = path.extname(filePath).toLowerCase();
     return extensionToLang[ext] || '';
+}
+
+
+interface GetNoTsFilesMDProps {
+    rootDir: string;
+    isAllowed: ReturnType<typeof getIsAllowed>;
+    extensionToLang: Record<string, string>;
+}
+function getNoTsFilesMD({ rootDir, isAllowed, extensionToLang}: GetNoTsFilesMDProps) {
+    const noTSFiles = getAllFiles(rootDir, isAllowed);
+    noTSFiles.sort((a, b) => a.localeCompare(b));
+    const mdContent: string[] = [];
+    noTSFiles.forEach((noTSFile) => {
+        let content: string;
+        try {
+            content = fs.readFileSync(noTSFile, 'utf8');
+        } catch (error) {
+            console.error(`Error reading imported file ${noTSFile}:`, error);
+            content = '';
+        }
+        const importedLanguage = getLanguageForFile(noTSFile, extensionToLang);
+        const innerFileName = path.relative(rootDir, noTSFile).replace(/\\/g, '/');
+        mdContent.push(`## ${innerFileName}`, '');
+        mdContent.push(`\`\`\`${importedLanguage}`, content, '```', '');
+    })
+    return mdContent;
+}
+
+/**
+ * Recursively collects all files under a directory.
+ */
+function getAllFiles(dir: string, isAllowed: ReturnType<typeof getIsAllowed>): string[] {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const results: string[] = [];
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        const isDirectory = entry.isDirectory();
+        if(isAllowed(fullPath, isDirectory)) {
+            if (isDirectory) {
+                results.push(...getAllFiles(fullPath, isAllowed));
+            } else {
+                results.push(fullPath);
+            }
+        }
+    }
+    return results;
 }
