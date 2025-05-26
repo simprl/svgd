@@ -135,6 +135,10 @@ Run:
 npm run docs:api
 ```
 
+For detailed example see modules in svgd lib:
+https://github.com/simprl/svgd/tree/main/packages/core/tests
+https://github.com/simprl/svgd/tree/main/packages/utils/tests
+
 ---
 
 ### 3. Integrate With Vitest
@@ -294,29 +298,6 @@ Helper to convert `import.meta.url` + `relativePath` into a file system path.
 * Creates parent directory if needed.
 * Writes UTF-8 file.
 * Logs success.
-
----
-
-## 🧑‍💻 Contributing
-
-We welcome all contributions!
-
-1. **Fork** the repo
-2. **Create** a feature branch (`git checkout -b feature/my-feature`)
-3. **Commit** with clear, atomic messages
-4. **Push** and open a Pull Request, referencing any relevant issues
-5. Ensure **all tests** pass (`npm test` / `vitest`)
-
-Check [CONTRIBUTING.md](./CONTRIBUTING.md) for full guidelines.
-
----
-
-## 📜 Roadmap
-
-* [ ] HTML-based output (beyond Markdown)
-* [ ] Plugin system for custom file loaders
-* [ ] Support for additional test frameworks (Jest, Mocha)
-* [ ] VSCode extension for one-click docs generation
 
 ---
 
