@@ -4,6 +4,7 @@
 > **Codools** (Code Tools) — a Swiss-army knife for documenting and testing your TypeScript/JavaScript projects.
 > 
 > Produces well-structured, contextual Markdown that’s ideal for feeding into AI tools (e.g., ChatGPT) so they can automatically grasp your codebase and its workflows.
+
 ---
 
 ## 🚀 Features

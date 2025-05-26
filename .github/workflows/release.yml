@@ -1,5 +1,8 @@
 name: Release
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -15,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
+          persist-credentials: true
 
       # Setup Node.js environment
       - name: Setup Node.js
