@@ -21,12 +21,6 @@ jobs:
           sparse-checkout: |
             packages/mui-icons-material/material-icons
 
-      - name: Copy SVG icons into project
-        run: |
-          rm -rf src/icons
-          mkdir -p src/icons
-          cp -R mui-material-ui/packages/mui-icons-material/src/svg/* src/icons/
-
       - name: Show 10k_24px.svg contents
         run: |
           echo "===== Contents of 10k_24px.svg ====="
