@@ -1,0 +1,34 @@
+name: Update MUI Icons and Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout your repo
+        uses: actions/checkout@v3
+
+      - name: Checkout only MUI icons folder
+        uses: actions/checkout@v3
+        with:
+          repository: mui/material-ui
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: mui-material-ui
+          fetch-depth: 1
+          sparse-checkout: |
+            packages/mui-icons-material/src/svg/
+
+      - name: Copy SVG icons into project
+        run: |
+          rm -rf src/icons
+          mkdir -p src/icons
+          cp -R mui-material-ui/packages/mui-icons-material/src/svg/* src/icons/
+
+      - name: Setup Node.js and cache dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
