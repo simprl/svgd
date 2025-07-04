@@ -19,7 +19,7 @@ jobs:
           path: mui-material-ui
           fetch-depth: 1
           sparse-checkout: |
-            packages/mui-icons-material/src/svg/
+            packages/mui-icons-material/material-icons
 
       - name: Copy SVG icons into project
         run: |
@@ -27,8 +27,7 @@ jobs:
           mkdir -p src/icons
           cp -R mui-material-ui/packages/mui-icons-material/src/svg/* src/icons/
 
-      - name: Setup Node.js and cache dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+      - name: Show 10k_24px.svg contents
+        run: |
+          echo "===== Contents of 10k_24px.svg ====="
+          cat mui-material-ui/packages/mui-icons-material/material-icons/10k_24px.svg
