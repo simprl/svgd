@@ -9,7 +9,7 @@ export interface CLIOptions {
     colors?: boolean;
     quote: boolean;
     template: string;
-    format: 'camelCase' | 'PascalCase' | 'snake_case' | 'SCREAMING_SNAKE_CASE';
+    format: 'camelCase' | 'PascalCase' | 'snake_case' | 'SCREAMING_SNAKE_CASE' | 'material';
     md?: string;
     html?: string;
     dts?: boolean;
@@ -44,7 +44,7 @@ export function parseCliArgs(argv: string[]): CLIOptions {
         .option('-d, --dts', 'Path to the output HTML file', false)
         .option(
             '-f, --format <format>',
-            'Naming format: camelCase, PascalCase, snake_case, or SCREAMING_SNAKE_CASE',
+            'Naming format: camelCase, PascalCase, snake_case, SCREAMING_SNAKE_CASE, or material',
             'camelCase'
         )
         .parse(argv);
