@@ -480,7 +480,7 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
 }
 ```
 
-### Use Case 5. Format material
+### Use Case 5. Format material (3d_rotation)
 
 #### Code:
 ```ts
@@ -499,6 +499,7 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
   "constantName": "ThreeDRotation"
 }
 ```
+
 ### Use Case 6. Template {-2}{1,-3}{-1}
 
 #### Code:
@@ -700,10 +701,10 @@ export const svgFileNames = getSvgFileNames(filePath);
   "svgFileNames": [
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\fill-none.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\rule-even-odd.svg",
-    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\test_icon.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_20px.svg",
     "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\icon1_24px.svg",
-    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\subdir2\\icon5_24px.svg"
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\subdir1\\subdir2\\icon5_24px.svg",
+    "C:\\work\\svg\\svgd\\packages\\mocks\\inputIcons\\test_icon.svg"
   ]
 }
 ```

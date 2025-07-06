@@ -1,4 +1,57 @@
+I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.
+All code and comments must be in English. Please follow the style and conventions used in the existing codebase.
+For react project use version 18 and 19 versions (with jsx-runtime style).
+Also use Clean Code, Clean Architecture, SOLID, Atomic design
+If something is unclear or needs clarification, feel free to ask me.
 # Project "@svgd/utils"
+
+## package.json
+
+```json
+{
+  "name": "@svgd/utils",
+  "version": "0.1.30",
+  "description": "Utility functions to convert SVG to path d.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.17",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@svgd/core": "^0.3.27",
+    "sharp": "^0.33.5",
+    "svgo": "^3.3.2",
+    "typescript": "^5.7.3"
+  }
+}
+
+```
 
 ## tsconfig.json
 
@@ -30,55 +83,7 @@
 
 ```
 
-## package.json
-
-```json
-{
-  "name": "@svgd/utils",
-  "version": "0.1.12",
-  "description": "Utility functions to convert SVG to path d.",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
-    "lint": "eslint"
-  },
-  "author": "",
-  "license": "MIT",
-  "private": false,
-  "devDependencies": {
-    "@svgd/mocks": "*",
-    "@types/node": "^18.19.71",
-    "codools": "^0.2.1",
-    "tsup": "^8.3.5",
-    "tsx": "^4.19.2",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5"
-  },
-  "dependencies": {
-    "@svgd/core": "^0.3.10",
-    "sharp": "^0.33.5",
-    "svgo": "^3.3.2",
-    "typescript": "^5.7.3"
-  }
-}
-
-```
-
-## src\getPng.ts
+## src/getPng.ts
 
 ```typescript
 import sharp from "sharp";
@@ -94,7 +99,8 @@ export const getPng = async (svgContent: string, width = 64, height = width) => 
 
 ```
 
-## src\getSvgFileNames.ts
+
+## src/getSvgFileNames.ts
 
 ```typescript
 import { readdirSync } from "fs";
@@ -105,11 +111,13 @@ export function getSvgFileNames(dir: string): string[] {
     return entries
         .filter((entry) => /\.(svg)$/i.test(entry.name) && !entry.isDirectory())
         .map(({ name, parentPath }) => join(parentPath, name))
+        .sort()
 }
 
 ```
 
-## src\index.ts
+
+## src/index.ts
 
 ```typescript
 import { getSvgoConfig, getSvg, defaultConfig, type SVGDConfig } from "@svgd/core";
@@ -139,7 +147,8 @@ export type {
 
 ```
 
-## src\nameFormat.ts
+
+## src/nameFormat.ts
 
 ```typescript
 import path from 'path';
@@ -342,7 +351,8 @@ export function generateFileName(filePath: string, baseDir: string, template: st
 
 ```
 
-## src\parseSvg.ts
+
+## src/parseSvg.ts
 
 ```typescript
 import { type Config, optimize } from 'svgo';
