@@ -1,4 +1,57 @@
+I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.
+All code and comments must be in English. Please follow the style and conventions used in the existing codebase.
+For react project use version 18 and 19 versions (with jsx-runtime style).
+Also use Clean Code, Clean Architecture, SOLID, Atomic design
+If something is unclear or needs clarification, feel free to ask me.
 # Project "@svgd/utils"
+
+## package.json
+
+```json
+{
+  "name": "@svgd/utils",
+  "version": "0.1.30",
+  "description": "Utility functions to convert SVG to path d.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@svgd/mocks": "*",
+    "@types/node": "^18.19.71",
+    "codools": "^0.2.17",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@svgd/core": "^0.3.27",
+    "sharp": "^0.33.5",
+    "svgo": "^3.3.2",
+    "typescript": "^5.7.3"
+  }
+}
+
+```
 
 ## tsconfig.json
 
@@ -30,55 +83,7 @@
 
 ```
 
-## package.json
-
-```json
-{
-  "name": "@svgd/utils",
-  "version": "0.1.12",
-  "description": "Utility functions to convert SVG to path d.",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
-    "lint": "eslint"
-  },
-  "author": "",
-  "license": "MIT",
-  "private": false,
-  "devDependencies": {
-    "@svgd/mocks": "*",
-    "@types/node": "^18.19.71",
-    "codools": "^0.2.1",
-    "tsup": "^8.3.5",
-    "tsx": "^4.19.2",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5"
-  },
-  "dependencies": {
-    "@svgd/core": "^0.3.10",
-    "sharp": "^0.33.5",
-    "svgo": "^3.3.2",
-    "typescript": "^5.7.3"
-  }
-}
-
-```
-
-## src\getPng.ts
+## src/getPng.ts
 
 ```typescript
 import sharp from "sharp";
@@ -94,7 +99,8 @@ export const getPng = async (svgContent: string, width = 64, height = width) => 
 
 ```
 
-## src\getSvgFileNames.ts
+
+## src/getSvgFileNames.ts
 
 ```typescript
 import { readdirSync } from "fs";
@@ -105,11 +111,13 @@ export function getSvgFileNames(dir: string): string[] {
     return entries
         .filter((entry) => /\.(svg)$/i.test(entry.name) && !entry.isDirectory())
         .map(({ name, parentPath }) => join(parentPath, name))
+        .sort()
 }
 
 ```
 
-## src\index.ts
+
+## src/index.ts
 
 ```typescript
 import { getSvgoConfig, getSvg, defaultConfig, type SVGDConfig } from "@svgd/core";
@@ -139,7 +147,8 @@ export type {
 
 ```
 
-## src\nameFormat.ts
+
+## src/nameFormat.ts
 
 ```typescript
 import path from 'path';
@@ -149,6 +158,7 @@ export const NameFormats = {
     PascalCase: 'PascalCase',
     snake_case: 'snake_case',
     SCREAMING_SNAKE_CASE: 'SCREAMING_SNAKE_CASE',
+    material: 'material',
 } as const;
 
 export type NameFormat = typeof NameFormats[keyof typeof NameFormats];
@@ -169,6 +179,94 @@ function toPascalCase(str: string): string {
 function toCamelCase(str: string): string {
     // Example: "MyIconName" -> "myIconName"
     return toPascalCase(str).replace(/^[A-Z]/, (match) => match.toLowerCase());
+}
+
+const singleDigitNumbers = [
+    'Zero',
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+];
+
+const twoDigitNumbers1 = [
+    'Ten',
+    'Eleven',
+    'Twelve',
+    'Thirteen',
+    'Fourteen',
+    'Fifteen',
+    'Sixteen',
+    'Seventeen',
+    'Eighteen',
+    'Nineteen',
+];
+
+function toMaterialName(str: string): string {
+    let fileName = str
+        .replace(/_([0-9]+)px$/, '')
+        .replace(/(^.)|(_)(.)/g, (_m, p1, _p2, p3) => (p1 || p3).toUpperCase());
+
+    if (fileName.startsWith('3dRotation')) {
+        return `ThreeD${fileName.slice(2)}`;
+    }
+
+    if (fileName.startsWith('3p')) {
+        return `ThreeP${fileName.slice(2)}`;
+    }
+
+    if (fileName.startsWith('30fps')) {
+        return `ThirtyFps${fileName.slice(5)}`;
+    }
+    if (fileName.startsWith('60fps')) {
+        return `SixtyFps${fileName.slice(5)}`;
+    }
+    if (fileName.startsWith('360')) {
+        return `ThreeSixty${fileName.slice(3)}`;
+    }
+
+    if (/\dFt/.test(fileName)) {
+        return `${singleDigitNumbers[Number(fileName[0])] ?? fileName[0]}${fileName.slice(1)}`;
+    }
+
+    if (/\dk/.test(fileName)) {
+        return `${singleDigitNumbers[Number(fileName[0])] ?? fileName[0]}K${fileName.slice(2)}`;
+    }
+
+    if (/^\dmp/.test(fileName)) {
+        return `${singleDigitNumbers[Number(fileName[0])] ?? fileName[0]}M${fileName.slice(2)}`;
+    }
+    if (/^1\dmp/.test(fileName)) {
+        return `${twoDigitNumbers1[Number(fileName[1])] ?? fileName[1]}M${fileName.slice(3)}`;
+    }
+    if (/^2\dmp/.test(fileName)) {
+        return `Twenty${singleDigitNumbers[Number(fileName[1])] ?? fileName[1]}M${fileName.slice(3)}`;
+    }
+
+    if (fileName.startsWith('1x')) {
+        return `TimesOne${fileName.slice(2)}`;
+    }
+
+    if (fileName.startsWith('3g')) {
+        return `ThreeG${fileName.slice(2)}`;
+    }
+    if (fileName.startsWith('4g')) {
+        return `FourG${fileName.slice(2)}`;
+    }
+    if (fileName.startsWith('5g')) {
+        return `FiveG${fileName.slice(2)}`;
+    }
+
+    if (/^1\d/.test(fileName)) {
+        return `${twoDigitNumbers1[Number(fileName[1])] ?? fileName[1]}${fileName.slice(2)}`;
+    }
+
+    return fileName;
 }
 
 /**
@@ -230,6 +328,8 @@ export function generateConstantName(
             return formatted.replace(/[-\s]+/g, '_').toLowerCase();
         case NameFormats.SCREAMING_SNAKE_CASE:
             return formatted.replace(/[-\s]+/g, '_').toUpperCase();
+        case NameFormats.material:
+            return toMaterialName(formatted);
         default:
             return formatted;
     }
@@ -251,7 +351,8 @@ export function generateFileName(filePath: string, baseDir: string, template: st
 
 ```
 
-## src\parseSvg.ts
+
+## src/parseSvg.ts
 
 ```typescript
 import { type Config, optimize } from 'svgo';

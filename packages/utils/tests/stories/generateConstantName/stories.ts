@@ -39,6 +39,14 @@ const mocks = [
     constantName: "ICONS_GROUP1_SUBGROUP1_SIZE24_HOME"
   },
   {
+    filePath: "src/3d_rotation_24px.svg",
+    baseDir: "src",
+    template: "",
+    format: NameFormats.material,
+    title: "Format material (3d_rotation)",
+    constantName: "ThreeDRotation"
+  },
+  {
     ...commonValues,
     title: "Template {-2}{1,-3}{-1}",
     template: "{-2}{1,-3}{-1}",

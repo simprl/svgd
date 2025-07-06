@@ -90,6 +90,7 @@ Generates a formatted constant name from a file path. Accepts a base directory, 
 - `PascalCase`
 - `snake_case`
 - `SCREAMING_SNAKE_CASE`
+- `material`
 
 **Usage:**
 
@@ -473,7 +474,28 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
 }
 ```
 
-#### **Use Case 5: Template `{-2}{1,-3}{-1}`**
+#### **Use Case 5: material Format**
+
+**Code:**
+
+```ts
+import { generateConstantName } from "@svgd/utils";
+const filePath = "src/3d_rotation_24px.svg";
+const baseDir = "src";
+const template = "";
+const format = "material";
+export const constantName = generateConstantName(filePath, baseDir, template, format);
+```
+
+**Result:**
+
+```json
+{
+  "constantName": "ThreeDRotation"
+}
+```
+
+#### **Use Case 6: Template `{-2}{1,-3}{-1}`**
 
 **Code:**
 
@@ -494,7 +516,7 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
 }
 ```
 
-#### **Use Case 6: Template `{1,2}`**
+#### **Use Case 7: Template `{1,2}`**
 
 **Code:**
 
@@ -515,7 +537,7 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
 }
 ```
 
-#### **Use Case 7: Template `{0,0}`**
+#### **Use Case 8: Template `{0,0}`**
 
 **Code:**
 
@@ -536,7 +558,7 @@ export const constantName = generateConstantName(filePath, baseDir, template, fo
 }
 ```
 
-#### **Use Case 8: Template `{-1}` (Negative Index)**
+#### **Use Case 9: Template `{-1}` (Negative Index)**
 
 **Code:**
 

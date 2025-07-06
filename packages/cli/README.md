@@ -52,8 +52,8 @@ After installation, the `svgd` command will be available. Use it to generate con
 - **`-t, --template <string>`**  
   Template string for naming convention (default: an empty string).
 
-- **`-f, --format <format>`**  
-  Naming format. Options: `camelCase`, `PascalCase`, `snake_case`, `SCREAMING_SNAKE_CASE` (default: `camelCase`).
+- **`-f, --format <format>`**
+  Naming format. Options: `camelCase`, `PascalCase`, `snake_case`, `SCREAMING_SNAKE_CASE`, `material` (default: `camelCase`).
 
 - **`-m, --md <string>`**  
   Path to the output Markdown file (default: empty).
