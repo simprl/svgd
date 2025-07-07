@@ -26,7 +26,7 @@ export const dtsRowTemplate = ({name, image, filePath}: TemplateProps) =>
  * @filepath ${filePath}
  * @return ${image}
  */
-export const ${name}: "${name}";
+export const ${name}: string;
 `;
 
 export const mdRowTemplate = ({name, filePath, relativePath}: TemplateProps) =>

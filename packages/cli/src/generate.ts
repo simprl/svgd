@@ -39,7 +39,7 @@ interface FileRawData {
 }
 
 interface Row {
-    order: number;
+    order: string;
     code: string;
 }
 
@@ -161,7 +161,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
             }
 
             const orderedRowItem = (code: string)  => ({
-                order: index,
+                order: constantName,
                 code
             });
 
@@ -196,7 +196,7 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
 
     return [...outputs.entries()].map(([outPath, rawData]) => {
         const content = rawData.rows
-            .sort(({ order: a }, { order: b }) => a - b)
+            .sort(({ order: a }, { order: b }) => a.localeCompare(b))
             .map(({ code }) => code)
             .join('\n');
         return {

@@ -18,7 +18,7 @@ export const dtsRow = `/**
  * @filepath icons/icon.svg
  * @return ![](data:image/png;base64,ABC)
  */
-export const icon: "icon";
+export const icon: string;
 `;
 
 export const mdRow = `|  ![](./icon.svg) | icon | icons/icon.svg |`;
