@@ -1,7 +1,7 @@
 {
   "name": "@svgd/cli",
   "version": "1.0.29",
-  "description": "CLI tool to generate constants from SVG files",
+  "description": "Command-line utility for generating constants from SVG assets",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -41,5 +41,17 @@
   "dependencies": {
     "@svgd/utils": "^0.1.32",
     "commander": "^12.1.0"
-  }
+  },
+  "keywords": [
+    "svg",
+    "svgd",
+    "cli",
+    "icons",
+    "svg icons",
+    "svg sprite",
+    "svg path d",
+    "svgo",
+    "icon-generator",
+    "constants"
+  ]
 }
