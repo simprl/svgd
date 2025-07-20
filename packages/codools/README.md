@@ -1,5 +1,6 @@
-
 # Codools
+
+[![](https://img.shields.io/npm/v/codools?style=flat)](https://www.npmjs.com/package/codools)
 
 > **Codools** (Code Tools) — a Swiss-army knife for documenting and testing your TypeScript/JavaScript projects.
 > 
