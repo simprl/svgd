@@ -20,6 +20,14 @@ export const defaultConfig: SVGDConfig = {
     svgo: {
         plugins: [
             {
+                name: 'removeAttrs',
+                params: {
+                    attrs: [
+                        'overflow'
+                    ]
+                }
+            },
+            {
                 name: 'preset-default',
                 params: {
                     overrides: {

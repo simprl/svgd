@@ -2,6 +2,7 @@ import { defaultConfig } from "./defaultConfig";
 import type { XastChild, XastRoot } from "svgo/lib/types";
 import type { Config, CustomPlugin } from "svgo";
 import { resizePlugin } from "./resizePlugin";
+import { inlineUsePlugin } from "./inlineUsePlugin";
 import { commands } from "./commands";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
@@ -17,6 +18,7 @@ export const getSvgoConfig = (config = defaultConfig): Config => {
     return {
         ...config.svgo,
         plugins: [
+            inlineUsePlugin,
             resizePlugin(config.resize),
             ...pluginsByColor,
             extractPathDPlugin(),
