@@ -4,6 +4,7 @@ import type { Config, CustomPlugin } from "svgo";
 import { resizePlugin } from "./resizePlugin";
 import { inlineUsePlugin } from "./inlineUsePlugin";
 import { commands } from "./commands";
+import { moveGroupOpacityToElementsPlugin } from "./moveGroupOpacityToElementsPlugin";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
     const plugins = (config.svgo.plugins ?? []);
@@ -19,6 +20,7 @@ export const getSvgoConfig = (config = defaultConfig): Config => {
         ...config.svgo,
         plugins: [
             inlineUsePlugin,
+            moveGroupOpacityToElementsPlugin,
             resizePlugin(config.resize),
             ...pluginsByColor,
             extractPathDPlugin(),

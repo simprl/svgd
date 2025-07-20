@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.21",
+  "version": "0.3.29",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,7 +37,7 @@ If something is unclear or needs clarification, feel free to ask me.
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.11",
+    "codools": "^0.2.17",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
@@ -199,6 +199,7 @@ export const commands: Comand[] = [
 
 ```
 
+
 ## src/defaultConfig.ts
 
 ```typescript
@@ -223,6 +224,14 @@ export const defaultConfig: SVGDConfig = {
     colors: false,
     svgo: {
         plugins: [
+            {
+                name: 'removeAttrs',
+                params: {
+                    attrs: [
+                        'overflow'
+                    ]
+                }
+            },
             {
                 name: 'preset-default',
                 params: {
@@ -295,6 +304,7 @@ export const defaultConfig: SVGDConfig = {
 
 ```
 
+
 ## src/getPaths.ts
 
 ```typescript
@@ -331,6 +341,7 @@ export function getPaths(d: string): PathAttributes[] {
 
 ```
 
+
 ## src/getSvg.ts
 
 ```typescript
@@ -351,6 +362,7 @@ export function getSvg(d: string, viewbox?: ViewBox): string {
 
 ```
 
+
 ## src/getSvgoConfig.ts
 
 ```typescript
@@ -358,7 +370,9 @@ import { defaultConfig } from "./defaultConfig";
 import type { XastChild, XastRoot } from "svgo/lib/types";
 import type { Config, CustomPlugin } from "svgo";
 import { resizePlugin } from "./resizePlugin";
+import { inlineUsePlugin } from "./inlineUsePlugin";
 import { commands } from "./commands";
+import { moveGroupOpacityToElementsPlugin } from "./moveGroupOpacityToElementsPlugin";
 
 export const getSvgoConfig = (config = defaultConfig): Config => {
     const plugins = (config.svgo.plugins ?? []);
@@ -373,6 +387,8 @@ export const getSvgoConfig = (config = defaultConfig): Config => {
     return {
         ...config.svgo,
         plugins: [
+            inlineUsePlugin,
+            moveGroupOpacityToElementsPlugin,
             resizePlugin(config.resize),
             ...pluginsByColor,
             extractPathDPlugin(),
@@ -441,6 +457,7 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
 
 ```
 
+
 ## src/index.ts
 
 ```typescript
@@ -454,6 +471,138 @@ export type { ResizeParams } from "./resizePlugin";
 export type { PathAttributes, Comand } from "./commands";
 
 ```
+
+
+## src/inlineUsePlugin.ts
+
+```typescript
+import type { CustomPlugin } from "svgo";
+import type { XastNode } from "svgo/lib/types";
+
+export const inlineUsePlugin: CustomPlugin = {
+    name: 'inlineUse',
+    fn: () => {
+        const defsMap = new Map();
+        function collectDefs(node: XastNode) {
+            if (node.type === "element" || node.type === "root") {
+                if (node.type === "element" && node.name === 'defs' && Array.isArray(node.children)) {
+                    node.children = node.children.filter((defEl) => {
+                        if(defEl.type !== "element" || defEl.name !== 'path') {
+                            return true;
+                        }
+                        const {id, ...attributes} = defEl?.attributes ?? {};
+                        if (id) {
+                            defsMap.set(id, {...defEl, attributes });
+                            return false;
+                        }
+                        return true;
+                    });
+                } else if (Array.isArray(node.children)) {
+                    for (const child of node.children) {
+                        collectDefs(child);
+                    }
+                }
+            }
+
+        }
+        return {
+            root: {
+                enter(rootNode) {
+                    collectDefs(rootNode);
+                },
+            },
+            element: {
+                enter(node, parentNode) {
+                    if (node.name !== 'use') return;
+                    const href = node.attributes.href || node.attributes['xlink:href'];
+                    if (!href || !href.startsWith('#')) return;
+                    const id = href.slice(1);
+                    const defEl = defsMap.get(id);
+                    if (!defEl) return;
+
+                    // shallow clone of defEl + merge attributes
+                    const clone = {
+                        name: defEl.name,
+                        type: defEl.type,
+                        attributes: { ...defEl.attributes, ...node.attributes },
+                        children: defEl.children
+                    };
+
+                    // replace <use> в parentNode.children
+                    const idx = parentNode.children.indexOf(node);
+                    if (idx >= 0) {
+                        parentNode.children.splice(idx, 1, clone);
+                    }
+                }
+            }
+        };
+    }
+}
+
+```
+
+
+## src/moveGroupOpacityToElementsPlugin.ts
+
+```typescript
+import type { CustomPlugin } from "svgo";
+import { XastElement } from "svgo/lib/types";
+
+export const name = 'moveGroupAttrsToElems';
+export const description =
+    'moves some group attributes to the content elements';
+
+const opacityAttibutes = ["opacity", "fill-opacity", "stroke-opacity"];
+
+export const moveGroupOpacityToElementsPlugin: CustomPlugin = {
+    name: 'inlineUse',
+    fn: () => {
+        return {
+            element: {
+                enter: (node) => {
+                    if (
+                        node.name === 'g' &&
+                        node.children.length !== 0
+                    ) {
+
+                        const mergers = opacityAttibutes
+                            .map((opacityAttibute) => getMergeOpacity(node, opacityAttibute))
+                            .filter(Boolean) as Array<(node: XastElement) => void>;
+
+                        for (const child of node.children) {
+
+                            if (child.type === 'element') {
+                                mergers.forEach((merge)=> merge(child));
+                            }
+                        }
+
+                        opacityAttibutes.forEach((opacityAttibute)=>{
+                            delete node.attributes[opacityAttibute];
+                        })
+                    }
+                },
+            },
+        };
+    }
+}
+
+function getMergeOpacity(parent: XastElement, attributeName: string) {
+    if (!(attributeName in parent.attributes)) return null;
+    const parentValue = parent.attributes[attributeName];
+    const parsedParentValue = Number.parseFloat(parentValue);
+    return (node: XastElement) => {
+        if (node.type === 'element') {
+            const value = node.attributes[attributeName];
+            node.attributes[attributeName] = (value !== null && value !== undefined)
+                ? String(Number.parseFloat(node.attributes[attributeName]) * parsedParentValue)
+                : parentValue;
+
+        }
+    }
+}
+
+```
+
 
 ## src/resizePlugin.ts
 
@@ -576,3 +725,4 @@ function overrideSvgAttributesIfNeeded(svgNode: XastElement, params: ResizeParam
 }
 
 ```
+

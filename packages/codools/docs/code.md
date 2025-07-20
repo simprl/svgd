@@ -5,6 +5,66 @@ Also use Clean Code, Clean Architecture, SOLID, Atomic design
 If something is unclear or needs clarification, feel free to ask me.
 # Project "codools"
 
+## package.json
+
+```json
+{
+  "name": "codools",
+  "version": "0.2.17",
+  "description": "",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "codools": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./tests": {
+      "types": "./dist/tests.d.ts",
+      "import": "./dist/tests.js",
+      "require": "./dist/tests.cjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run tests/stories/stories.test.ts",
+    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
+    "lint": "eslint"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "commander": "^12.1.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "ignore": "^7.0.3"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.19.71",
+    "tsup": "^8.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "tsx": "^4.19.2",
+    "@svgd/mocks": "*"
+  },
+  "keywords": []
+}
+
+```
+
 ## tsconfig.json
 
 ```json
@@ -36,106 +96,49 @@ If something is unclear or needs clarification, feel free to ask me.
 
 ```
 
-## package.json
-
-```json
-{
-  "name": "codools",
-  "version": "0.2.8",
-  "description": "",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "bin": {
-    "codools": "./dist/cli.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./tests": {
-      "types": "./dist/tests.d.ts",
-      "import": "./dist/tests.js",
-      "require": "./dist/tests.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest run tests/stories/stories.test.ts",
-    "docs": "tsx scripts/codeDoc && tsx scripts/useCasesDoc",
-    "lint": "eslint"
-  },
-  "author": "",
-  "license": "MIT",
-  "private": false,
-  "dependencies": {
-    "commander": "^12.1.0",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5",
-    "minimatch": "^9.0.3"
-  },
-  "peerDependencies": {},
-  "devDependencies": {
-    "@types/node": "^18.19.71",
-    "tsup": "^8.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
-    "tsx": "^4.19.2",
-    "@svgd/mocks": "*"
-  },
-  "keywords": []
-}
-
-```
-
 ## src/cli.ts
 
 ```typescript
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { getCodeMD, getESMPath, saveMD } from "codools";
+import path from "path";
+import { getCodeMD, saveMD } from "codools";
 
 const program = new Command();
 
 program
-    .name("codools")
-    .description("Generate project code documentation as Markdown")
-    .option(
-        "-r, --root <path>",
-        "Project root directory (relative to this script)",
-        "."
-    )
-    .option(
-        "-o, --output <path>",
-        "Output file path for generated Markdown (relative to this script)",
-        "docs/code.md"
-    )
-    .action((options) => {
-        try {
-            // Resolve absolute paths
-            const rootDir = getESMPath(import.meta, options.root);
-            const outputFile = getESMPath(import.meta, options.output);
+  .name("codools")
+  .description("Generate project code documentation as Markdown")
+  .option(
+    "-r, --root <path>",
+    "Project root directory (defaults to current working directory)",
+    "."
+  )
+  .option(
+    "-o, --output <path>",
+    "Output file path for generated Markdown (relative to project root)",
+    "docs/code.md"
+  )
+  .action((options) => {
+    try {
+      // Resolve paths relative to current working directory
+      const rootDir = path.resolve(process.cwd(), options.root);
+      const outputFile = path.resolve(process.cwd(), options.output);
 
-            // Generate and save Markdown
-            const markdown = getCodeMD(rootDir);
-            saveMD(outputFile, markdown);
-
-            console.log("✅ Documentation generated at", outputFile);
-        } catch (error: unknown) {
-            console.error("❌ Failed to generate documentation:", error);
-            process.exit(1);
-        }
-    });
+      // Generate and save Markdown documentation
+      const markdown = getCodeMD(rootDir);
+      saveMD(outputFile, markdown);
+    } catch (error: unknown) {
+      console.error("❌ Failed to generate documentation:", error);
+      process.exit(1);
+    }
+  });
 
 program.parse(process.argv);
 
 ```
+
 
 ## src/describeStory.ts
 
@@ -167,13 +170,14 @@ export const describeStories = <Input extends Record<string, unknown>, Output ex
 
 ```
 
+
 ## src/getCodeMD.ts
 
 ```typescript
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-import { minimatch } from 'minimatch';
+import ignore from 'ignore';
 
 // Mapping file extensions to syntax highlighting languages
 export const defaultExtensionToLang: Record<string, string> = {
@@ -191,10 +195,13 @@ export const defaultExtensionToLang: Record<string, string> = {
  * Reads and parses tsconfig.json from the given root directory
  * and returns the list of file names determined by the configuration.
  */
-function getSourceFilesFromTsConfig(rootDir: string): string[] {
-    const tsConfigPath = path.join(rootDir, 'tsconfig.json');
+export function getSourceFilesFromTsConfig(
+    tsConfigPath: string,
+    isAllowed: ReturnType<typeof getIsAllowed>
+): string[] {
+    const rootDir = path.dirname(tsConfigPath);
     if (!fs.existsSync(tsConfigPath)) {
-        console.error(`tsconfig.json not found in root directory: ${rootDir}`);
+        console.error(`tsconfig.json not found: ${tsConfigPath}`);
         process.exit(1);
     }
 
@@ -204,33 +211,55 @@ function getSourceFilesFromTsConfig(rootDir: string): string[] {
         process.exit(1);
     }
 
-    const parsedConfig = ts.parseJsonConfigFileContent(
+    const parsed = ts.parseJsonConfigFileContent(
         configFile.config,
         ts.sys,
         rootDir
     );
-
-    if (parsedConfig.errors && parsedConfig.errors.length > 0) {
-        console.error('Error parsing tsconfig.json:', parsedConfig.errors);
+    if (parsed.errors && parsed.errors.length > 0) {
+        console.error('Error parsing tsconfig.json:', parsed.errors);
         process.exit(1);
     }
 
-    return parsedConfig.fileNames;
+    const allFiles = [...parsed.fileNames];
+
+    if (parsed.projectReferences) {
+        for (const ref of parsed.projectReferences) {
+            const refConfigDir = path.resolve(rootDir, ref.path);
+            allFiles.push(
+                ...getSourceFilesFromTsConfig(refConfigDir, isAllowed)
+            );
+        }
+    }
+
+    return allFiles.filter(file => isAllowed(file, false));
 }
 
-/**
- * Checks if a file matches any of the ignore patterns.
- */
-function isIgnored(filePath: string, ignorePatterns: string[], rootDir: string): boolean {
-    const relativePath = path.relative(rootDir, filePath);
-    return ignorePatterns.some(pattern => minimatch(relativePath, pattern));
+interface GetIsAllowed {
+    allowedExtensions: string[];
+    ignorePatterns: string[];
+    rootDir: string;
+    renderedImports: Set<string>;
+}
+function getIsAllowed({allowedExtensions, ignorePatterns, rootDir, renderedImports }: GetIsAllowed) {
+    const allowedExtensionsSet = new Set(allowedExtensions);
+    const ig = ignore().add(ignorePatterns)
+    return (filePath: string, isDirectory: boolean) => {
+        if (renderedImports.has(filePath)) {
+            return false;
+        }
+        if (!isDirectory && !allowedExtensionsSet.has(path.extname(filePath).toLowerCase())) {
+            return false;
+        }
+        return !ig.ignores(path.relative(rootDir, filePath));
+    }
 }
 
 /**
  * Traverses the AST of a source file and finds all import declarations and require calls,
  * where the imported module's extension is included in allowedExtensions.
  */
-function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): string[] {
+function findModuleImportsInAst(filePath: string): string[] {
     const content = fs.readFileSync(filePath, 'utf8');
     const foundImports: string[] = [];
 
@@ -246,10 +275,7 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
         // Handle import declarations: import ... from 'module'
         if (ts.isImportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
             const moduleName = node.moduleSpecifier.text;
-            const moduleExt = path.extname(moduleName).toLowerCase();
-            if (allowedExtensions.includes(moduleExt)) {
-                foundImports.push(moduleName);
-            }
+            foundImports.push(moduleName);
         }
         // Handle require calls: const x = require('module')
         if (
@@ -259,10 +285,7 @@ function findModuleImportsInAst(filePath: string, allowedExtensions: string[]): 
             ts.isStringLiteral(node.arguments[0])
         ) {
             const moduleName = node.arguments[0].text;
-            const moduleExt = path.extname(moduleName).toLowerCase();
-            if (allowedExtensions.includes(moduleExt)) {
-                foundImports.push(moduleName);
-            }
+            foundImports.push(moduleName);
         }
         ts.forEachChild(node, visit);
     }
@@ -309,7 +332,7 @@ function resolveAliasImport(
     return null;
 }
 
-export const ignoredPatterns = ['node_modules/**', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
+export const ignoredPatterns = ['.git/**', 'node_modules/**', 'package-lock.json', 'yarn.lock', 'dist/**', 'tests/**', 'scripts/**', 'build/**', '**/*.test.ts'];
 
 export const defaultPrompt = {
     intro: `I will provide the source code of my project. Please analyze the code structure and help me extend the functionality when I ask.`,
@@ -344,132 +367,203 @@ export function getCodeMD(
         prompts = defaultPrompt,
     }: GetCodeMDOptions = {}
 ): string {
-    // Allowed file extensions to scan
-    const allowedExtensions: string[] = Object.keys(extensionToLang);
-    // File extensions for AST parsing (usually code files)
+    const allowedExtensions = Object.keys(extensionToLang);
     const astParsableExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
-    /**
-     * Returns the syntax highlighting language for a file based on its extension.
-     */
-    function getLanguageForFile(filePath: string): string {
-        const ext = path.extname(filePath).toLowerCase();
-        return extensionToLang[ext] || '';
+    const gitignorePath = path.join(rootDir, '.gitignore');
+    if (fs.existsSync(gitignorePath)) {
+        console.log("Codools Note! .gitignore was found. I will use it.");
+        const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+        ignorePatterns.push(
+            ...gitignoreContent
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('#'))
+        );
+    } else {
+        console.log("Codools Warning! .gitignore wasn't found.");
     }
-
-    // Read tsconfig.json and package.json
-    const tsConfigPath = path.join(rootDir, 'tsconfig.json');
-    const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
-    // Parse tsconfig to get alias paths
-    const tsConfigJson = JSON.parse(tsConfigContent);
-    const tsConfigPaths: Record<string, string[]> =
-        (tsConfigJson.compilerOptions && tsConfigJson.compilerOptions.paths) || {};
-
-    const packageJsonPath = path.join(rootDir, 'package.json');
-    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-    const projectName = JSON.parse(packageJsonContent).name;
-
-    // Get the list of source files from tsconfig
-    let files: string[] = getSourceFilesFromTsConfig(rootDir);
-
-    // Filter files based on allowed extensions and ignore patterns
-    files = files.filter((file) => {
-        const ext = path.extname(file).toLowerCase();
-        return allowedExtensions.includes(ext) && !isIgnored(file, ignorePatterns, rootDir);
-    });
-
-    // Sort files alphabetically by relative path
-    files.sort((a, b) => {
-        const relA = path.relative(rootDir, a);
-        const relB = path.relative(rootDir, b);
-        return relA.localeCompare(relB);
-    });
 
     // Begin building the Markdown content
     const mdContent: string[] = [...Object.values(prompts)];
-    mdContent.push(`# Project "${projectName}"`, "");
+    const renderedImports = new Set<string>();
 
-    // Append tsconfig.json content
-    mdContent.push('## tsconfig.json', '');
-    mdContent.push('```json');
-    mdContent.push(tsConfigContent);
-    mdContent.push('```', '');
+    const packageJsonPath = path.join(rootDir, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+        renderedImports.add(packageJsonPath);
+        const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+        const projectName = JSON.parse(packageJsonContent).name;
+        mdContent.push(`# Project "${projectName}"`, "");
 
-    // Append package.json content
-    mdContent.push('## package.json', '');
-    mdContent.push('```json');
-    mdContent.push(packageJsonContent);
-    mdContent.push('```', '');
-
-    const renderedImports = new Set();
-
-    // Append each source file's content along with its detected imports and imported file content
-    files.forEach((filePath) => {
-        const relativePath = path.relative(rootDir, filePath);
-        const fileName = relativePath.replace(/\\/g, '/');
-        mdContent.push(`## ${fileName}`, '');
-
-        // Read file content
-        let fileContent: string;
-        try {
-            fileContent = fs.readFileSync(filePath, 'utf8');
-        } catch (error) {
-            console.error(`Error reading file ${filePath}:`, error);
-            fileContent = '';
-        }
-        const language = getLanguageForFile(filePath);
-
-        // Append file content with syntax highlighting
-        mdContent.push(`\`\`\`${language}`, fileContent, '```', '');
-
-        // If the file's extension is AST-parsable, analyze its import statements
-        const ext = path.extname(filePath).toLowerCase();
-        if (astParsableExtensions.has(ext)) {
-            const detectedImports = findModuleImportsInAst(filePath, allowedExtensions);
-            if (detectedImports.length > 0) {
-                detectedImports.forEach((imp) => {
-                    let importedFileAbsolutePath: string | null = null;
-                    let resolveType = "";
-                    if (imp.startsWith('.') || imp.startsWith('/')) {
-                        importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
-                        resolveType = "simple import";
-                    } else {
-                        // Resolve alias using tsconfig paths
-                        importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
-                        resolveType = "alias import";
-                    }
-                    if (importedFileAbsolutePath && !renderedImports.has(importedFileAbsolutePath) && fs.existsSync(importedFileAbsolutePath)) {
-                        renderedImports.add(importedFileAbsolutePath);
-                        let importedContent: string;
-                        try {
-                            importedContent = fs.readFileSync(importedFileAbsolutePath, 'utf8');
-                        } catch (error) {
-                            console.error(`Error reading imported file ${importedFileAbsolutePath}:`, error);
-                            importedContent = '';
-                        }
-                        const importedLanguage = getLanguageForFile(importedFileAbsolutePath);
-                        const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
-                        mdContent.push(`## ${innerFileName} (${resolveType})`, '');
-                        mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
-                    } else {
-                        mdContent.push(`#### ${imp} (file not found)`, '');
-                    }
-                });
-                mdContent.push('');
-            }
-        }
-    });
-
-    // Ensure the output directory exists
-    const outputDir = path.join(rootDir, 'docs');
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+        // Append package.json content
+        mdContent.push('## package.json', '');
+        mdContent.push('```json');
+        mdContent.push(packageJsonContent);
+        mdContent.push('```', '');
+    } else {
+        console.log("Codools Warning! package.json not found");
     }
+
+
+    // Read tsconfig and package.json
+    const tsConfigPath = allowedExtensions.some((ext)=> astParsableExtensions.has(ext)) ? path.join(rootDir, 'tsconfig.json') : null;
+    const isTsConfigExists = tsConfigPath ? fs.existsSync(tsConfigPath) : false;
+    if (tsConfigPath && !isTsConfigExists) {
+        console.log("Codools Warning! tsconfig.json not found.");
+    }
+
+
+
+    if (isTsConfigExists && tsConfigPath) {
+        renderedImports.add(tsConfigPath);
+
+        const isAllowed = getIsAllowed({
+            allowedExtensions,
+            ignorePatterns,
+            rootDir,
+            renderedImports,
+        });
+
+        const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+        // Parse tsconfig to get alias paths
+        const tsConfigJson = JSON.parse(tsConfigContent);
+        const tsConfigPaths: Record<string, string[]> =
+            (tsConfigJson.compilerOptions && tsConfigJson.compilerOptions.paths) || {};
+
+        const files: string[] = getSourceFilesFromTsConfig(path.join(rootDir, 'tsconfig.json'), isAllowed)
+            .sort((a, b) => a.localeCompare(b));
+
+        // Append tsconfig.json content
+        mdContent.push('## tsconfig.json', '');
+        mdContent.push('```json');
+        mdContent.push(tsConfigContent);
+        mdContent.push('```', '');
+
+        // Append each source file's content along with its detected imports and imported file content
+        files.forEach((filePath) => {
+            const relativePath = path.relative(rootDir, filePath);
+            const fileName = relativePath.replace(/\\/g, '/');
+            mdContent.push(`## ${fileName}`, '');
+
+            // Read file content
+            let fileContent: string;
+            try {
+                fileContent = fs.readFileSync(filePath, 'utf8');
+            } catch (error) {
+                console.error(`Error reading file ${filePath}:`, error);
+                fileContent = '';
+            }
+            const language = getLanguageForFile(filePath, extensionToLang);
+
+            // Append file content with syntax highlighting
+            mdContent.push(`\`\`\`${language}`, fileContent, '```', '');
+
+            // If the file's extension is AST-parsable, analyze its import statements
+            const ext = path.extname(filePath).toLowerCase();
+            if (astParsableExtensions.has(ext)) {
+                const detectedImports = findModuleImportsInAst(filePath);
+
+                    detectedImports.forEach((imp) => {
+                        let importedFileAbsolutePath: string | null;
+                        if (imp.startsWith('.') || imp.startsWith('/')) {
+                            importedFileAbsolutePath = path.resolve(path.dirname(filePath), imp);
+                        } else {
+                            // Resolve alias using tsconfig paths
+                            importedFileAbsolutePath = resolveAliasImport(imp, tsConfigPaths, rootDir);
+                        }
+                        if (!importedFileAbsolutePath || !isAllowed(importedFileAbsolutePath, false)) {
+                            return;
+                        }
+                        if (fs.existsSync(importedFileAbsolutePath)) {
+                            renderedImports.add(importedFileAbsolutePath);
+                            let importedContent: string;
+                            try {
+                                importedContent = fs.readFileSync(importedFileAbsolutePath, 'utf8');
+                            } catch (error) {
+                                console.error(`Error reading imported file ${importedFileAbsolutePath}:`, error);
+                                importedContent = '';
+                            }
+                            const importedLanguage = getLanguageForFile(importedFileAbsolutePath, extensionToLang);
+                            const innerFileName = path.relative(rootDir, importedFileAbsolutePath).replace(/\\/g, '/');
+                            mdContent.push(`## ${innerFileName}`, '');
+                            mdContent.push(`\`\`\`${importedLanguage}`, importedContent, '```', '');
+                        } else {
+                            mdContent.push(`#### ${imp} (file not found)`, '');
+                        }
+                    });
+                    mdContent.push('');
+
+            }
+        });
+    }
+
+    mdContent.push(...getNoTsFilesMD({
+        rootDir,
+        extensionToLang,
+        isAllowed: getIsAllowed({
+            allowedExtensions: isTsConfigExists ? allowedExtensions.filter((ext) => !astParsableExtensions.has(ext)) : allowedExtensions,
+            ignorePatterns,
+            rootDir,
+            renderedImports
+        }),
+    }));
 
     return mdContent.join('\n');
 }
 
+function getLanguageForFile(filePath: string, extensionToLang: Record<string, string>): string {
+    const ext = path.extname(filePath).toLowerCase();
+    return extensionToLang[ext] || '';
+}
+
+
+interface GetNoTsFilesMDProps {
+    rootDir: string;
+    isAllowed: ReturnType<typeof getIsAllowed>;
+    extensionToLang: Record<string, string>;
+}
+function getNoTsFilesMD({ rootDir, isAllowed, extensionToLang}: GetNoTsFilesMDProps) {
+    const noTSFiles = getAllFiles(rootDir, isAllowed);
+    noTSFiles.sort((a, b) => a.localeCompare(b));
+    const mdContent: string[] = [];
+    noTSFiles.forEach((noTSFile) => {
+        let content: string;
+        try {
+            content = fs.readFileSync(noTSFile, 'utf8');
+        } catch (error) {
+            console.error(`Error reading imported file ${noTSFile}:`, error);
+            content = '';
+        }
+        const importedLanguage = getLanguageForFile(noTSFile, extensionToLang);
+        const innerFileName = path.relative(rootDir, noTSFile).replace(/\\/g, '/');
+        mdContent.push(`## ${innerFileName}`, '');
+        mdContent.push(`\`\`\`${importedLanguage}`, content, '```', '');
+    })
+    return mdContent;
+}
+
+/**
+ * Recursively collects all files under a directory.
+ */
+function getAllFiles(dir: string, isAllowed: ReturnType<typeof getIsAllowed>): string[] {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const results: string[] = [];
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        const isDirectory = entry.isDirectory();
+        if(isAllowed(fullPath, isDirectory)) {
+            if (isDirectory) {
+                results.push(...getAllFiles(fullPath, isAllowed));
+            } else {
+                results.push(fullPath);
+            }
+        }
+    }
+    return results;
+}
+
 ```
+
 
 ## src/getESMPath.ts
 
@@ -487,6 +581,7 @@ export const getESMPath = (meta: ImportMeta, relativePath?: string) => {
 };
 
 ```
+
 
 ## src/getStoriesMD.ts
 
@@ -559,6 +654,7 @@ export const getStoriesMD = <Input extends Record<string, unknown>, Output exten
 
 ```
 
+
 ## src/index.ts
 
 ```typescript
@@ -572,6 +668,7 @@ export type { UseStory } from "./useStory";
 export type { Story } from "./types"
 
 ```
+
 
 ## src/saveMD.ts
 
@@ -589,12 +686,14 @@ export const saveMD = (filePath: string, content: string) => {
 
 ```
 
+
 ## src/tests.ts
 
 ```typescript
 export { describeStories } from "./describeStory";
 
 ```
+
 
 ## src/transformer.ts
 
@@ -690,6 +789,7 @@ export { transformImports };
 
 ```
 
+
 ## src/types.ts
 
 ```typescript
@@ -709,6 +809,7 @@ export type Story<Input, Output> = {
 }
 
 ```
+
 
 ## src/useStory.ts
 
@@ -758,3 +859,4 @@ export const useStory = <
 }
 
 ```
+

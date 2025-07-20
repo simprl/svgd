@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.30",
+  "version": "0.1.33",
   "description": "Utility functions to convert SVG to path d.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -44,7 +44,7 @@ If something is unclear or needs clarification, feel free to ask me.
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/core": "^0.3.27",
+    "@svgd/core": "^0.3.29",
     "sharp": "^0.33.5",
     "svgo": "^3.3.2",
     "typescript": "^5.7.3"
