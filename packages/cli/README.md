@@ -1,6 +1,8 @@
 # @svgd/cli
 
-A CLI tool to generate constants from SVG files. It parses SVG assets, extracts path data (and more), and produces exportable constants in various formats (JavaScript, TypeScript, Markdown, HTML). Use it both via the command line and programmatically in your projects.
+[![](https://img.shields.io/npm/v/@svgd/cli?style=flat)](https://www.npmjs.com/package/@svgd/cli)
+
+A command-line tool for generating constants from SVG assets. It parses SVG files to extract path data and more, then produces exportable constants in JavaScript, TypeScript, Markdown, and HTML formats. Use it via the CLI or programmatically in your projects.
 
 ---
 
