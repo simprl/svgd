@@ -1,5 +1,7 @@
 # @svgd/core
 
+[![](https://img.shields.io/npm/v/@svgd/core?style=flat)](https://www.npmjs.com/package/@svgd/core)
+
 **@svgd/core** is a core library for working with SVG icons. It converts SVG files into an extended, optimized path data string—an efficient and compact representation ideal for bundling—and converts this extended path data back into a full SVG for rendering. This module serves as the foundation for both [@svgd/cli](https://npmjs.com/package/@svgd/cli) and [@svgd/vite-plugin](https://npmjs.com/package/@svgd/vite-plugin).
 
 ---
