@@ -1,6 +1,6 @@
 {
   "name": "@svgd/cli",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Command-line utility for generating constants from SVG assets",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -39,7 +39,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/utils": "^0.1.32",
+    "@svgd/utils": "^0.1.33",
     "commander": "^12.1.0"
   },
   "keywords": [
