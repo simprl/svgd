@@ -46,6 +46,11 @@
     "svg",
     "svgd",
     "cli",
+    "icons",
+    "svg icons",
+    "svg sprite",
+    "svg path d",
+    "svgo",
     "icon-generator",
     "constants"
   ]
