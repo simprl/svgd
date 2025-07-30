@@ -14,6 +14,7 @@ export interface CLIOptions {
     html?: string;
     dts?: boolean;
     size?: number;
+    ignore?: string[];
 }
 
 
@@ -42,6 +43,7 @@ export function parseCliArgs(argv: string[]): CLIOptions {
         .option('-m, --md <string>', 'Path to the output MD file', '')
         .option('-h, --html <string>', 'Path to the output HTML file', '')
         .option('-d, --dts', 'Path to the output HTML file', false)
+        .option('-g, --ignore <tags>', 'Comma separated tags to ignore', (v) => v.split(','), [])
         .option(
             '-f, --format <format>',
             'Naming format: camelCase, PascalCase, snake_case, SCREAMING_SNAKE_CASE, or material',
