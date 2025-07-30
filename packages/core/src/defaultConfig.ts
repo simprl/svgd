@@ -23,7 +23,8 @@ export const defaultConfig: SVGDConfig = {
                 name: 'removeAttrs',
                 params: {
                     attrs: [
-                        'overflow'
+                        'overflow',
+                        'filter'
                     ]
                 }
             },

@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "@svgd/cli",
-  "version": "1.0.31",
+  "version": "1.0.33",
   "description": "Command-line utility for generating constants from SVG assets",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -41,7 +41,7 @@ If something is unclear or needs clarification, feel free to ask me.
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.17",
+    "codools": "^0.2.19",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
@@ -49,7 +49,7 @@ If something is unclear or needs clarification, feel free to ask me.
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/utils": "^0.1.33",
+    "@svgd/utils": "^0.1.35",
     "commander": "^12.1.0"
   },
   "keywords": [
