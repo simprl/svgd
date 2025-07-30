@@ -1,7 +1,6 @@
 import { defaultConfig } from "./defaultConfig";
 import type { XastChild, XastRoot } from "svgo/lib/types";
 import type { Config, CustomPlugin } from "svgo";
-import { stringifySvg } from "svgo/lib/stringifier.js";
 import { resizePlugin } from "./resizePlugin";
 import { inlineUsePlugin } from "./inlineUsePlugin";
 import { commands } from "./commands";
@@ -24,18 +23,17 @@ export const getSvgoConfig = (config = defaultConfig): Config => {
             moveGroupOpacityToElementsPlugin,
             resizePlugin(config.resize),
             ...pluginsByColor,
-            extractPathDPlugin(config.ignoreTagsInResult ?? []),
+            extractPathDPlugin(),
         ],
     };
 }
 
-export const extractPathDPlugin = (ignoreTagsInResult: string[]): CustomPlugin => ({
+export const extractPathDPlugin = (): CustomPlugin => ({
     name: 'extractPathD',
     fn: (ast: XastRoot) => {
         const collectPathsContext: CollectPathsContext = {
             paths: [],
             wasCommand: false,
-            ignoreTagsInResult,
         }
         collectPaths(ast, collectPathsContext);
         ast.children = [{
@@ -49,7 +47,6 @@ export const extractPathDPlugin = (ignoreTagsInResult: string[]): CustomPlugin =
 interface CollectPathsContext {
     paths: string[];
     wasCommand: boolean;
-    ignoreTagsInResult: string[];
 }
 
 const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext ) => {
@@ -57,11 +54,6 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
         node.type === 'element' &&
         !['path', 'g', 'svg', 'title'].includes(node.name)
     ) {
-        if (context.ignoreTagsInResult.includes(node.name)) {
-            const tagString = stringifySvg({ type: 'root', children: [node] });
-            console.log(`[SVGD INFO] ignored tag: ${tagString.trim()}`);
-            return;
-        }
         throw new Error(`[SVGD ERROR] svg has other tag "${node.name}"`);
     }
     if (

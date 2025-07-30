@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "codools",
-  "version": "0.2.17",
+  "version": "0.2.19",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs",

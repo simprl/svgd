@@ -20,8 +20,7 @@ const mocks = [
       md: "",
       output: "src/components/Icon/paths.js",
       quote: false,
-      template: "",
-      ignore: []
+      template: ""
     } as CLIOptions,
   },
   {
@@ -49,7 +48,6 @@ const mocks = [
       md: "readme.md",
       html: "index.html",
       dts: true,
-      ignore: [],
     } as CLIOptions,
   }
 ];

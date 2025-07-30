@@ -51,7 +51,6 @@ const defoultOptions: CLIOptions = {
     format: "camelCase",
     colors: false,
     size: 24,
-    ignore: [],
 }
 
 /**
@@ -70,7 +69,6 @@ export async function generateSvgConstants(options: CLIOptions): Promise<Generat
     const svgoConfig = getSvgoConfig({
         ...defaultConfig,
         colors: filledOptions.colors,
-        ignoreTagsInResult: filledOptions.ignore,
         resize: {
             targetViewBox: {
                 minX: 0,

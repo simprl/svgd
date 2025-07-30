@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "@svgd/core",
-  "version": "0.3.29",
+  "version": "0.3.31",
   "description": "An SVG optimization tool that converts SVG files into a single path 'd' attribute string for efficient storage and rendering.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,7 +37,7 @@ If something is unclear or needs clarification, feel free to ask me.
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.17",
+    "codools": "^0.2.19",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
@@ -228,7 +228,8 @@ export const defaultConfig: SVGDConfig = {
                 name: 'removeAttrs',
                 params: {
                     attrs: [
-                        'overflow'
+                        'overflow',
+                        'filter'
                     ]
                 }
             },

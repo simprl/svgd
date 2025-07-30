@@ -10,7 +10,7 @@ If something is unclear or needs clarification, feel free to ask me.
 ```json
 {
   "name": "@svgd/utils",
-  "version": "0.1.33",
+  "version": "0.1.35",
   "description": "Utility functions to convert SVG to path d.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,14 +37,14 @@ If something is unclear or needs clarification, feel free to ask me.
   "devDependencies": {
     "@svgd/mocks": "*",
     "@types/node": "^18.19.71",
-    "codools": "^0.2.17",
+    "codools": "^0.2.19",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/core": "^0.3.29",
+    "@svgd/core": "^0.3.31",
     "sharp": "^0.33.5",
     "svgo": "^3.3.2",
     "typescript": "^5.7.3"

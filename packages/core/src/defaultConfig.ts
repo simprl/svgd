@@ -4,7 +4,6 @@ import { ResizeParams } from "./resizePlugin";
 export interface SVGDConfig {
     resize: ResizeParams;
     colors?: boolean;
-    ignoreTagsInResult?: string[];
     svgo: Config;
 }
 
@@ -18,14 +17,14 @@ export const defaultConfig: SVGDConfig = {
         }
     },
     colors: false,
-    ignoreTagsInResult: [],
     svgo: {
         plugins: [
             {
                 name: 'removeAttrs',
                 params: {
                     attrs: [
-                        'overflow'
+                        'overflow',
+                        'filter'
                     ]
                 }
             },
