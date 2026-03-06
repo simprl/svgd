@@ -52,13 +52,21 @@ interface CollectPathsContext {
 type CollectableAttribute = typeof commands[number]["attribute"];
 type InheritedAttributes = Partial<Record<CollectableAttribute, string>>;
 
+const pickCollectableAttributes = (attributes: Record<string, string>): InheritedAttributes => {
+    const pickedAttributes: InheritedAttributes = {};
+    commands.forEach(({ attribute }) => {
+        if (attributes[attribute] !== undefined) {
+            pickedAttributes[attribute] = attributes[attribute];
+        }
+    });
+    return pickedAttributes;
+};
+
 const collectPaths = (
     node: XastChild | XastRoot,
     context: CollectPathsContext,
     inheritedAttributes: InheritedAttributes = {},
 ) => {
-    let nextInheritedAttributes = inheritedAttributes;
-
     if (
         node.type === 'element' &&
         !['path', 'g', 'svg', 'title'].includes(node.name)
@@ -95,21 +103,13 @@ const collectPaths = (
         context.paths.push(d);
     }
 
-    if (
-        node.type === "element" &&
-        ['g', 'svg'].includes(node.name)
-    ) {
-        nextInheritedAttributes = {
-            ...inheritedAttributes,
-        };
-        commands.forEach(({ attribute }) => {
-            if (node.attributes[attribute] !== undefined) {
-                nextInheritedAttributes[attribute] = node.attributes[attribute];
-            }
-        });
-    }
+    const childrenInheritedAttributes = (
+        node.type === "element" && ['g', 'svg'].includes(node.name)
+    )
+        ? { ...inheritedAttributes, ...pickCollectableAttributes(node.attributes) }
+        : inheritedAttributes;
 
     if ("children" in node) {
-        node.children.forEach((node) => collectPaths(node, context, nextInheritedAttributes));
+        node.children.forEach((node) => collectPaths(node, context, childrenInheritedAttributes));
     }
 };
