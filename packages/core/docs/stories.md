@@ -206,7 +206,47 @@ export const pathD = optimize(svgInput, svgoConfig).data;
 }
 ```
 
-### Use Case 11. Throw if incorrect svg
+### Use Case 11. Convert rounded rect (rx + ry) to path
+
+#### Code:
+```ts
+import { optimize } from "svgo";
+import { defaultConfig, getSvgoConfig } from "@svgo/core";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"10\" rx=\"4\" ry=\"2\"/></svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = optimize(svgInput, svgoConfig).data;
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2"
+}
+```
+
+### Use Case 12. Convert rounded rect (only ry) to path
+
+#### Code:
+```ts
+import { optimize } from "svgo";
+import { defaultConfig, getSvgoConfig } from "@svgo/core";
+const svgInput = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"10\" ry=\"2\"/></svg>";
+const config = "";
+const svgoConfig = getSvgoConfig({ ...defaultConfig, ...config });
+export const pathD = optimize(svgInput, svgoConfig).data;
+
+```
+
+#### Result:
+```json
+{
+  "pathD": "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2"
+}
+```
+
+### Use Case 13. Throw if incorrect svg
 
 #### Code:
 ```ts
@@ -514,7 +554,51 @@ export { attributes };
 }
 ```
 
-### Use Case 11. Throw if pathD is null
+### Use Case 11. Convert rounded rect (rx + ry) to path
+
+#### Code:
+```ts
+import { getPaths } from "@svgo/core";
+const pathD = "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2";
+const attributes = getPaths(pathD);
+export { attributes };
+
+```
+
+#### Result:
+```json
+{
+  "attributes": [
+    {
+      "d": "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2"
+    }
+  ]
+}
+```
+
+### Use Case 12. Convert rounded rect (only ry) to path
+
+#### Code:
+```ts
+import { getPaths } from "@svgo/core";
+const pathD = "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2";
+const attributes = getPaths(pathD);
+export { attributes };
+
+```
+
+#### Result:
+```json
+{
+  "attributes": [
+    {
+      "d": "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2"
+    }
+  ]
+}
+```
+
+### Use Case 13. Throw if pathD is null
 
 #### Code:
 ```ts
@@ -701,7 +785,41 @@ export const svgOutput = getSvg(pathD);
 }
 ```
 
-### Use Case 11. Throw if pathD is null
+### Use Case 11. Convert rounded rect (rx + ry) to path
+
+#### Code:
+```ts
+import { getSvg } from "@svgo/core";
+const pathD = "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2";
+export const svgOutput = getSvg(pathD);
+
+```
+
+#### Result:
+```json
+{
+  "svgOutput": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path d=\"M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2\" />\n</svg>"
+}
+```
+
+### Use Case 12. Convert rounded rect (only ry) to path
+
+#### Code:
+```ts
+import { getSvg } from "@svgo/core";
+const pathD = "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2";
+export const svgOutput = getSvg(pathD);
+
+```
+
+#### Result:
+```json
+{
+  "svgOutput": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\">\n  <path d=\"M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2\" />\n</svg>"
+}
+```
+
+### Use Case 13. Throw if pathD is null
 
 #### Code:
 ```ts

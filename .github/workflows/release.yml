@@ -2,6 +2,7 @@ name: Release
 
 permissions:
   contents: write
+  id-token: write
 
 on:
   push:
@@ -22,7 +23,7 @@ jobs:
 
       # Setup Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
@@ -128,18 +129,12 @@ jobs:
 
       - name: Publish core
         if: steps.filter.outputs.core == 'true'
-        run: npm publish --workspace=packages/core --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+        run: npm publish --workspace=packages/core --access public --provenance
 
       - name: Publish utils
         if: steps.filter.outputs.utils == 'true'
-        run: npm publish --workspace=packages/utils --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+        run: npm publish --workspace=packages/utils --access public --provenance
 
       - name: Publish cli
         if: steps.filter.outputs.cli == 'true'
-        run: npm publish --workspace=packages/cli --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
+        run: npm publish --workspace=packages/cli --access public --provenance
