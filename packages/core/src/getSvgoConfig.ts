@@ -49,7 +49,16 @@ interface CollectPathsContext {
     wasCommand: boolean;
 }
 
-const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext ) => {
+type CollectableAttribute = typeof commands[number]["attribute"];
+type InheritedAttributes = Partial<Record<CollectableAttribute, string>>;
+
+const collectPaths = (
+    node: XastChild | XastRoot,
+    context: CollectPathsContext,
+    inheritedAttributes: InheritedAttributes = {},
+) => {
+    let nextInheritedAttributes = inheritedAttributes;
+
     if (
         node.type === 'element' &&
         !['path', 'g', 'svg', 'title'].includes(node.name)
@@ -61,13 +70,16 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
         node.name === 'path' &&
         node.attributes.d
     ) {
-        const { attributes } = node;
-        const d = attributes.d;
+        const effectiveAttributes = {
+            ...inheritedAttributes,
+            ...node.attributes,
+        };
+        const d = node.attributes.d;
         const commandsArray: string[] = [];
 
         commands.forEach(({ code, toCommand, attribute }) => {
-            if (attribute in attributes) {
-                const commandValue = toCommand(attributes[attribute]);
+            if (attribute in effectiveAttributes) {
+                const commandValue = toCommand(effectiveAttributes[attribute] as string);
                 if (commandValue !== null) {
                     commandsArray.push(`${code}${commandValue}`);
                 }
@@ -82,7 +94,22 @@ const collectPaths = (node: XastChild | XastRoot, context: CollectPathsContext )
         }
         context.paths.push(d);
     }
+
+    if (
+        node.type === "element" &&
+        ['g', 'svg'].includes(node.name)
+    ) {
+        nextInheritedAttributes = {
+            ...inheritedAttributes,
+        };
+        commands.forEach(({ attribute }) => {
+            if (node.attributes[attribute] !== undefined) {
+                nextInheritedAttributes[attribute] = node.attributes[attribute];
+            }
+        });
+    }
+
     if ("children" in node) {
-        node.children.forEach((node) => collectPaths(node, context));
+        node.children.forEach((node) => collectPaths(node, context, nextInheritedAttributes));
     }
 };
