@@ -28,12 +28,6 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Prepare npm for trusted publishing
-        run: |
-          unset NODE_AUTH_TOKEN
-          npm config delete //registry.npmjs.org/:_authToken || true
-          sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG" || true
-
       # Install dependencies
       - name: Install dependencies
         run: npm i
@@ -127,26 +121,18 @@ jobs:
           git push
 
       # Publish changed workspaces (the root module is not published)
-#      - name: Publish codools
-#        if: steps.filter.outputs.codools == 'true'
-#        run: npm publish --workspace=packages/codools
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
-
-      - name: NPM debug for core publish
-        if: steps.filter.outputs.core == 'true'
-        run: |
-          npm config get registry
-          npm view @svgd/core version || true
+      - name: Publish codools
+        if: steps.filter.outputs.codools == 'true'
+        run: npm publish --workspace=packages/codools --access public
 
       - name: Publish core
         if: steps.filter.outputs.core == 'true'
-        run: npm publish --workspace=packages/core
-#
-#      - name: Publish utils
-#        if: steps.filter.outputs.utils == 'true'
-#        run: npm publish --workspace=packages/utils --access public --provenance
-#
-#      - name: Publish cli
-#        if: steps.filter.outputs.cli == 'true'
-#        run: npm publish --workspace=packages/cli --access public --provenance
+        run: npm publish --workspace=packages/core --access public
+
+      - name: Publish utils
+        if: steps.filter.outputs.utils == 'true'
+        run: npm publish --workspace=packages/utils --access public
+
+      - name: Publish cli
+        if: steps.filter.outputs.cli == 'true'
+        run: npm publish --workspace=packages/cli --access public
