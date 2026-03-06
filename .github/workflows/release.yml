@@ -128,7 +128,7 @@ jobs:
 
       - name: Publish core
         if: steps.filter.outputs.core == 'true'
-        run: npm publish --workspace=packages/core
+        run: npm publish --workspace=packages/core --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.SVGD_NPM_TOKEN }}
 
