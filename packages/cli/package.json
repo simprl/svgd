@@ -2,6 +2,11 @@
   "name": "@svgd/cli",
   "version": "1.0.42",
   "description": "Command-line utility for generating constants from SVG assets",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simprl/svgd",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
