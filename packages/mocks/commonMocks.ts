@@ -216,6 +216,34 @@ export const mocks: Mock[] = [
     ],
     pngBase64: "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFBElEQVR4nO1aSahcRRStOMVZnMc4giJEcKFRN4oKzoounMnCnbjQEJKIBjWCioJuxIWSBCEOuzhvxAk1QeKw+AERFBEVv/kav919x+6f/Cv3d7/u193v9fi687HfgaKh+9Wte8+runXrVIeQI0eOHDly5MiRI0eOHGMGEZ3iLUwamPl0JN2GrLbQSL9k5mVhUoDx4BskfBEmAUR0alvwUUM8OfzfgYgnTTQBDl/zCUvg8zApYOZlvubjwRPRaWHSgMhrEXlNmESY2f5I8iOQ/mxmB4RJA3D5nmgJAJfvDpMEM1uCLDsbOUC+N7P9wmICot6ErOuLqudmbZtIb2ndBYj05qzHKaqe5zEg6o19dUTmlQ3n5F8AOCFLx4B0eysBwLIj0zEATkSWQsM+39uPg5ubCxS5NjPHRK5OK4RA5KqsxkGU65psk27uuTOR3gok81Xm9M9CwY7OzDHSj1MrQdKPshqnULBjkHVXNXiZ95j6MkBElxLJ/cB8Z1ZOEVVWpAZfzwWVFVmN5757DMx82cBGkHklkDybjUPyTjcCgOXtLMZC1ofd96ENmdmBwPo7sr40zFZVUj0fSPZ2JYBkHqC8fAh/lyDJC8A6bWYHhSyArI/WEsmWQas2JHm9W/CxXPDaoNUlsG6s2VkfskKpVDoeSCq1ouVNnxX99BeRs4FkrlcC/Fnv088Y7pP7VutfyXrrDsDyXmydfmBmh/TeV1/p+e3Xx9CXe7XvUx1Ztsb8e3/gQNMAXL69ZZp+9rfZEaEHAQRIpG8CSNTVo272zexQIP2wmbzyXSFrmNnBXhW2ZOyvfb/t1M8TUr/BN0iW5zvZnp21o9r0RZKSkxJGASDdlLBtfVcqlY5Ler5YLB6LJDAEAeA2kmz7mD52+8zRLWFUINLbUhz9IWm6AsmTAwffWAobknXF2GmyefrfMTICZswO97WZ7Kj+UhA5J3rWzA5D1t3DEoAs/8RzDTOfgaQ/pZC1p9uSHBpI+kmHzD0dFTHIum744OttbXS8BdLf0meLbh9p8A5kXdPF2V1EdIkforIiwG25zehw06E9FkYNqjrSbd3uyfDt92yzxHzFyAkws6VpeWBfNj9n9FKXZAJg2bGvA25vsjOMC8j64uKbAX0oPsMCSB9cdASwrh4nAQ8lrUE/hIw8WNJPk6pL92mcBKxKIOBpT5DIMtXyfblE8gCKXOOnyIU7QdQbFpRnkmJzcPKGC7BA8lwKATN+zHWZK4GAVeMjgHV1y/Tb6EqM/+YlsVeFMcdejfq5mBI/RjtpMRvTccWpVTxd2AZr+r6P1SqvjXUJYFMxJFtbpTIviaOTI7C8m2Ynpt44Ub96mevf7zY7Eli/qivT/ilyX7yvE+lH8hgJ47tkxViZKyJnJT0DJE/VnU+4mSGqXOzLo2bnkSQbflsUuzpb2uWOYV0YF4BkQ4yAM6NpGS2DtulNwiByZfQbYvlCP+REv6ddv/nMisQUYHnLNb+6fSgvj9tA1idGH3mixCVTnoBcwvLLB2R93N9+mwpEAgDlCxb+HMH6V0sC21RNbpWL/HYIUa/3835V2m4XSPyipqZUDyShZaoPYuMtP1N9KzqTvo3JVMebIZaCC7CuLyTu9SR7S8yXu2rcXgek55pREPDNaPZ5mQWWb31H6PBcosbg8twYCdA/RkPA4M2XxFiCt2pimlt0BJDMLbo/WeTIkSNHjhw5wmLGf26RJBRR+0nMAAAAAElFTkSuQmCC",
   },
+  {
+    title: "Convert rounded rect (rx + ry) to path",
+    svgInput: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="10" rx="4" ry="2"/></svg>`,
+    svgOutput: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path d="M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2" />
+</svg>`,
+    pathD: "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2",
+    attributes: [
+      {
+        d: "M6 3h12a4 2 0 0 1 4 2v6a4 2 0 0 1-4 2H6a4 2 0 0 1-4-2V5a4 2 0 0 1 4-2",
+      }
+    ],
+    pngBase64: "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABEklEQVR4nO3YPUpDURRF4aWIvY7Awp8pmJlEnITWklgo6BCsTBNICOJs1EZBCy2tNU0kcGrJfbkkJ2F9sPt9No9XXJAkSfrfJtACusAj8Ax8A2NgsuSMo8tTdOsAx9F5btvAOfCW4NDSvAJncUMjB8BLgkPmzfRr3S89fhf4SlC+Vj6BnZIBOglK185FyQDDBIVrZ1AywChB4dqZ3uQAsxolKOwAOAAOgAPgADgADoAD4AA4AA6AA7CQAXoJCtfOfckApwkK185JyQAb8cQ8WZM8xE1FtoBr4DfBAU3zA1zFLY3tAbfAR4KDZs07cBPdqzoC2sAlcAf04++6zPSjSze6HdY+WpIkSZIkSZIkSZJYdX/bNldLti88VQAAAABJRU5ErkJggg==",
+  },
+  {
+    title: "Convert rounded rect (only ry) to path",
+    svgInput: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="10" ry="2"/></svg>`,
+    svgOutput: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path d="M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2" />
+</svg>`,
+    pathD: "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2",
+    attributes: [
+      {
+        d: "M4 3h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2",
+      }
+    ],
+    pngBase64: "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA6ElEQVR4nO3UMWpCQRSF4R8kvS4h6dWtSHaUiBsIGjeghW4maQMh+7B5hoEpLd48L+G+8H9w+nMPw4AkSdJtM2ADfAEX4DqSXGrnNTBloCfgJ8Ex9+YbeGw9fgJ8JigflY96U2/PCUpHZ9UywDZB4ei8tQxwSlA4OuWm3s4JCken3OQAfZ0TFHYAHAAHwAFwABwAB8ABcAAcAAfAAfiTAY4JCkfn0DLAOkHh6Ly0DLAEugSlo1JuWdDoPUHxqOwY4AHYj/wldPX4cstgy/onHOpPOoaUrq/A/J7DJUmSJEmSJEmSJIn/4hf0s3Aj6SZJzgAAAABJRU5ErkJggg==",
+  },
 ];
 
 export const commonMocks = mocks.map((mock) => ({

@@ -1,5 +1,6 @@
 import { type Config } from 'svgo';
 import { ResizeParams } from "./resizePlugin";
+import { convertRoundedRectToPath } from "./convertRoundedRectToPath";
 
 export interface SVGDConfig {
     resize: ResizeParams;
@@ -73,6 +74,7 @@ export const defaultConfig: SVGDConfig = {
                     convertArcs: true,
                 },
             },
+            convertRoundedRectToPath,
             {
                 name: 'mergePaths',
                 params: {
