@@ -121,20 +121,26 @@ jobs:
           git push
 
       # Publish changed workspaces (the root module is not published)
-      - name: Publish codools
-        if: steps.filter.outputs.codools == 'true'
-        run: npm publish --workspace=packages/codools
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
+#      - name: Publish codools
+#        if: steps.filter.outputs.codools == 'true'
+#        run: npm publish --workspace=packages/codools
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.MAIN_NPM_TOKEN }}
+
+      - name: NPM debug for core publish
+        if: steps.filter.outputs.core == 'true'
+        run: |
+          npm config get registry
+          npm view @svgd/core version || true
 
       - name: Publish core
         if: steps.filter.outputs.core == 'true'
         run: npm publish --workspace=packages/core --access public --provenance
-
-      - name: Publish utils
-        if: steps.filter.outputs.utils == 'true'
-        run: npm publish --workspace=packages/utils --access public --provenance
-
-      - name: Publish cli
-        if: steps.filter.outputs.cli == 'true'
-        run: npm publish --workspace=packages/cli --access public --provenance
+#
+#      - name: Publish utils
+#        if: steps.filter.outputs.utils == 'true'
+#        run: npm publish --workspace=packages/utils --access public --provenance
+#
+#      - name: Publish cli
+#        if: steps.filter.outputs.cli == 'true'
+#        run: npm publish --workspace=packages/cli --access public --provenance
