@@ -1,6 +1,6 @@
 {
   "name": "@svgd/utils",
-  "version": "0.1.48",
+  "version": "0.1.49",
   "description": "Utility functions to convert SVG to path d.",
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@svgd/core": "^0.3.44",
+    "@svgd/core": "^0.3.45",
     "sharp": "^0.33.5",
     "svgo": "^3.3.2",
     "typescript": "^5.7.3"
