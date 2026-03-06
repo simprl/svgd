@@ -132,15 +132,10 @@ jobs:
         run: |
           npm config get registry
           npm view @svgd/core version || true
-          npm whoami || true
-        env:
-          NODE_AUTH_TOKEN: ""
 
       - name: Publish core
         if: steps.filter.outputs.core == 'true'
         run: npm publish --workspace=packages/core --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ""
 #
 #      - name: Publish utils
 #        if: steps.filter.outputs.utils == 'true'
